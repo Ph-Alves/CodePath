@@ -16,6 +16,12 @@ require('dotenv').config();
 // Importação da configuração do banco de dados
 const { initializeDatabase, database } = require('./models/database');
 
+// Importação dos middlewares de autenticação
+const { validateSessionMiddleware, addUserToViews } = require('./middleware/auth');
+
+// Importação das rotas
+const authRoutes = require('./routes/authRoutes');
+
 // Inicialização da aplicação Express
 const app = express();
 
@@ -53,19 +59,34 @@ app.use(session({
   }
 }));
 
-// Middleware para disponibilizar dados da sessão nas views
-app.use((req, res, next) => {
-  res.locals.user = req.session.user || null;
-  res.locals.isAuthenticated = !!req.session.user;
-  next();
-});
+// Middlewares de autenticação
+app.use(validateSessionMiddleware);
+app.use(addUserToViews);
+
+// ========================================
+// CONFIGURAÇÃO DAS ROTAS
+// ========================================
+
+// Usar as rotas de autenticação
+app.use('/', authRoutes);
 
 // ========================================
 // ROTA PRINCIPAL TEMPORÁRIA
 // ========================================
 
-// Rota temporária para testar o servidor e banco
+// Rota principal - redireciona baseado na autenticação
 app.get('/', async (req, res) => {
+  // Se usuário está logado, redirecionar para dashboard
+  if (req.session.user) {
+    return res.redirect('/dashboard');
+  }
+  
+  // Se não está logado, redirecionar para login
+  res.redirect('/login');
+});
+
+// Rota temporária para testar o servidor e banco
+app.get('/test', async (req, res) => {
   try {
     // Testar conexão com o banco
     const packages = await database.all('SELECT COUNT(*) as total FROM packages');
@@ -331,16 +352,17 @@ async function startServer() {
     
     // Iniciar o servidor após o banco estar pronto
     app.listen(PORT, () => {
-      console.log('🚀 ========================================');
-      console.log('   CodePath - Servidor Iniciado');
-      console.log('🚀 ========================================');
-      console.log(`   📍 URL: http://localhost:${PORT}`);
-      console.log(`   🌍 Ambiente: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`   📅 Iniciado em: ${new Date().toLocaleString('pt-BR')}`);
-      console.log('🚀 ========================================');
-      console.log('   ✅ Fase 2: Banco de Dados Configurado');
-      console.log('   📋 Próxima: Fase 3 - Autenticação');
-      console.log('🚀 ========================================');
+          console.log('🚀 ========================================');
+    console.log('   CodePath - Servidor Iniciado');
+    console.log('🚀 ========================================');
+    console.log(`   📍 URL: http://localhost:${PORT}`);
+    console.log(`   🌍 Ambiente: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`   📅 Iniciado em: ${new Date().toLocaleString('pt-BR')}`);
+    console.log('🚀 ========================================');
+    console.log('   ✅ Fase 3: Sistema de Autenticação');
+    console.log('   🔐 Login, Registro e Sessões Funcionais');
+    console.log('   📋 Próxima: Fase 4 - Layout Base');
+    console.log('🚀 ========================================');
     });
     
   } catch (error) {

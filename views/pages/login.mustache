@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}}</title>
+    <link rel="stylesheet" href="/css/auth.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <!-- Logo e Título -->
+            <div class="auth-header">
+                <div class="logo">
+                    <h1>CodePath</h1>
+                </div>
+                <h2>{{pageTitle}}</h2>
+                <p class="subtitle">{{subtitle}}</p>
+            </div>
+
+            <!-- Mensagens de Erro -->
+            {{#error}}
+            <div class="alert alert-error">
+                <span class="alert-icon">⚠️</span>
+                <span class="alert-message">{{error}}</span>
+            </div>
+            {{/error}}
+
+            <!-- Formulário de Login -->
+            <form class="auth-form" method="POST" action="/login">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        value="{{email}}"
+                        placeholder="Digite seu email"
+                        required
+                        autocomplete="email"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        placeholder="Digite sua senha"
+                        required
+                        autocomplete="current-password"
+                    >
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    Entrar
+                </button>
+            </form>
+
+            <!-- Link para Registro -->
+            <div class="auth-footer">
+                <p>Não tem uma conta? <a href="/register">Cadastre-se aqui</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

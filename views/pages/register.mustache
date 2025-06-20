@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}}</title>
+    <link rel="stylesheet" href="/css/auth.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <!-- Logo e Título -->
+            <div class="auth-header">
+                <div class="logo">
+                    <h1>CodePath</h1>
+                </div>
+                <h2>{{pageTitle}}</h2>
+                <p class="subtitle">{{subtitle}}</p>
+            </div>
+
+            <!-- Mensagens de Erro e Sucesso -->
+            {{#error}}
+            <div class="alert alert-error">
+                <span class="alert-icon">⚠️</span>
+                <span class="alert-message">{{error}}</span>
+            </div>
+            {{/error}}
+
+            {{#success}}
+            <div class="alert alert-success">
+                <span class="alert-icon">✅</span>
+                <span class="alert-message">{{success}}</span>
+            </div>
+            {{/success}}
+
+            <!-- Formulário de Registro -->
+            <form class="auth-form" method="POST" action="/register">
+                <div class="form-group">
+                    <label for="name">Nome Completo *</label>
+                    <input 
+                        type="text" 
+                        id="name" 
+                        name="name" 
+                        value="{{formData.name}}"
+                        placeholder="Digite seu nome completo"
+                        required
+                        autocomplete="name"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        value="{{formData.email}}"
+                        placeholder="Digite seu email"
+                        required
+                        autocomplete="email"
+                    >
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="password">Senha *</label>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            placeholder="Mínimo 6 caracteres"
+                            required
+                            autocomplete="new-password"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirmar Senha *</label>
+                        <input 
+                            type="password" 
+                            id="confirmPassword" 
+                            name="confirmPassword" 
+                            placeholder="Repita sua senha"
+                            required
+                            autocomplete="new-password"
+                        >
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="birthDate">Data de Nascimento</label>
+                        <input 
+                            type="date" 
+                            id="birthDate" 
+                            name="birthDate" 
+                            value="{{formData.birthDate}}"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="educationLevel">Escolaridade</label>
+                        <select id="educationLevel" name="educationLevel">
+                            <option value="">Selecione...</option>
+                            <option value="ensino-fundamental">Ensino Fundamental</option>
+                            <option value="ensino-medio">Ensino Médio</option>
+                            <option value="ensino-tecnico">Técnico</option>
+                            <option value="ensino-superior">Ensino Superior</option>
+                            <option value="pos-graduacao">Pós-graduação</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    Criar Conta
+                </button>
+            </form>
+
+            <!-- Link para Login -->
+            <div class="auth-footer">
+                <p>Já tem uma conta? <a href="/login">Faça login aqui</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 
