@@ -24,6 +24,8 @@ const authRoutes = require('./routes/authRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const careerRoutes = require('./routes/careerRoutes');
 const contentRoutes = require('./routes/contentRoutes');
+const quizRoutes = require('./routes/quizRoutes');
+const progressRoutes = require('./routes/progressRoutes');
 
 // Inicialização da aplicação Express
 const app = express();
@@ -81,6 +83,10 @@ app.use('/', careerRoutes);
 
 // Usar as rotas de conteúdos
 app.use('/content', contentRoutes);
+
+// Usar as rotas de questionários
+app.use('/', quizRoutes);
+app.use('/', progressRoutes);
 
 // ========================================
 // ROTA PRINCIPAL TEMPORÁRIA

@@ -11,6 +11,9 @@
 -- ========================================
 -- LIMPAR DADOS EXISTENTES (DESENVOLVIMENTO)
 -- ========================================
+DELETE FROM user_quiz_answers;
+DELETE FROM quiz_options;
+DELETE FROM quiz_questions;
 DELETE FROM user_progress;
 DELETE FROM user_sessions;
 DELETE FROM quizzes;
@@ -94,18 +97,50 @@ INSERT INTO lessons (package_id, name, description, lesson_number, order_sequenc
 (4, 'Projeto Java', 'Desenvolvimento de uma aplicação', 5, 5);
 
 -- ========================================
--- INSERIR QUESTIONÁRIOS DE EXEMPLO
+-- INSERIR QUESTIONÁRIOS E QUESTÕES
 -- ========================================
 
--- Questionários para C - Operações
-INSERT INTO quizzes (lesson_id, question_text, question_number, expected_code) VALUES
-(3, 'Escreva um programa simples em C que declare duas variáveis inteiras, some-as e exiba o resultado.', 1, '#include <stdio.h>\nint main() {\n    int a = 5, b = 3;\n    int soma = a + b;\n    printf("Resultado: %d", soma);\n    return 0;\n}'),
-(3, 'Crie um programa que calcule a média de três números usando operadores aritméticos.', 2, '#include <stdio.h>\nint main() {\n    float a = 8.0, b = 6.0, c = 9.0;\n    float media = (a + b + c) / 3;\n    printf("Média: %.2f", media);\n    return 0;\n}');
+-- Questionário 1: C - Operações (Aula 3)
+INSERT INTO quizzes (id, lesson_id, title, description, total_questions) VALUES
+(1, 3, 'Questionário: C - Operações', 'Teste seus conhecimentos sobre operadores em C', 3);
 
--- Questionários para JavaScript Fundamentos
-INSERT INTO quizzes (lesson_id, question_text, question_number, expected_code) VALUES
-(8, 'Crie uma função JavaScript que receba dois números e retorne a soma.', 1, 'function somar(a, b) {\n    return a + b;\n}\n\nconsole.log(somar(5, 3));'),
-(8, 'Escreva um código que declare um array e exiba todos os elementos usando um loop.', 2, 'const numeros = [1, 2, 3, 4, 5];\n\nfor (let i = 0; i < numeros.length; i++) {\n    console.log(numeros[i]);\n}');
+-- Questões do Questionário 1
+INSERT INTO quiz_questions (quiz_id, question_number, question_type, question_text, expected_answer, points) VALUES
+(1, 1, 'code', 'Escreva um programa simples em C que declare duas variáveis inteiras, some-as e exiba o resultado.', '#include <stdio.h>\nint main() {\n    int a = 5, b = 3;\n    int soma = a + b;\n    printf("Resultado: %d", soma);\n    return 0;\n}', 20),
+(1, 2, 'multiple_choice', 'Qual operador é usado para o resto da divisão em C?', '%', 10),
+(1, 3, 'text', 'Qual é o resultado da expressão: 10 / 3 em C (considerando variáveis inteiras)?', '3', 10);
+
+-- Opções para questão 2 (múltipla escolha)
+INSERT INTO quiz_options (question_id, option_order, option_text, is_correct) VALUES
+(2, 1, '/', FALSE),
+(2, 2, '%', TRUE),
+(2, 3, '*', FALSE),
+(2, 4, '&', FALSE);
+
+-- Questionário 2: JavaScript Fundamentos (Aula 8)
+INSERT INTO quizzes (id, lesson_id, title, description, total_questions) VALUES
+(2, 8, 'Questionário: JavaScript Básico', 'Fundamentos de programação em JavaScript', 2);
+
+-- Questões do Questionário 2
+INSERT INTO quiz_questions (quiz_id, question_number, question_type, question_text, expected_answer, points) VALUES
+(2, 1, 'code', 'Crie uma função JavaScript que receba dois números e retorne a soma.', 'function somar(a, b) {\n    return a + b;\n}', 25),
+(2, 2, 'multiple_choice', 'Como declarar uma variável constante em JavaScript?', 'const', 15);
+
+-- Opções para questão 4 (múltipla escolha)
+INSERT INTO quiz_options (question_id, option_order, option_text, is_correct) VALUES
+(4, 1, 'var', FALSE),
+(4, 2, 'let', FALSE),
+(4, 3, 'const', TRUE),
+(4, 4, 'final', FALSE);
+
+-- Questionário 3: Python Básico (Aula 13)
+INSERT INTO quizzes (id, lesson_id, title, description, total_questions) VALUES
+(3, 13, 'Questionário: Python Básico', 'Conceitos fundamentais de Python', 2);
+
+-- Questões do Questionário 3
+INSERT INTO quiz_questions (quiz_id, question_number, question_type, question_text, expected_answer, points) VALUES
+(3, 1, 'code', 'Escreva um código Python que crie uma lista com 5 números e imprima cada um.', 'numeros = [1, 2, 3, 4, 5]\nfor num in numeros:\n    print(num)', 20),
+(3, 2, 'text', 'Qual função é usada para imprimir em Python?', 'print', 10);
 
 -- ========================================
 -- INSERIR PROGRESSO DOS USUÁRIOS
@@ -159,6 +194,79 @@ UPDATE users SET xp_points = (
     (quizzes_completed * 25)
   ) FROM user_progress WHERE user_id = 3
 ) WHERE id = 3;
+
+-- ========================================
+-- DADOS DE TESTE - QUESTIONÁRIOS
+-- ========================================
+
+-- Questionários de exemplo
+INSERT OR REPLACE INTO quizzes (id, lesson_id, title, description, total_questions) VALUES
+(1, 1, 'Questionário C - Básico', 'Teste seus conhecimentos básicos em linguagem C', 3),
+(2, 5, 'Questionário JavaScript - Fundamentos', 'Avalie seu entendimento dos conceitos básicos de JavaScript', 3),
+(3, 9, 'Questionário Python - Introdução', 'Questões introdutórias sobre Python', 3);
+
+-- Questões do Questionário C - Básico
+INSERT OR REPLACE INTO quiz_questions (id, quiz_id, question_order, question_type, question_text, correct_answer, explanation) VALUES
+(1, 1, 1, 'code', 'Escreva um programa em C que imprime "Hello, World!" na tela:', 
+ '#include <stdio.h>\nint main() {\n    printf("Hello, World!");\n    return 0;\n}',
+ 'Um programa básico em C precisa incluir stdio.h para usar printf, ter uma função main que retorna int, e usar printf para imprimir texto.'),
+
+(2, 1, 2, 'multiple_choice', 'Qual é o tipo de dado correto para armazenar um número inteiro em C?', 
+ NULL, 'O tipo int é usado para armazenar números inteiros em C.'),
+
+(3, 1, 3, 'text', 'Qual palavra-chave é usada para declarar uma variável constante em C?', 
+ 'const', 'A palavra-chave "const" é usada para declarar variáveis constantes em C.');
+
+-- Opções para questão de múltipla escolha (questão 2)
+INSERT OR REPLACE INTO quiz_options (id, question_id, option_order, option_text, is_correct) VALUES
+(1, 2, 1, 'float', 0),
+(2, 2, 2, 'int', 1),
+(3, 2, 3, 'char', 0),
+(4, 2, 4, 'string', 0);
+
+-- Questões do Questionário JavaScript - Fundamentos
+INSERT OR REPLACE INTO quiz_questions (id, quiz_id, question_order, question_type, question_text, correct_answer, explanation) VALUES
+(4, 2, 1, 'code', 'Crie uma função JavaScript que retorna a soma de dois números:', 
+ 'function soma(a, b) {\n    return a + b;\n}',
+ 'Uma função básica em JavaScript usa a palavra-chave function, recebe parâmetros e usa return para retornar um valor.'),
+
+(5, 2, 2, 'multiple_choice', 'Como você declara uma variável em JavaScript moderno?', 
+ NULL, 'let e const são as formas modernas de declarar variáveis em JavaScript, sendo const para valores constantes.'),
+
+(6, 2, 3, 'text', 'Qual método é usado para imprimir no console em JavaScript?', 
+ 'console.log', 'console.log() é o método padrão para imprimir mensagens no console do navegador ou Node.js.');
+
+-- Opções para questão de múltipla escolha JavaScript (questão 5)
+INSERT OR REPLACE INTO quiz_options (id, question_id, option_order, option_text, is_correct) VALUES
+(5, 5, 1, 'var nome', 0),
+(6, 5, 2, 'let nome', 1),
+(7, 5, 3, 'const nome', 1),
+(8, 5, 4, 'name =', 0);
+
+-- Questões do Questionário Python - Introdução
+INSERT OR REPLACE INTO quiz_questions (id, quiz_id, question_order, question_type, question_text, correct_answer, explanation) VALUES
+(7, 3, 1, 'code', 'Escreva um programa Python que imprime "Olá, Python!" na tela:', 
+ 'print("Olá, Python!")',
+ 'Em Python, a função print() é usada para exibir texto na tela. É muito mais simples que em outras linguagens.'),
+
+(8, 3, 2, 'multiple_choice', 'Qual é a extensão de arquivo padrão para scripts Python?', 
+ NULL, 'Arquivos Python usam a extensão .py para serem reconhecidos pelo interpretador.'),
+
+(9, 3, 3, 'text', 'Qual palavra-chave é usada para definir uma função em Python?', 
+ 'def', 'A palavra-chave "def" é usada para definir funções em Python.');
+
+-- Opções para questão de múltipla escolha Python (questão 8)
+INSERT OR REPLACE INTO quiz_options (id, question_id, option_order, option_text, is_correct) VALUES
+(9, 8, 1, '.txt', 0),
+(10, 8, 2, '.py', 1),
+(11, 8, 3, '.python', 0),
+(12, 8, 4, '.pyt', 0);
+
+-- Algumas respostas de exemplo para demonstração
+INSERT OR REPLACE INTO user_quiz_answers (id, user_id, question_id, answer, is_correct, score) VALUES
+(1, 1, 1, '#include <stdio.h>\nint main() {\n    printf("Hello, World!");\n    return 0;\n}', 1, 10),
+(2, 1, 2, '2', 1, 10),
+(3, 1, 6, 'console.log', 1, 10);
 
 -- ========================================
 -- COMENTÁRIOS FINAIS

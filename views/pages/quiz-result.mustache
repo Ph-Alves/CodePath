@@ -1,0 +1,504 @@
+<!-- Página de Resultado do Questionário -->
+<div class="quiz-result-container">
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb-nav">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="/dashboard">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="/quiz/{{quiz.id}}">{{quiz.title}}</a>
+            </li>
+            <li class="breadcrumb-item active">Resultado</li>
+        </ol>
+    </nav>
+
+    <!-- Cabeçalho do Resultado -->
+    <div class="result-header">
+        <div class="result-info">
+            <h1 class="result-title">{{quiz.title}} - Resultado</h1>
+            <div class="result-grade {{result.gradeClass}}">
+                <i class="fas {{#result.gradeClass}}
+                    {{#equals result.gradeClass 'success'}}fa-check-circle{{/equals}}
+                    {{#equals result.gradeClass 'danger'}}fa-times-circle{{/equals}}
+                {{/result.gradeClass}}"></i>
+                <span>{{result.grade}}</span>
+            </div>
+        </div>
+        
+        <div class="result-message">
+            <p>{{result.message}}</p>
+        </div>
+    </div>
+
+    <!-- Estatísticas do Resultado -->
+    <div class="result-stats">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-percentage"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-number">{{result.accuracy}}%</span>
+                <span class="stat-label">Precisão</span>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-star"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-number">{{result.totalScore}}</span>
+                <span class="stat-label">Pontos</span>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-check-double"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-number">{{result.answeredQuestions}}/{{result.totalQuestions}}</span>
+                <span class="stat-label">Questões</span>
+            </div>
+        </div>
+        
+        {{#result.xpEarned}}
+        <div class="stat-card xp-card">
+            <div class="stat-icon">
+                <i class="fas fa-trophy"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-number">+{{result.xpEarned}}</span>
+                <span class="stat-label">XP Ganho</span>
+            </div>
+        </div>
+        {{/result.xpEarned}}
+    </div>
+
+    <!-- Progresso Visual -->
+    <div class="progress-visualization">
+        <h2 class="section-title">Seu Desempenho</h2>
+        
+        <div class="progress-circle-container">
+            <div class="progress-circle" data-percentage="{{result.accuracy}}">
+                <div class="progress-circle-inner">
+                    <span class="progress-percentage">{{result.accuracy}}%</span>
+                    <span class="progress-label">Acertos</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="performance-details">
+            <div class="detail-item">
+                <span class="detail-label">Questões Respondidas:</span>
+                <span class="detail-value">{{result.answeredQuestions}} de {{result.totalQuestions}}</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Pontuação Total:</span>
+                <span class="detail-value">{{result.totalScore}} pontos</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Status:</span>
+                <span class="detail-value {{result.gradeClass}}">{{result.grade}}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ações do Resultado -->
+    <div class="result-actions">
+        <div class="primary-actions">
+            {{#result.isCompleted}}
+            <a href="/quiz/{{quiz.id}}" class="btn btn-primary btn-lg">
+                <i class="fas fa-redo"></i> Refazer Questionário
+            </a>
+            {{/result.isCompleted}}
+            
+            {{^result.isCompleted}}
+            <a href="/quiz/{{quiz.id}}/question/{{result.nextQuestion}}" class="btn btn-primary btn-lg">
+                <i class="fas fa-play"></i> Continuar Questionário
+            </a>
+            {{/result.isCompleted}}
+            
+            <a href="/content/package/{{quiz.package_id}}/lessons" class="btn btn-success btn-lg">
+                <i class="fas fa-book"></i> Voltar às Aulas
+            </a>
+        </div>
+        
+        <div class="secondary-actions">
+            <a href="/dashboard" class="btn btn-outline-secondary">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a href="/careers" class="btn btn-outline-secondary">
+                <i class="fas fa-graduation-cap"></i> Outras Carreiras
+            </a>
+        </div>
+    </div>
+
+    <!-- Feedback e Próximos Passos -->
+    <div class="feedback-section">
+        <h3 class="section-title">Próximos Passos</h3>
+        
+        {{#equals result.gradeClass 'success'}}
+        <div class="feedback-card success">
+            <div class="feedback-icon">
+                <i class="fas fa-trophy"></i>
+            </div>
+            <div class="feedback-content">
+                <h4>Excelente Trabalho!</h4>
+                <p>Você demonstrou um ótimo entendimento dos conceitos. Continue estudando para aprimorar ainda mais seus conhecimentos.</p>
+                <ul class="next-steps">
+                    <li>Explore aulas mais avançadas</li>
+                    <li>Pratique com projetos reais</li>
+                    <li>Tente outros questionários</li>
+                </ul>
+            </div>
+        </div>
+        {{/equals}}
+        
+        {{#equals result.gradeClass 'danger'}}
+        <div class="feedback-card warning">
+            <div class="feedback-icon">
+                <i class="fas fa-lightbulb"></i>
+            </div>
+            <div class="feedback-content">
+                <h4>Continue Estudando!</h4>
+                <p>Não desanime! O aprendizado é um processo. Revise os conceitos e tente novamente.</p>
+                <ul class="next-steps">
+                    <li>Revise as aulas relacionadas</li>
+                    <li>Pratique os exercícios básicos</li>
+                    <li>Busque materiais complementares</li>
+                    <li>Refaça o questionário quando se sentir preparado</li>
+                </ul>
+            </div>
+        </div>
+        {{/equals}}
+    </div>
+</div>
+
+<!-- JavaScript para Animações -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animar círculo de progresso
+    const progressCircle = document.querySelector('.progress-circle');
+    if (progressCircle) {
+        const percentage = parseInt(progressCircle.dataset.percentage);
+        const circumference = 2 * Math.PI * 45; // raio de 45px
+        const offset = circumference - (percentage / 100) * circumference;
+        
+        // Criar SVG para o círculo
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('width', '120');
+        svg.setAttribute('height', '120');
+        svg.style.position = 'absolute';
+        svg.style.top = '0';
+        svg.style.left = '0';
+        
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', '60');
+        circle.setAttribute('cy', '60');
+        circle.setAttribute('r', '45');
+        circle.setAttribute('stroke', percentage >= 70 ? '#10b981' : '#ef4444');
+        circle.setAttribute('stroke-width', '8');
+        circle.setAttribute('fill', 'transparent');
+        circle.setAttribute('stroke-dasharray', circumference);
+        circle.setAttribute('stroke-dashoffset', circumference);
+        circle.setAttribute('stroke-linecap', 'round');
+        circle.style.transition = 'stroke-dashoffset 2s ease-in-out';
+        
+        svg.appendChild(circle);
+        progressCircle.appendChild(svg);
+        
+        // Animar após um pequeno delay
+        setTimeout(() => {
+            circle.style.strokeDashoffset = offset;
+        }, 500);
+    }
+    
+    // Animar contadores
+    const statNumbers = document.querySelectorAll('.stat-number');
+    statNumbers.forEach(stat => {
+        const finalValue = stat.textContent;
+        const numericValue = parseInt(finalValue.replace(/[^0-9]/g, ''));
+        
+        if (!isNaN(numericValue)) {
+            let currentValue = 0;
+            const increment = numericValue / 50;
+            const timer = setInterval(() => {
+                currentValue += increment;
+                if (currentValue >= numericValue) {
+                    currentValue = numericValue;
+                    clearInterval(timer);
+                }
+                stat.textContent = finalValue.replace(numericValue.toString(), Math.floor(currentValue).toString());
+            }, 30);
+        }
+    });
+});
+
+// Helper para comparação
+Mustache.registerHelper('equals', function(a, b, options) {
+    return a === b ? options.fn(this) : options.inverse(this);
+});
+</script>
+
+<style>
+/* Estilos específicos para a página de resultado */
+.quiz-result-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: var(--quiz-bg, #f8fafc);
+    min-height: 100vh;
+}
+
+.result-header {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    border-radius: 16px;
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    text-align: center;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.result-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.result-grade {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+.result-grade.success {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+    border: 2px solid rgba(16, 185, 129, 0.3);
+}
+
+.result-grade.danger {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    border: 2px solid rgba(239, 68, 68, 0.3);
+}
+
+.result-message p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin: 0;
+}
+
+.result-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.xp-card {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    border: none;
+}
+
+.progress-visualization {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.progress-circle-container {
+    display: flex;
+    justify-content: center;
+    margin: 2rem 0;
+}
+
+.progress-circle {
+    position: relative;
+    width: 120px;
+    height: 120px;
+}
+
+.progress-circle-inner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.progress-percentage {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.progress-label {
+    font-size: 0.9rem;
+    color: #64748b;
+}
+
+.performance-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 8px;
+}
+
+.detail-label {
+    font-weight: 500;
+    color: #64748b;
+}
+
+.detail-value {
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.detail-value.success {
+    color: #10b981;
+}
+
+.detail-value.danger {
+    color: #ef4444;
+}
+
+.result-actions {
+    margin-bottom: 2rem;
+}
+
+.primary-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.secondary-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.feedback-section {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.feedback-card {
+    display: flex;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border-left: 4px solid;
+}
+
+.feedback-card.success {
+    background: #f0fdf4;
+    border-color: #10b981;
+}
+
+.feedback-card.warning {
+    background: #fffbeb;
+    border-color: #f59e0b;
+}
+
+.feedback-icon {
+    font-size: 2rem;
+    color: inherit;
+}
+
+.feedback-content h4 {
+    margin-bottom: 0.5rem;
+    color: #1e293b;
+}
+
+.feedback-content p {
+    margin-bottom: 1rem;
+    color: #64748b;
+}
+
+.next-steps {
+    list-style: none;
+    padding: 0;
+}
+
+.next-steps li {
+    padding: 0.25rem 0;
+    color: #64748b;
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+.next-steps li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: #10b981;
+    font-weight: bold;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .quiz-result-container {
+        padding: 1rem;
+    }
+    
+    .result-header {
+        padding: 1.5rem;
+    }
+    
+    .result-title {
+        font-size: 1.5rem;
+    }
+    
+    .result-stats {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+    }
+    
+    .performance-details {
+        grid-template-columns: 1fr;
+    }
+    
+    .primary-actions,
+    .secondary-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .feedback-card {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+</style> 

@@ -1,0 +1,517 @@
+{{>layouts/main}}
+
+{{#contentBody}}
+<div class="progress-page-container">
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb-nav">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="/dashboard">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+            </li>
+            <li class="breadcrumb-item active">Meu Progresso</li>
+        </ol>
+    </nav>
+
+    <!-- Cabeçalho da Página -->
+    <div class="progress-header">
+        <div class="header-content">
+            <h1 class="page-title">Meu Progresso</h1>
+            <p class="page-subtitle">Acompanhe seu desenvolvimento e conquistas na plataforma</p>
+        </div>
+        
+        <div class="header-stats">
+            <div class="stat-card highlight">
+                <div class="stat-icon">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-number">{{overallStats.xp_points}}</span>
+                    <span class="stat-label">XP Total</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-number">{{overallStats.level}}</span>
+                    <span class="stat-label">Nível</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-fire"></i>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-number">{{overallStats.current_streak}}</span>
+                    <span class="stat-label">Sequência</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estatísticas Gerais -->
+    <div class="overall-stats-section">
+        <h2 class="section-title">Visão Geral</h2>
+        
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-icon-wrapper">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div class="stat-details">
+                    <span class="stat-value">{{overallStats.total_packages_started}}</span>
+                    <span class="stat-name">Tecnologias Iniciadas</span>
+                </div>
+            </div>
+            
+            <div class="stat-item">
+                <div class="stat-icon-wrapper">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-details">
+                    <span class="stat-value">{{overallStats.packages_completed}}</span>
+                    <span class="stat-name">Tecnologias Concluídas</span>
+                </div>
+            </div>
+            
+            <div class="stat-item">
+                <div class="stat-icon-wrapper">
+                    <i class="fas fa-play-circle"></i>
+                </div>
+                <div class="stat-details">
+                    <span class="stat-value">{{overallStats.total_lessons_watched}}</span>
+                    <span class="stat-name">Aulas Assistidas</span>
+                </div>
+            </div>
+            
+            <div class="stat-item">
+                <div class="stat-icon-wrapper">
+                    <i class="fas fa-question-circle"></i>
+                </div>
+                <div class="stat-details">
+                    <span class="stat-value">{{overallStats.total_quizzes_completed}}</span>
+                    <span class="stat-name">Questionários</span>
+                </div>
+            </div>
+            
+            <div class="stat-item">
+                <div class="stat-icon-wrapper">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <div class="stat-details">
+                    <span class="stat-value">{{overallStats.daysSinceRegistration}}</span>
+                    <span class="stat-name">Dias na Plataforma</span>
+                </div>
+            </div>
+            
+            <div class="stat-item">
+                <div class="stat-icon-wrapper">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-details">
+                    <span class="stat-value">{{overallStats.lastActivityFormatted}}</span>
+                    <span class="stat-name">Última Atividade</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráfico de Progresso -->
+    <div class="chart-section">
+        <div class="section-header">
+            <h2 class="section-title">Progresso ao Longo do Tempo</h2>
+            <div class="chart-controls">
+                <button class="btn btn-sm btn-outline-primary active" data-period="7">7 dias</button>
+                <button class="btn btn-sm btn-outline-primary" data-period="30">30 dias</button>
+                <button class="btn btn-sm btn-outline-primary" data-period="90">90 dias</button>
+            </div>
+        </div>
+        
+        <div class="chart-container">
+            <canvas id="progressChart" width="800" height="300"></canvas>
+            <div class="chart-loading" id="chartLoading">
+                <i class="fas fa-spinner fa-spin"></i>
+                <span>Carregando dados do gráfico...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progresso por Tecnologia -->
+    <div class="packages-progress-section">
+        <h2 class="section-title">Progresso por Tecnologia</h2>
+        
+        <div class="packages-grid">
+            {{#packageProgress}}
+            <div class="package-progress-card">
+                <div class="package-header">
+                    <div class="package-icon">
+                        <i class="{{package_icon}}"></i>
+                    </div>
+                    <div class="package-info">
+                        <h3 class="package-name">{{package_name}}</h3>
+                        <span class="package-status {{statusClass}}">{{statusText}}</span>
+                    </div>
+                </div>
+                
+                <div class="package-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill {{statusClass}}" style="width: {{progressFormatted}}%"></div>
+                    </div>
+                    <span class="progress-percentage">{{progressFormatted}}%</span>
+                </div>
+                
+                <div class="package-stats">
+                    <div class="package-stat">
+                        <span class="stat-label">Aulas:</span>
+                        <span class="stat-value">{{lessons_watched}}/{{total_lessons}}</span>
+                    </div>
+                    <div class="package-stat">
+                        <span class="stat-label">Questionários:</span>
+                        <span class="stat-value">{{quizzes_completed}}/{{total_quizzes}}</span>
+                    </div>
+                    <div class="package-stat">
+                        <span class="stat-label">Pontos:</span>
+                        <span class="stat-value">{{points_earned}} XP</span>
+                    </div>
+                    {{#estimated_hours_remaining}}
+                    <div class="package-stat">
+                        <span class="stat-label">Tempo restante:</span>
+                        <span class="stat-value">~{{estimated_hours_remaining}}h</span>
+                    </div>
+                    {{/estimated_hours_remaining}}
+                </div>
+                
+                <div class="package-actions">
+                    {{#progressFormatted}}
+                    <a href="/content/package/{{package_id}}/lessons" class="btn btn-primary btn-sm">
+                        <i class="fas fa-play"></i> Continuar
+                    </a>
+                    {{/progressFormatted}}
+                    {{^progressFormatted}}
+                    <a href="/careers" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-play"></i> Iniciar
+                    </a>
+                    {{/progressFormatted}}
+                </div>
+            </div>
+            {{/packageProgress}}
+            
+            {{^packageProgress}}
+            <div class="empty-state">
+                <i class="fas fa-graduation-cap"></i>
+                <h3>Nenhuma tecnologia iniciada</h3>
+                <p>Comece sua jornada de aprendizado escolhendo uma tecnologia!</p>
+                <a href="/careers" class="btn btn-primary">
+                    <i class="fas fa-rocket"></i> Explorar Tecnologias
+                </a>
+            </div>
+            {{/packageProgress}}
+        </div>
+    </div>
+
+    <!-- Metas e Objetivos -->
+    <div class="goals-section">
+        <h2 class="section-title">Metas e Objetivos</h2>
+        
+        <div class="goals-grid">
+            {{#goals}}
+            <div class="goal-card">
+                <div class="goal-header">
+                    <div class="goal-icon">
+                        <i class="{{icon}}"></i>
+                    </div>
+                    <div class="goal-info">
+                        <h3 class="goal-title">{{title}}</h3>
+                        <p class="goal-description">{{description}}</p>
+                    </div>
+                </div>
+                
+                <div class="goal-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: {{progress}}%"></div>
+                    </div>
+                    <div class="progress-info">
+                        <span class="progress-current">{{current}}/{{target}}</span>
+                        <span class="progress-percentage">{{progress}}%</span>
+                    </div>
+                </div>
+            </div>
+            {{/goals}}
+        </div>
+    </div>
+
+    <!-- Atividade Recente -->
+    <div class="activity-section">
+        <h2 class="section-title">Atividade Recente</h2>
+        
+        <div class="activity-timeline">
+            {{#recentActivity}}
+            <div class="activity-item">
+                <div class="activity-icon">
+                    <i class="{{activityIcon}}"></i>
+                </div>
+                <div class="activity-content">
+                    <h4 class="activity-title">{{activity_title}}</h4>
+                    <p class="activity-description">{{activity_description}} em {{package_name}}</p>
+                    <div class="activity-meta">
+                        <span class="activity-date">{{activityDateFormatted}}</span>
+                        <span class="activity-points">+{{points_earned}} XP</span>
+                    </div>
+                </div>
+            </div>
+            {{/recentActivity}}
+            
+            {{^recentActivity}}
+            <div class="empty-activity">
+                <i class="fas fa-history"></i>
+                <p>Nenhuma atividade recente. Comece a estudar para ver seu progresso aqui!</p>
+            </div>
+            {{/recentActivity}}
+        </div>
+    </div>
+
+    <!-- Comparação e Estatísticas -->
+    <div class="comparison-section">
+        <h2 class="section-title">Como Você Está Se Saindo</h2>
+        
+        <div class="comparison-grid">
+            <div class="comparison-card">
+                <div class="comparison-header">
+                    <h3>Tecnologias Exploradas</h3>
+                    <span class="comparison-status {{comparison.packagesComparison}}">
+                        {{comparison.packagesComparison}}
+                    </span>
+                </div>
+                <div class="comparison-value">
+                    {{comparison.user_packages}} vs {{comparison.avg_packages}} (média)
+                </div>
+            </div>
+            
+            <div class="comparison-card">
+                <div class="comparison-header">
+                    <h3>Progresso Médio</h3>
+                    <span class="comparison-status {{comparison.progressComparison}}">
+                        {{comparison.progressComparison}}
+                    </span>
+                </div>
+                <div class="comparison-value">
+                    {{comparison.user_avg_progress}}% vs {{comparison.avg_progress}}% (média)
+                </div>
+            </div>
+            
+            <div class="comparison-card">
+                <div class="comparison-header">
+                    <h3>Pontos de Experiência</h3>
+                    <span class="comparison-status {{comparison.xpComparison}}">
+                        {{comparison.xpComparison}}
+                    </span>
+                </div>
+                <div class="comparison-value">
+                    {{comparison.user_xp}} vs {{comparison.avg_xp}} (média)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estatísticas do Período -->
+    <div class="period-stats-section">
+        <div class="section-header">
+            <h2 class="section-title">Estatísticas do Último Mês</h2>
+            <div class="period-selector">
+                <select id="periodSelect" class="form-select">
+                    <option value="week">Última Semana</option>
+                    <option value="month" selected>Último Mês</option>
+                    <option value="year">Último Ano</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="period-stats-grid">
+            <div class="period-stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-number">{{monthlyStats.packages_worked_on}}</span>
+                    <span class="stat-label">Tecnologias Ativas</span>
+                </div>
+            </div>
+            
+            <div class="period-stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-play-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-number">{{monthlyStats.lessons_completed}}</span>
+                    <span class="stat-label">Aulas Concluídas</span>
+                </div>
+            </div>
+            
+            <div class="period-stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-number">{{monthlyStats.active_days}}</span>
+                    <span class="stat-label">Dias Ativos</span>
+                </div>
+            </div>
+            
+            <div class="period-stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-tachometer-alt"></i>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-number">{{monthlyStats.learningVelocityFormatted}}</span>
+                    <span class="stat-label">XP por Dia</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript para Funcionalidades Interativas -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let progressChart = null;
+    
+    // Inicializar gráfico
+    initializeChart();
+    
+    // Event listeners para controles do gráfico
+    document.querySelectorAll('[data-period]').forEach(button => {
+        button.addEventListener('click', function() {
+            // Remover classe active de todos os botões
+            document.querySelectorAll('[data-period]').forEach(btn => btn.classList.remove('active'));
+            // Adicionar classe active ao botão clicado
+            this.classList.add('active');
+            
+            // Carregar dados do período selecionado
+            const period = this.getAttribute('data-period');
+            loadChartData(period);
+        });
+    });
+    
+    // Event listener para seletor de período
+    document.getElementById('periodSelect').addEventListener('change', function() {
+        const period = this.value;
+        loadPeriodStats(period);
+    });
+    
+    /**
+     * Inicializar gráfico de progresso
+     */
+    function initializeChart() {
+        const ctx = document.getElementById('progressChart').getContext('2d');
+        
+        progressChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'XP Acumulado',
+                    data: [],
+                    borderColor: '#6366f1',
+                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Carregar dados iniciais (30 dias)
+        loadChartData(30);
+    }
+    
+    /**
+     * Carregar dados do gráfico
+     */
+    function loadChartData(days) {
+        const loading = document.getElementById('chartLoading');
+        loading.style.display = 'flex';
+        
+        fetch(`/api/progress/chart?days=${days}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateChart(data.data);
+                } else {
+                    console.error('Erro ao carregar dados do gráfico:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Erro na requisição:', error);
+            })
+            .finally(() => {
+                loading.style.display = 'none';
+            });
+    }
+    
+    /**
+     * Atualizar dados do gráfico
+     */
+    function updateChart(data) {
+        progressChart.data.labels = data.map(item => item.dateFormatted);
+        progressChart.data.datasets[0].data = data.map(item => item.cumulativePoints);
+        progressChart.update();
+    }
+    
+    /**
+     * Carregar estatísticas do período
+     */
+    function loadPeriodStats(period) {
+        fetch(`/api/progress/performance/${period}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updatePeriodStats(data.data);
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao carregar estatísticas:', error);
+            });
+    }
+    
+    /**
+     * Atualizar estatísticas do período
+     */
+    function updatePeriodStats(stats) {
+        // Atualizar valores na interface
+        const statCards = document.querySelectorAll('.period-stat-card .stat-number');
+        statCards[0].textContent = stats.packages_worked_on;
+        statCards[1].textContent = stats.lessons_completed;
+        statCards[2].textContent = stats.active_days;
+        statCards[3].textContent = Math.round(stats.learning_velocity || 0);
+    }
+});
+</script>
+{{/contentBody}} 

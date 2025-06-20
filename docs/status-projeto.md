@@ -1,6 +1,6 @@
 # Status do Projeto CodePath
 
-**Última Atualização:** 19 de Dezembro de 2024  
+**Última Atualização:** 20 de Junho de 2025  
 **Versão Atual:** 1.0.0-alpha  
 **Branch Principal:** main  
 
@@ -15,12 +15,12 @@
 | Fase 5 | ✅ Concluída | 100% | Dashboard e métricas |
 | Fase 6 | ✅ Concluída | 100% | Sistema de carreiras |
 | Fase 7 | ✅ Concluída | 100% | Sistema de conteúdos |
-| Fase 8 | ⏳ Pendente | 0% | Sistema de questionários |
-| Fase 9 | ⏳ Pendente | 0% | Sistema de progresso |
+| Fase 8 | ✅ Concluída | 100% | Sistema de questionários |
+| Fase 9 | ✅ Concluída | 100% | Sistema de progresso avançado |
 | Fase 10 | ⏳ Pendente | 0% | Notificações e UX |
 | Fase 11 | ⏳ Pendente | 0% | Testes e documentação |
 
-**Progresso Total:** 64% (7 de 11 fases concluídas)
+**Progresso Total:** 82% (9 de 11 fases concluídas)
 
 ---
 
@@ -94,7 +94,7 @@
 **Funcionalidades Operacionais:**
 - 👤 Cadastro de novos usuários
 - 🔑 Login com email e senha
-- 🚪 Logout funcional
+- �� Logout funcional
 - 🛡️ Proteção de rotas autenticadas
 - ✅ Validação de dados completa
 
@@ -185,6 +185,135 @@
 - 3 usuários com progresso variado (Carlos, Ana, João)
 - Dados realistas de progresso e métricas
 - Sistema de XP calculado automaticamente
+
+---
+
+### Fase 9 - Sistema de Progresso Avançado ✅
+**Status:** Concluída em 100%  
+**Data de Conclusão:** 20 de Junho de 2025  
+
+**Implementações Realizadas:**
+- ✅ Sistema avançado de acompanhamento de progresso com estatísticas detalhadas
+- ✅ Interface completa de progresso com gráficos e métricas por período
+- ✅ Comparação de desempenho com médias da plataforma
+- ✅ Sistema de metas automáticas baseadas no progresso atual
+- ✅ APIs RESTful para dados dinâmicos de progresso
+- ✅ Gráfico temporal interativo usando Chart.js
+- ✅ Timeline de atividade recente detalhada
+- ✅ Métricas por tecnologia e período selecionável
+
+**Arquivos Criados:**
+- `models/progressModel.js` - Modelo avançado com 7 funções principais
+- `controllers/progressController.js` - Controlador com 5 endpoints e helpers
+- `routes/progressRoutes.js` - Rotas REST para progresso
+- `views/pages/progress.mustache` - Interface completa de progresso
+- `public/css/progress.css` - Sistema completo de estilos (400+ linhas)
+
+**Arquivos Modificados:**
+- `app.js` - Integração das rotas de progresso
+- `views/partials/sidebar.mustache` - Link "Meu Progresso" adicionado
+
+**Funcionalidades do Modelo (progressModel.js):**
+- 📊 `getUserOverallStats()` - Estatísticas gerais (XP, nível, streak, médias)
+- 📦 `getUserPackageProgress()` - Progresso detalhado por tecnologia
+- 📋 `getUserRecentActivity()` - Timeline de atividade recente
+- 📈 `getUserPerformanceStats()` - Estatísticas por período (semana/mês/ano)
+- 📉 `getProgressChartData()` - Dados para gráfico temporal
+- 🆚 `getUserComparison()` - Comparação com médias da plataforma
+- 🎯 `getUserGoals()` - Metas automáticas baseadas no progresso
+
+**APIs REST Implementadas:**
+- `GET /progress` - Página principal de progresso
+- `GET /api/progress/chart` - Dados para gráfico temporal
+- `GET /api/progress/performance/:period` - Estatísticas por período
+- `GET /api/progress/comparison` - Comparação detalhada
+- `POST /api/progress/goals` - Atualização de metas
+
+**Interface de Progresso:**
+- 🎨 Design responsivo com tema roxo CodePath
+- 📊 Gráfico interativo de progresso ao longo do tempo
+- 📈 Cards de métricas destacadas (XP, nível, sequência)
+- 🎯 Sistema de metas com barras de progresso
+- 📋 Timeline de atividade recente
+- 🆚 Comparação com outros usuários
+- 📱 Totalmente responsivo para mobile e desktop
+
+**Características Técnicas:**
+- 🔄 Dados dinâmicos carregados via APIs
+- 📊 Integração com Chart.js para gráficos
+- 🎯 Cálculo automático de metas baseado no progresso
+- 📈 Estatísticas em tempo real do banco de dados
+- 🔍 Queries SQL otimizadas com CTEs e window functions
+- ♿ Acessibilidade completa implementada
+
+**Sistema de Metas Automáticas:**
+- 🌟 Meta de XP para próximo nível
+- 📚 Meta de aulas (incrementos de 10)
+- ❓ Meta de questionários (incrementos de 5)
+- 📊 Cálculo dinâmico baseado no progresso atual
+
+---
+
+### Fase 8 - Sistema de Questionários ✅
+**Status:** Concluída em 100%  
+**Data de Conclusão:** 20 de Junho de 2025  
+
+**Implementações Realizadas:**
+- ✅ Sistema completo de questionários com 3 tipos de questões
+- ✅ Interface responsiva para questionários e questões individuais
+- ✅ Validação automática de respostas (código, múltipla escolha, texto)
+- ✅ Sistema de pontuação e XP (+10 XP por resposta correta, +100 XP por questionário completo)
+- ✅ Navegação fluida entre questões com indicadores visuais
+- ✅ Página de resultado com feedback detalhado
+- ✅ Editor de código integrado com syntax highlighting
+- ✅ Sistema de progresso em tempo real
+
+**Arquivos Criados:**
+- `models/quizModel.js` - Modelo completo de questionários
+- `controllers/quizController.js` - Controlador com todas as funcionalidades
+- `routes/quizRoutes.js` - Rotas RESTful do sistema
+- `views/pages/quiz.mustache` - Página principal do questionário
+- `views/pages/quiz-question.mustache` - Interface para responder questões
+- `views/pages/quiz-result.mustache` - Página de resultado com feedback
+- `public/css/quiz.css` - Estilos completos do sistema (795 linhas)
+
+**Arquivos Modificados:**
+- `db/schema.sql` - Novas tabelas: quizzes, quiz_questions, quiz_options, user_quiz_answers
+- `db/seed.sql` - Dados de teste realistas com 3 questionários completos
+- `app.js` - Integração das rotas de questionários
+
+**Funcionalidades Implementadas:**
+- 🧩 **3 Tipos de Questões**: Código, múltipla escolha e texto livre
+- ✅ **Validação Automática**: Comparação de código e verificação de opções
+- 🎯 **Sistema de Pontuação**: XP por resposta correta e questionário completo
+- 🚀 **Navegação Fluida**: Entre questões com indicadores visuais de progresso
+- 💬 **Feedback Imediato**: Resultado instantâneo com explicações
+- 📱 **Interface Responsiva**: Funciona perfeitamente em desktop e mobile
+- ♿ **Acessibilidade**: ARIA labels, navegação por teclado, contraste adequado
+- 🎨 **Design Consistente**: Tema roxo CodePath com animações suaves
+
+**APIs Implementadas:**
+- `GET /quiz/:id` - Visão geral do questionário
+- `GET /quiz/:quizId/question/:questionNumber` - Questão específica
+- `GET /quiz/:id/result` - Resultado do questionário
+- `POST /quiz/question/:questionId/submit` - Submeter resposta genérica
+- `POST /quiz/question/:questionId/validate` - Validar questões de código
+- Navegação: próxima/anterior questão
+
+**Banco de Dados:**
+- 🗄️ 4 novas tabelas implementadas (quizzes, quiz_questions, quiz_options, user_quiz_answers)
+- 🔍 Índices otimizados para performance
+- 📊 3 questionários de teste (C, JavaScript, Python)
+- ✅ 9 questões de exemplo com diferentes tipos
+- 🎯 Dados realistas para demonstração
+
+**Características Técnicas:**
+- 📝 Validação de código por comparação de strings (expansível)
+- 🔄 Sistema de progresso calculado dinamicamente
+- 💾 Respostas salvas automaticamente no banco
+- 🎨 CSS modular com variáveis personalizadas
+- ⚡ JavaScript otimizado com fetch API
+- 🛡️ Middleware de autenticação em todas as rotas
 
 ---
 

@@ -1,0 +1,820 @@
+{{>layouts/main}}
+
+{{#contentBody}}
+<div class="quiz-question-container">
+    <!-- Progresso do Questionário -->
+    <div class="quiz-progress-header">
+        <div class="progress-info">
+            <h1 class="quiz-title">{{quiz.title}}</h1>
+            <div class="question-progress">
+                Questão {{navigation.currentQuestion}} de {{navigation.totalQuestions}}
+            </div>
+        </div>
+        
+        <div class="progress-bar-container">
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: {{navigation.progressPercentage}}%"></div>
+            </div>
+            <span class="progress-percentage">{{navigation.progressPercentage}}%</span>
+        </div>
+    </div>
+
+    <!-- Questão -->
+    <div class="question-section">
+        <div class="question-header">
+            <div class="question-type-badge {{question.question_type}}">
+                <i class="fas {{#question.question_type}}
+                    {{#equals question.question_type 'code'}}fa-code{{/equals}}
+                    {{#equals question.question_type 'multiple_choice'}}fa-list{{/equals}}
+                    {{#equals question.question_type 'text'}}fa-edit{{/equals}}
+                {{/question.question_type}}"></i>
+                <span>
+                    {{#question.question_type}}
+                        {{#equals question.question_type 'code'}}Questão de Código{{/equals}}
+                        {{#equals question.question_type 'multiple_choice'}}Múltipla Escolha{{/equals}}
+                        {{#equals question.question_type 'text'}}Resposta Livre{{/equals}}
+                    {{/question.question_type}}
+                </span>
+            </div>
+            <div class="question-points">{{question.points}} pontos</div>
+        </div>
+
+        <div class="question-content">
+            <h2 class="question-text">{{question.question_text}}</h2>
+        </div>
+
+        <!-- Interface de Resposta -->
+        <div class="answer-section">
+            {{#equals question.question_type 'code'}}
+            <!-- Editor de Código -->
+            <div class="code-editor-container">
+                <div class="editor-header">
+                    <span class="editor-title">Seu Código:</span>
+                    <div class="editor-actions">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="clearCode()">
+                            <i class="fas fa-trash"></i> Limpar
+                        </button>
+                    </div>
+                </div>
+                <textarea id="code-editor" class="code-editor" placeholder="Digite seu código aqui..."
+                          rows="10" spellcheck="false"></textarea>
+                
+                <div class="editor-footer">
+                    <button type="button" class="btn btn-primary" onclick="validateCode()">
+                        <i class="fas fa-check"></i> Validar Código
+                    </button>
+                </div>
+            </div>
+            {{/equals}}
+
+            {{#equals question.question_type 'multiple_choice'}}
+            <!-- Opções de Múltipla Escolha -->
+            <div class="multiple-choice-container">
+                <form id="multiple-choice-form">
+                    {{#question.options}}
+                    <div class="option-item">
+                        <input type="radio" id="option-{{id}}" name="selected_option" value="{{id}}" class="option-input">
+                        <label for="option-{{id}}" class="option-label">
+                            <span class="option-marker">{{option_order}}</span>
+                            <span class="option-text">{{option_text}}</span>
+                        </label>
+                    </div>
+                    {{/question.options}}
+                </form>
+                
+                <div class="choice-actions">
+                    <button type="button" class="btn btn-primary" onclick="submitMultipleChoice()">
+                        <i class="fas fa-check"></i> Confirmar Resposta
+                    </button>
+                </div>
+            </div>
+            {{/equals}}
+
+            {{#equals question.question_type 'text'}}
+            <!-- Campo de Texto -->
+            <div class="text-answer-container">
+                <div class="text-editor-header">
+                    <span class="editor-title">Sua Resposta:</span>
+                </div>
+                <textarea id="text-answer" class="text-editor" placeholder="Digite sua resposta aqui..."
+                          rows="5"></textarea>
+                
+                <div class="text-actions">
+                    <button type="button" class="btn btn-primary" onclick="submitTextAnswer()">
+                        <i class="fas fa-check"></i> Enviar Resposta
+                    </button>
+                </div>
+            </div>
+            {{/equals}}
+        </div>
+
+        <!-- Área de Resultado -->
+        <div id="answer-result" class="answer-result" style="display: none;">
+            <div class="result-content">
+                <div class="result-header">
+                    <div class="result-icon">
+                        <i class="fas fa-check-circle success-icon" style="display: none;"></i>
+                        <i class="fas fa-times-circle error-icon" style="display: none;"></i>
+                    </div>
+                    <div class="result-text">
+                        <span class="result-status"></span>
+                        <span class="result-score"></span>
+                    </div>
+                </div>
+                <div class="result-explanation"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navegação -->
+    <div class="question-navigation">
+        <div class="nav-buttons">
+            {{#question.hasPrevious}}
+            <a href="/quiz/{{quiz.id}}/question/{{question.previousNumber}}" class="btn btn-outline-secondary">
+                <i class="fas fa-chevron-left"></i> Anterior
+            </a>
+            {{/question.hasPrevious}}
+            
+            {{^question.hasPrevious}}
+            <a href="/quiz/{{quiz.id}}" class="btn btn-outline-secondary">
+                <i class="fas fa-list"></i> Visão Geral
+            </a>
+            {{/question.hasPrevious}}
+            
+            {{#question.hasNext}}
+            <a href="/quiz/{{quiz.id}}/question/{{question.nextNumber}}" class="btn btn-primary">
+                Próxima <i class="fas fa-chevron-right"></i>
+            </a>
+            {{/question.hasNext}}
+            
+            {{^question.hasNext}}
+            <a href="/quiz/{{quiz.id}}/result" class="btn btn-success">
+                <i class="fas fa-flag-checkered"></i> Finalizar
+            </a>
+            {{/question.hasNext}}
+        </div>
+        
+        <!-- Indicadores de Questões -->
+        <div class="question-indicators">
+            {{#range navigation.totalQuestions}}
+            <a href="/quiz/{{../quiz.id}}/question/{{this}}" 
+               class="question-indicator {{#equals this ../navigation.currentQuestion}}active{{/equals}}">
+                {{this}}
+            </a>
+            {{/range}}
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript para Funcionalidades -->
+<script>
+// Dados da questão atual
+const currentQuestion = {
+    id: {{question.id}},
+    type: '{{question.question_type}}',
+    quizId: {{quiz.id}}
+};
+
+// Função para validar código
+function validateCode() {
+    const code = document.getElementById('code-editor').value.trim();
+    
+    if (!code) {
+        showAlert('Por favor, digite seu código antes de validar.', 'warning');
+        return;
+    }
+    
+    // Mostrar loading
+    const button = event.target;
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Validando...';
+    button.disabled = true;
+    
+    // Enviar código para validação
+    fetch(`/quiz/question/${currentQuestion.id}/validate`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ code: code })
+    })
+    .then(response => response.json())
+    .then(data => {
+        showResult(data);
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        showAlert('Erro ao validar código. Tente novamente.', 'error');
+    })
+    .finally(() => {
+        button.innerHTML = originalText;
+        button.disabled = false;
+    });
+}
+
+// Função para submeter múltipla escolha
+function submitMultipleChoice() {
+    const selectedOption = document.querySelector('input[name="selected_option"]:checked');
+    
+    if (!selectedOption) {
+        showAlert('Por favor, selecione uma opção.', 'warning');
+        return;
+    }
+    
+    const button = event.target;
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+    button.disabled = true;
+    
+    fetch(`/quiz/question/${currentQuestion.id}/submit`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 
+            answer: selectedOption.value, 
+            answerType: 'multiple_choice' 
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        showResult(data);
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        showAlert('Erro ao enviar resposta. Tente novamente.', 'error');
+    })
+    .finally(() => {
+        button.innerHTML = originalText;
+        button.disabled = false;
+    });
+}
+
+// Função para submeter resposta de texto
+function submitTextAnswer() {
+    const answer = document.getElementById('text-answer').value.trim();
+    
+    if (!answer) {
+        showAlert('Por favor, digite sua resposta.', 'warning');
+        return;
+    }
+    
+    const button = event.target;
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+    button.disabled = true;
+    
+    fetch(`/quiz/question/${currentQuestion.id}/submit`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 
+            answer: answer, 
+            answerType: 'text' 
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        showResult(data);
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        showAlert('Erro ao enviar resposta. Tente novamente.', 'error');
+    })
+    .finally(() => {
+        button.innerHTML = originalText;
+        button.disabled = false;
+    });
+}
+
+// Função para mostrar resultado
+function showResult(data) {
+    const resultDiv = document.getElementById('answer-result');
+    const statusElement = resultDiv.querySelector('.result-status');
+    const scoreElement = resultDiv.querySelector('.result-score');
+    const explanationElement = resultDiv.querySelector('.result-explanation');
+    const successIcon = resultDiv.querySelector('.success-icon');
+    const errorIcon = resultDiv.querySelector('.error-icon');
+    
+    if (data.success) {
+        if (data.isCorrect === true) {
+            statusElement.textContent = 'Resposta Correta!';
+            statusElement.className = 'result-status success';
+            successIcon.style.display = 'inline';
+            errorIcon.style.display = 'none';
+        } else if (data.isCorrect === false) {
+            statusElement.textContent = 'Resposta Incorreta';
+            statusElement.className = 'result-status error';
+            successIcon.style.display = 'none';
+            errorIcon.style.display = 'inline';
+        } else {
+            statusElement.textContent = 'Resposta Enviada';
+            statusElement.className = 'result-status info';
+            successIcon.style.display = 'inline';
+            errorIcon.style.display = 'none';
+        }
+        
+        scoreElement.textContent = `+${data.score} pontos`;
+        if (data.xpEarned) {
+            scoreElement.textContent += ` (+${data.xpEarned} XP)`;
+        }
+        
+        if (data.explanation) {
+            explanationElement.textContent = data.explanation;
+            explanationElement.style.display = 'block';
+        }
+        
+        resultDiv.style.display = 'block';
+        resultDiv.scrollIntoView({ behavior: 'smooth' });
+    } else {
+        showAlert(data.message || 'Erro ao processar resposta', 'error');
+    }
+}
+
+// Função para limpar código
+function clearCode() {
+    if (confirm('Tem certeza que deseja limpar todo o código?')) {
+        document.getElementById('code-editor').value = '';
+    }
+}
+
+// Função para mostrar alertas
+function showAlert(message, type) {
+    // Implementar sistema de alertas
+    alert(message);
+}
+
+// Helper para range (usado nos indicadores)
+Mustache.registerHelper('range', function(n, options) {
+    let result = '';
+    for (let i = 1; i <= n; i++) {
+        result += options.fn(i);
+    }
+    return result;
+});
+
+// Helper para comparação
+Mustache.registerHelper('equals', function(a, b, options) {
+    return a === b ? options.fn(this) : options.inverse(this);
+});
+</script>
+
+<style>
+/* ========================================
+   ESTILOS DA PÁGINA DE QUESTÃO
+   ======================================== */
+
+.quiz-question-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.breadcrumb-item {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.breadcrumb-item:hover {
+  color: var(--primary-dark);
+}
+
+.breadcrumb-current {
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.breadcrumb-separator {
+  color: var(--text-muted);
+}
+
+/* Progresso do Questionário */
+.quiz-progress-header {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.quiz-title {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.question-progress {
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.progress-bar-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.progress-bar {
+  height: 8px;
+  background: var(--background-light);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-percentage {
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+/* Questão */
+.question-section {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.question-header {
+  margin-bottom: 2rem;
+}
+
+.question-type-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.question-type-badge.code {
+  background: #e8f5e8;
+  color: #2d7d32;
+}
+
+.question-type-badge.multiple_choice {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.question-type-badge.text {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.question-points {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.question-text {
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--text-color);
+  margin-bottom: 2rem;
+}
+
+/* Área de Resposta */
+.answer-section {
+  margin-bottom: 2rem;
+}
+
+/* Editor de Código */
+.code-editor-container {
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.editor-header {
+  background: var(--background-light);
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.editor-title {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.code-editor {
+  width: 100%;
+  min-height: 300px;
+  padding: 1.5rem;
+  border: none;
+  background: #f8f9fa;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  resize: vertical;
+  outline: none;
+}
+
+.editor-footer {
+  padding: 1rem;
+  background: var(--background-light);
+  border-top: 1px solid var(--border-color);
+}
+
+/* Múltipla Escolha */
+.multiple-choice-container {
+  max-width: 600px;
+}
+
+.options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.option-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.option-item:hover {
+  border-color: var(--primary-color);
+  background: var(--background-light);
+}
+
+.option-item.selected,
+.option-item:has(input:checked) {
+  border-color: var(--primary-color);
+  background: rgba(var(--primary-color-rgb), 0.1);
+}
+
+.option-item input[type="radio"] {
+  display: none;
+}
+
+.option-marker {
+  width: 30px;
+  height: 30px;
+  background: var(--border-color);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.option-item.selected .option-marker,
+.option-item:has(input:checked) .option-marker {
+  background: var(--primary-color);
+}
+
+.option-text {
+  flex: 1;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+/* Questão de Texto */
+.text-answer-container {
+  max-width: 500px;
+}
+
+.text-editor-header {
+  margin-bottom: 2rem;
+}
+
+.text-editor {
+  width: 100%;
+  padding: 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s ease;
+}
+
+.text-editor:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+/* Ações dos Formulários */
+.choice-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+/* Resultado da Resposta */
+.answer-result {
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-top: 2rem;
+}
+
+.result-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.result-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.result-icon {
+  font-size: 1.5rem;
+  margin-right: 0.5rem;
+}
+
+.result-text {
+  font-weight: 600;
+}
+
+.result-status {
+  font-weight: 600;
+  margin-right: 0.5rem;
+}
+
+.result-score {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.result-explanation {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+/* Navegação */
+.question-navigation {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.nav-buttons a {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  text-decoration: none;
+  color: var(--text-color);
+  transition: all 0.2s ease;
+  min-width: 180px;
+}
+
+.nav-buttons a:hover {
+  border-color: var(--primary-color);
+  background: var(--background-light);
+}
+
+/* Indicadores de Questões */
+.question-indicators {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.question-indicator {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--background-light);
+  border: 2px solid var(--border-color);
+  transition: all 0.2s ease;
+}
+
+.question-indicator.active {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.question-indicator a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-weight: 600;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.question-indicator.active a {
+  color: white;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .quiz-question-container {
+    padding: 1rem;
+  }
+  
+  .question-section {
+    padding: 1.5rem;
+  }
+  
+  .question-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .question-text {
+    font-size: 1.2rem;
+  }
+  
+  .nav-buttons {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .question-indicators {
+    order: -1;
+  }
+  
+  .code-editor {
+    min-height: 200px;
+  }
+}
+
+/* Alertas */
+.alert {
+  position: fixed;
+  top: 2rem;
+  right: 2rem;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  color: white;
+  font-weight: 500;
+  z-index: 1000;
+  animation: slideInRight 0.3s ease;
+}
+
+.alert-success {
+  background: #4caf50;
+}
+
+.alert-error {
+  background: #f44336;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+</style> 
