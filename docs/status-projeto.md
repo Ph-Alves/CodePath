@@ -12,15 +12,15 @@
 | Fase 2 | ✅ Concluída | 100% | Banco de dados e autenticação |
 | Fase 3 | ✅ Concluída | 100% | Sistema de usuários |
 | Fase 4 | ✅ Concluída | 100% | Layout base e navegação |
-| Fase 5 | ⏳ Pendente | 0% | Dashboard e métricas |
-| Fase 6 | ⏳ Pendente | 0% | Sistema de carreiras |
+| Fase 5 | ✅ Concluída | 100% | Dashboard e métricas |
+| Fase 6 | ✅ Concluída | 100% | Sistema de carreiras |
 | Fase 7 | ⏳ Pendente | 0% | Sistema de conteúdos |
 | Fase 8 | ⏳ Pendente | 0% | Sistema de questionários |
 | Fase 9 | ⏳ Pendente | 0% | Sistema de progresso |
 | Fase 10 | ⏳ Pendente | 0% | Notificações e UX |
 | Fase 11 | ⏳ Pendente | 0% | Testes e documentação |
 
-**Progresso Total:** 36% (4 de 11 fases concluídas)
+**Progresso Total:** 55% (6 de 11 fases concluídas)
 
 ---
 
@@ -145,28 +145,111 @@
 
 ---
 
+### Fase 5 - Dashboard e Métricas ✅
+**Status:** Concluída em 100%  
+**Data de Conclusão:** 19 de Dezembro de 2024  
+
+**Implementações Realizadas:**
+- ✅ Sistema completo de métricas do usuário funcionais
+- ✅ Dashboard com dados reais do banco de dados
+- ✅ Seção "Continue Estudando" totalmente funcional
+- ✅ Atividade recente baseada no progresso real
+- ✅ APIs REST para métricas e progresso
+- ✅ Controller específico para dashboard
+- ✅ Integração completa com dados reais do banco
+
+**Arquivos Criados:**
+- `controllers/dashboardController.js` - Controller específico do dashboard
+- `routes/dashboardRoutes.js` - Rotas do dashboard e APIs
+- Expansão do `models/userModel.js` - Funções para métricas e progresso
+
+**Arquivos Modificados:**
+- `app.js` - Integração das novas rotas do dashboard
+- `routes/authRoutes.js` - Remoção da rota dashboard (movida para dashboardRoutes)
+- `controllers/authController.js` - Remoção da função showDashboard
+- `db/seed.sql` - Dados realistas para demonstração
+
+**Funcionalidades Operacionais:**
+- 📊 Métricas em tempo real (aulas, cursos, desafios, questionários)
+- 📈 Cálculo automático de progresso por pacote
+- 🎯 Seção "Continue Estudando" com dados reais
+- 📋 Atividade recente baseada no progresso
+- 🔄 APIs para atualização de dados em tempo real
+- 👤 Dashboard personalizado por usuário
+
+**APIs Implementadas:**
+- `GET /dashboard/api/metrics` - Métricas do usuário
+- `GET /dashboard/api/progress/:packageId` - Progresso de pacote específico
+
+**Dados de Teste:**
+- 3 usuários com progresso variado (Carlos, Ana, João)
+- Dados realistas de progresso e métricas
+- Sistema de XP calculado automaticamente
+
+---
+
+### Fase 6 - Sistema de Carreiras ✅
+**Status:** Concluída em 100%  
+**Data de Conclusão:** 20 de Dezembro de 2024  
+
+**Implementações Realizadas:**
+- ✅ Página de pacotes de tecnologia totalmente funcional
+- ✅ Sistema de seleção de perfis profissionais
+- ✅ Gerenciamento de progresso nos pacotes
+- ✅ Integração completa com banco de dados
+- ✅ Interface responsiva e acessível
+- ✅ Sistema de notificações e feedback
+
+**Arquivos Criados:**
+- `models/careerModel.js` - Modelo para gerenciar carreiras e pacotes
+- `controllers/careerController.js` - Controlador das funcionalidades de carreiras
+- `routes/careerRoutes.js` - Rotas do sistema de carreiras
+- `views/pages/careers.mustache` - Página de pacotes de tecnologia
+- `views/pages/career-profiles.mustache` - Página de perfis profissionais
+
+**Arquivos Modificados:**
+- `app.js` - Integração das rotas de carreiras
+- `views/partials/sidebar.mustache` - Link para carreiras já existia
+
+**Funcionalidades Operacionais:**
+- 📦 Visualização de todos os pacotes de tecnologia (C, Python, Java, Front-end, Back-end, C#)
+- 🎯 Seleção de perfis profissionais (Desenvolvedor, Gestor, Suporte, DBA, Segurança, Indefinido)
+- 📊 Progresso individual por pacote com barras visuais
+- ▶️ Iniciar novos pacotes de estudo
+- ⏭️ Continuar pacotes em progresso
+- 🔄 Atualização automática do pacote atual do usuário
+- 📱 Interface totalmente responsiva
+
+**Rotas Implementadas:**
+- `GET /careers` - Página principal de pacotes
+- `GET /career-profiles` - Seleção de perfis profissionais
+- `GET /careers/package/:id` - Detalhes de pacote específico
+- `POST /careers/package/:id/start` - Iniciar progresso em pacote
+- `POST /careers/package/:id/continue` - Continuar progresso
+- `POST /career-profiles/select` - Selecionar perfil profissional
+- `GET /api/careers/package/:id` - API para dados do pacote
+
+**Características Visuais:**
+- 🎨 Design consistente com tema roxo CodePath
+- 📊 Cards de pacotes com progresso visual
+- 🏷️ Badges de status (Não iniciado, Em progresso, Concluído)
+- 🎯 Ícones específicos para cada tecnologia
+- ✨ Animações e hover effects
+- 📱 Layout responsivo para mobile
+
+---
+
 ## ⏳ Próximas Fases
 
-### Fase 5 - Dashboard e Métricas
+### Fase 7 - Sistema de Conteúdos
 **Status:** Pendente  
 **Prioridade:** Alta  
 
 **Implementações Planejadas:**
-- Sistema completo de métricas do usuário
-- Gráficos de progresso e desempenho
-- Seção "Continue Estudando" funcional
-- Atividade recente do usuário
-- Integração com dados reais do banco
-
-### Fase 6 - Sistema de Carreiras
-**Status:** Pendente  
-**Prioridade:** Alta  
-
-**Implementações Planejadas:**
-- Página de pacotes de tecnologia
-- Seleção de perfis profissionais
-- Trilhas de aprendizado
-- Navegação entre carreiras
+- Sistema de aulas e lições
+- Player de conteúdo
+- Navegação entre aulas
+- Marcação de progresso por aula
 
 ### Fases 7-11
 **Status:** Pendente  

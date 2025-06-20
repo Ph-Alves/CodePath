@@ -234,104 +234,12 @@ async function processLogout(req, res) {
   }
 }
 
-/**
- * Exibe o dashboard (página principal após login)
- */
-function showDashboard(req, res) {
-  try {
-    const user = req.session.user;
-    
-    // Dados mockados para demonstração (serão substituídos por dados reais nas próximas fases)
-    const mockData = {
-      // Progresso do nível atual
-      levelProgress: 65, // Porcentagem para próximo nível
-      
-      // Métricas do usuário
-      metrics: {
-        lessonsWatched: 24,
-        lessonsThisWeek: 5,
-        coursesCompleted: 3,
-        coursesThisMonth: 1,
-        challengesCompleted: 12,
-        challengesPending: 3,
-        quizzesCompleted: 18,
-        averageScore: 87
-      },
-      
-      // Pacotes em progresso (exemplo)
-      currentPackages: {
-        packages: [
-          {
-            id: 1,
-            name: 'Pacote C',
-            currentLesson: 'C - Operações',
-            progressPercentage: 45,
-            icon: 'fab fa-cuttlefish'
-          },
-          {
-            id: 2,
-            name: 'Pacote Python',
-            currentLesson: 'Python - Estruturas de Dados',
-            progressPercentage: 72,
-            icon: 'fab fa-python'
-          }
-        ]
-      },
-      
-      // Atividade recente
-      recentActivity: {
-        activities: [
-          {
-            type: 'lesson',
-            icon: 'fas fa-play-circle',
-            description: 'Completou a aula "C - Operações"',
-            timeAgo: '2 horas atrás',
-            points: 50
-          },
-          {
-            type: 'quiz',
-            icon: 'fas fa-question-circle',
-            description: 'Respondeu questionário de Python',
-            timeAgo: '1 dia atrás',
-            points: 75
-          },
-          {
-            type: 'achievement',
-            icon: 'fas fa-trophy',
-            description: 'Conquistou o badge "Iniciante em C"',
-            timeAgo: '2 dias atrás',
-            points: 100
-          }
-        ]
-      }
-    };
-    
-    res.render('pages/dashboard', {
-      layout: 'main', // Usar o layout principal
-      pageTitle: 'Dashboard',
-      additionalCSS: 'dashboard',
-      additionalJS: 'dashboard',
-      bodyClass: 'dashboard-page',
-      isDashboard: true, // Para marcar nav ativo
-      user: {
-        ...user,
-        level: user.level || 1,
-        xp_points: user.xp_points || 250,
-        streak_days: user.streak_days || 3
-      },
-      ...mockData
-    });
-  } catch (error) {
-    console.error('Erro ao exibir dashboard:', error);
-    res.status(500).send('Erro interno do servidor');
-  }
-}
+
 
 module.exports = {
   showLogin,
   processLogin,
   showRegister,
   processRegister,
-  processLogout,
-  showDashboard
+  processLogout
 }; 

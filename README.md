@@ -4,8 +4,8 @@
 > Trilhas de estudo pensadas pra onde você quer ir!
 
 [![Status](https://img.shields.io/badge/Status-Em%20Desenvolvimento-yellow)](https://github.com)
-[![Progresso](https://img.shields.io/badge/Progresso-36%25-blue)](docs/status-projeto.md)
-[![Fase Atual](https://img.shields.io/badge/Fase%20Atual-5%20(Dashboard)-orange)](docs/status-projeto.md)
+[![Progresso](https://img.shields.io/badge/Progresso-45%25-blue)](docs/status-projeto.md)
+[![Fase Atual](https://img.shields.io/badge/Fase%20Atual-6%20(Carreiras)-blue)](docs/status-projeto.md)
 
 ## 📋 Sobre o Projeto
 
@@ -34,7 +34,7 @@ O **CodePath** é uma plataforma web educacional moderna desenvolvida para joven
 
 | Fase | Descrição | Prioridade |
 |------|-----------|------------|
-| **Fase 5** | Dashboard e métricas | 🔥 Alta |
+| **Fase 5** | Dashboard e métricas | ✅ Concluída |
 | **Fase 6** | Sistema de carreiras | 🔥 Alta |
 | **Fase 7** | Sistema de conteúdos | 📋 Média |
 | **Fase 8** | Sistema de questionários | 📋 Média |
@@ -213,7 +213,7 @@ CodePath/
 ## 📈 Roadmap
 
 ### Curto Prazo (2 semanas)
-- [ ] Finalizar Fase 5 (Dashboard funcional)
+- [x] Finalizar Fase 5 (Dashboard funcional)
 - [ ] Implementar Fase 6 (Sistema de carreiras)
 - [ ] Integrar dados reais do banco
 

@@ -14,7 +14,13 @@
 | POST | `/register` | ✅ | Processar cadastro | 3 |
 | POST | `/logout` | ✅ | Realizar logout | 3 |
 | GET | `/dashboard` | ✅ | Dashboard principal do usuário | 4 |
-| GET | `/careers` | ⏳ | Página de pacotes de tecnologia | 6 |
+| GET | `/careers` | ✅ | Página de pacotes de tecnologia | 6 |
+| GET | `/career-profiles` | ✅ | Seleção de perfis profissionais | 6 |
+| GET | `/careers/package/:id` | ✅ | Detalhes de pacote específico | 6 |
+| POST | `/careers/package/:id/start` | ✅ | Iniciar progresso em pacote | 6 |
+| POST | `/careers/package/:id/continue` | ✅ | Continuar progresso em pacote | 6 |
+| POST | `/career-profiles/select` | ✅ | Selecionar perfil profissional | 6 |
+| GET | `/api/careers/package/:id` | ✅ | API de dados do pacote | 6 |
 | GET | `/my-area` | ⏳ | Minha área do usuário | 5 |
 | GET | `/performance` | ⏳ | Página de desempenho | 9 |
 | GET | `/settings` | ⏳ | Configurações do usuário | 5 |
@@ -223,7 +229,31 @@ Location: /login ou /dashboard
 
 ## ⏳ Rotas Planejadas (Próximas Fases)
 
-### Fase 5 - Dashboard e Métricas
+### Fase 5 - Dashboard e Métricas ✅
+
+#### GET `/dashboard/api/metrics`
+**Descrição:** API de métricas do usuário  
+**Status:** ✅ Implementada  
+**Controller:** `dashboardController.updateMetrics`  
+**Autenticação:** Requerida  
+**Formato de Resposta:** JSON  
+**Funcionalidades:**
+- Aulas assistidas (total e semanal)
+- Cursos concluídos (total e mensal)
+- Desafios entregues e pendentes
+- Questionários realizados e média de pontuação
+
+#### GET `/dashboard/api/progress/:packageId`
+**Descrição:** API de progresso de pacote específico  
+**Status:** ✅ Implementada  
+**Controller:** `dashboardController.getPackageProgress`  
+**Autenticação:** Requerida  
+**Formato de Resposta:** JSON  
+**Funcionalidades:**
+- Progresso detalhado do pacote
+- Lições e questionários completados
+- Tempo gasto no pacote
+- Streak atual
 
 #### GET `/my-area`
 **Descrição:** Área pessoal do usuário  
@@ -243,28 +273,173 @@ Location: /login ou /dashboard
 - Preferências de notificação
 - Configurações de privacidade
 
-### Fase 6 - Sistema de Carreiras
+### Fase 6 - Sistema de Carreiras ✅
 
 #### GET `/careers`
 **Descrição:** Página de pacotes de tecnologia  
-**Status:** ⏳ Planejada  
-**Funcionalidades Previstas:**
-- Lista de pacotes (C, Python, Java, etc.)
-- Filtros por categoria
-- Detalhes de cada pacote
-- Botão "Começar" ou "Continuar"
+**Status:** ✅ Implementada  
+**Controlador:** `careerController.showCareersPage`  
+**Template:** `views/pages/careers.mustache`  
+**Middleware:** `requireAuth`  
 
-#### GET `/careers/packages/:package`
-**Descrição:** Detalhes de um pacote específico  
-**Status:** ⏳ Planejada  
+**Funcionalidades:**
+- Lista de todos os pacotes de tecnologia (C, Python, Java, Front-end, Back-end, C#)
+- Progresso individual do usuário em cada pacote
+- Estatísticas gerais (pacotes disponíveis, em progresso, concluídos)
+- Botões para iniciar ou continuar pacotes
+- Link para seleção de perfis profissionais
 
-#### POST `/careers/packages/:package/start`
-**Descrição:** Iniciar um novo pacote  
-**Status:** ⏳ Planejada  
+**Template Data:**
+```javascript
+{
+  title: 'Pacotes de Tecnologia - CodePath',
+  user: req.session.user,
+  packages: [
+    {
+      id: 1,
+      name: 'Pacote C',
+      description: 'Aprenda programação em C desde o básico até conceitos avançados',
+      icon: 'C',
+      user_progress: 45,
+      user_status: 'in_progress',
+      progressColor: 'bg-yellow-500',
+      statusText: 'Em progresso',
+      canContinue: true,
+      canStart: false
+    }
+  ],
+  totalPackages: 6,
+  inProgressCount: 2,
+  completedCount: 1
+}
+```
 
 #### GET `/career-profiles`
-**Descrição:** Seleção de perfis profissionais  
-**Status:** ⏳ Planejada  
+**Descrição:** Página de seleção de perfis profissionais  
+**Status:** ✅ Implementada  
+**Controlador:** `careerController.showCareerProfilesPage`  
+**Template:** `views/pages/career-profiles.mustache`  
+**Middleware:** `requireAuth`  
+
+**Funcionalidades:**
+- Lista de todos os perfis profissionais disponíveis
+- Indicação do perfil atualmente selecionado
+- Informações sobre benefícios da seleção de perfil
+- Interface para alterar perfil
+
+**Template Data:**
+```javascript
+{
+  title: 'Perfis Profissionais - CodePath',
+  user: req.session.user,
+  profiles: [
+    {
+      id: 1,
+      name: 'Desenvolvedor de Software',
+      description: 'Criação e manutenção de sistemas e aplicações',
+      icon: 'developer',
+      iconClass: 'fas fa-code',
+      isSelected: true
+    }
+  ],
+  hasSelectedProfile: true
+}
+```
+
+#### GET `/careers/package/:id`
+**Descrição:** Página de detalhes de um pacote específico  
+**Status:** ✅ Implementada  
+**Controlador:** `careerController.showPackageDetails`  
+**Template:** `views/pages/package-details.mustache`  
+**Middleware:** `requireAuth`  
+
+**Parâmetros:**
+- `id` (Integer): ID do pacote
+
+**Funcionalidades:**
+- Informações completas do pacote
+- Lista de aulas do pacote
+- Progresso detalhado do usuário
+- Opções para iniciar ou continuar
+
+#### POST `/careers/package/:id/start`
+**Descrição:** Iniciar progresso em um pacote  
+**Status:** ✅ Implementada  
+**Controlador:** `careerController.startPackage`  
+**Middleware:** `requireAuth`  
+
+**Parâmetros:**
+- `id` (Integer): ID do pacote
+
+**Comportamento:**
+- Cria registro de progresso no banco
+- Atualiza pacote atual do usuário
+- Redireciona para página de carreiras com feedback
+
+#### POST `/careers/package/:id/continue`
+**Descrição:** Continuar progresso em um pacote  
+**Status:** ✅ Implementada  
+**Controlador:** `careerController.continuePackage`  
+**Middleware:** `requireAuth`  
+
+**Parâmetros:**
+- `id` (Integer): ID do pacote
+
+**Comportamento:**
+- Atualiza pacote atual do usuário
+- Redireciona para dashboard
+
+#### POST `/career-profiles/select`
+**Descrição:** Selecionar perfil profissional  
+**Status:** ✅ Implementada  
+**Controlador:** `careerController.selectCareerProfile`  
+**Middleware:** `requireAuth`  
+
+**Parâmetros do Body:**
+```javascript
+{
+  profileId: Integer  // ID do perfil profissional
+}
+```
+
+**Comportamento:**
+- Valida se perfil existe
+- Atualiza perfil do usuário no banco
+- Atualiza sessão
+- Redireciona com mensagem de sucesso
+
+#### GET `/api/careers/package/:id`
+**Descrição:** API para buscar dados de um pacote  
+**Status:** ✅ Implementada  
+**Controlador:** `careerController.getPackageData`  
+**Middleware:** `requireAuth`  
+**Formato:** JSON
+
+**Parâmetros:**
+- `id` (Integer): ID do pacote
+
+**Resposta de Sucesso:**
+```javascript
+{
+  success: true,
+  package: {
+    id: 1,
+    name: 'Pacote C',
+    description: 'Aprenda programação em C...',
+    lessons: [
+      {
+        id: 1,
+        name: 'C - Introdução',
+        lesson_number: 1
+      }
+    ]
+  },
+  userProgress: {
+    user_progress: 45,
+    user_status: 'in_progress'
+  }
+}
+```  
 
 ### Fase 7 - Sistema de Conteúdos
 
@@ -326,14 +501,14 @@ app.get('/dashboard', requireAuth, authController.showDashboard);
 ## 📊 Estatísticas das Rotas
 
 ### Por Status
-- **✅ Implementadas:** 7 rotas
-- **⏳ Planejadas:** 12+ rotas
-- **📈 Progresso:** ~37% das rotas principais
+- **✅ Implementadas:** 16 rotas
+- **⏳ Planejadas:** 10+ rotas
+- **📈 Progresso:** ~62% das rotas principais
 
 ### Por Funcionalidade
 - **Autenticação:** 6/6 rotas implementadas ✅
-- **Dashboard:** 1/4 rotas implementadas (25%)
-- **Carreiras:** 0/4 rotas implementadas (0%)
+- **Dashboard:** 3/4 rotas implementadas (75%) 🔥
+- **Carreiras:** 7/7 rotas implementadas ✅
 - **Conteúdos:** 0/3 rotas implementadas (0%)
 - **Questionários:** 0/3 rotas implementadas (0%)
 - **Progresso:** 0/2 rotas implementadas (0%)

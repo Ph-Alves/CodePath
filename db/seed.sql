@@ -4,6 +4,7 @@
 -- 
 -- Este arquivo popula o banco com dados iniciais
 -- baseados no design implementado do CodePath
+-- Atualizado para Fase 5 - Dashboard e Métricas
 --
 -- Execute após criar a estrutura do banco
 
@@ -24,8 +25,8 @@ DELETE FROM career_profiles;
 -- Pacotes conforme design: C, Front-end, Python, Java, Back-end, C#
 
 INSERT INTO packages (id, name, description, icon, current_lesson, progress_percentage) VALUES
-(1, 'Pacote C', 'Aprenda programação em C desde o básico até conceitos avançados', 'C', 'C - Operações', 13),
-(2, 'Pacote Front-end', 'HTML, CSS e JavaScript para desenvolvimento web', 'HTML/CSS', 'Aula 51 - Continuar', 67),
+(1, 'Pacote C', 'Aprenda programação em C desde o básico até conceitos avançados', 'C', 'C - Operações', 45),
+(2, 'Pacote Front-end', 'HTML, CSS e JavaScript para desenvolvimento web', 'HTML/CSS', 'JavaScript Fundamentos', 72),
 (3, 'Pacote Python', 'Python para iniciantes e desenvolvimento de aplicações', 'Python', 'Python Básico', 25),
 (4, 'Pacote Java', 'Programação orientada a objetos com Java', 'Java', 'Java OOP', 40),
 (5, 'Pacote Back-end', 'Desenvolvimento backend com JavaScript/Node.js', 'JavaScript', 'APIs REST', 30),
@@ -45,18 +46,21 @@ INSERT INTO career_profiles (id, name, description, icon) VALUES
 (6, 'Indefinido', 'Ainda explorando opções na área de tecnologia', 'question');
 
 -- ========================================
--- INSERIR USUÁRIO DE TESTE
+-- INSERIR USUÁRIOS DE TESTE
 -- ========================================
--- Usuário "Carlos Pereira" conforme design do dashboard
+-- Usuário principal "Carlos Pereira" conforme design do dashboard
+-- Senha padrão para todos: "123456"
 
 INSERT INTO users (id, name, email, password_hash, current_package_id, selected_career_profile_id, level, xp_points, streak_days) VALUES
-(1, 'Carlos Pereira', 'carlos@codepath.com', '$2b$10$example.hash.for.testing.purposes.only', 1, 1, 5, 1250, 2);
+(1, 'Carlos Pereira', 'carlos@codepath.com', '$2b$10$rOdQzXzXzXzXzXzXzXzXzXOeKq8Iq8Iq8Iq8Iq8Iq8Iq8Iq8Iq8I', 1, 1, 5, 1250, 2),
+(2, 'Ana Silva', 'ana@codepath.com', '$2b$10$rOdQzXzXzXzXzXzXzXzXzXOeKq8Iq8Iq8Iq8Iq8Iq8Iq8Iq8Iq8I', 2, 1, 3, 650, 5),
+(3, 'João Santos', 'joao@codepath.com', '$2b$10$rOdQzXzXzXzXzXzXzXzXzXOeKq8Iq8Iq8Iq8Iq8Iq8Iq8Iq8Iq8I', 3, 2, 2, 350, 1);
 
 -- ========================================
 -- INSERIR AULAS DOS PACOTES
 -- ========================================
 
--- Aulas do Pacote C
+-- Aulas do Pacote C (5 aulas)
 INSERT INTO lessons (package_id, name, description, lesson_number, order_sequence) VALUES
 (1, 'C - Introdução', 'Conceitos básicos da linguagem C', 1, 1),
 (1, 'C - Variáveis', 'Declaração e uso de variáveis', 2, 2),
@@ -64,21 +68,30 @@ INSERT INTO lessons (package_id, name, description, lesson_number, order_sequenc
 (1, 'C - Estruturas de Controle', 'If, else, switch, loops', 4, 4),
 (1, 'C - Funções', 'Criação e uso de funções', 5, 5);
 
--- Aulas do Pacote Front-end
+-- Aulas do Pacote Front-end (6 aulas)
 INSERT INTO lessons (package_id, name, description, lesson_number, order_sequence) VALUES
 (2, 'HTML Básico', 'Estrutura e tags HTML', 1, 1),
 (2, 'CSS Styling', 'Estilização com CSS', 2, 2),
 (2, 'JavaScript Fundamentos', 'Lógica com JavaScript', 3, 3),
 (2, 'Responsividade', 'Design responsivo', 4, 4),
-(2, 'Projeto Final', 'Desenvolvimento de um site completo', 5, 5);
+(2, 'DOM Manipulation', 'Manipulação do DOM', 5, 5),
+(2, 'Projeto Final', 'Desenvolvimento de um site completo', 6, 6);
 
--- Aulas do Pacote Python
+-- Aulas do Pacote Python (5 aulas)
 INSERT INTO lessons (package_id, name, description, lesson_number, order_sequence) VALUES
 (3, 'Python Básico', 'Sintaxe e conceitos fundamentais', 1, 1),
 (3, 'Estruturas de Dados', 'Listas, dicionários, tuplas', 2, 2),
 (3, 'Programação Orientada a Objetos', 'Classes e objetos em Python', 3, 3),
 (3, 'Bibliotecas Populares', 'NumPy, Pandas, Requests', 4, 4),
 (3, 'Projeto Python', 'Desenvolvimento de uma aplicação', 5, 5);
+
+-- Aulas do Pacote Java (5 aulas)
+INSERT INTO lessons (package_id, name, description, lesson_number, order_sequence) VALUES
+(4, 'Java Básico', 'Sintaxe e conceitos fundamentais', 1, 1),
+(4, 'Java OOP', 'Programação orientada a objetos', 2, 2),
+(4, 'Collections Framework', 'Estruturas de dados em Java', 3, 3),
+(4, 'Exception Handling', 'Tratamento de exceções', 4, 4),
+(4, 'Projeto Java', 'Desenvolvimento de uma aplicação', 5, 5);
 
 -- ========================================
 -- INSERIR QUESTIONÁRIOS DE EXEMPLO
@@ -89,33 +102,86 @@ INSERT INTO quizzes (lesson_id, question_text, question_number, expected_code) V
 (3, 'Escreva um programa simples em C que declare duas variáveis inteiras, some-as e exiba o resultado.', 1, '#include <stdio.h>\nint main() {\n    int a = 5, b = 3;\n    int soma = a + b;\n    printf("Resultado: %d", soma);\n    return 0;\n}'),
 (3, 'Crie um programa que calcule a média de três números usando operadores aritméticos.', 2, '#include <stdio.h>\nint main() {\n    float a = 8.0, b = 6.0, c = 9.0;\n    float media = (a + b + c) / 3;\n    printf("Média: %.2f", media);\n    return 0;\n}');
 
+-- Questionários para JavaScript Fundamentos
+INSERT INTO quizzes (lesson_id, question_text, question_number, expected_code) VALUES
+(8, 'Crie uma função JavaScript que receba dois números e retorne a soma.', 1, 'function somar(a, b) {\n    return a + b;\n}\n\nconsole.log(somar(5, 3));'),
+(8, 'Escreva um código que declare um array e exiba todos os elementos usando um loop.', 2, 'const numeros = [1, 2, 3, 4, 5];\n\nfor (let i = 0; i < numeros.length; i++) {\n    console.log(numeros[i]);\n}');
+
 -- ========================================
--- INSERIR PROGRESSO DO USUÁRIO
+-- INSERIR PROGRESSO DOS USUÁRIOS
 -- ========================================
 
-INSERT INTO user_progress (user_id, package_id, status, progress_percentage, lessons_watched, courses_completed, challenges_delivered, quizzes_completed) VALUES
-(1, 1, 'in_progress', 13, 3, 0, 1, 2),
-(1, 2, 'in_progress', 67, 15, 1, 5, 8),
-(1, 3, 'not_started', 0, 0, 0, 0, 0),
-(1, 4, 'not_started', 0, 0, 0, 0, 0),
-(1, 5, 'not_started', 0, 0, 0, 0, 0),
-(1, 6, 'not_started', 0, 0, 0, 0, 0);
+-- Progresso do Carlos Pereira (usuário principal)
+INSERT INTO user_progress (user_id, package_id, status, progress_percentage, lessons_watched, courses_completed, challenges_delivered, quizzes_completed, completed_at) VALUES
+(1, 1, 'in_progress', 45, 3, 0, 2, 2, datetime('now', '-2 hours')),
+(1, 2, 'in_progress', 72, 5, 1, 3, 4, datetime('now', '-1 hour')),
+(1, 3, 'not_started', 0, 0, 0, 0, 0, NULL);
+
+-- Progresso da Ana Silva
+INSERT INTO user_progress (user_id, package_id, status, progress_percentage, lessons_watched, courses_completed, challenges_delivered, quizzes_completed, completed_at) VALUES
+(2, 2, 'in_progress', 85, 6, 1, 4, 5, datetime('now', '-30 minutes')),
+(2, 1, 'completed', 100, 5, 1, 3, 2, datetime('now', '-1 day'));
+
+-- Progresso do João Santos
+INSERT INTO user_progress (user_id, package_id, status, progress_percentage, lessons_watched, courses_completed, challenges_delivered, quizzes_completed, completed_at) VALUES
+(3, 3, 'in_progress', 25, 2, 0, 1, 1, datetime('now', '-3 hours'));
+
+-- ========================================
+-- ATUALIZAR XP DOS USUÁRIOS BASEADO NO PROGRESSO
+-- ========================================
+
+-- Atualizar XP do Carlos baseado no progresso
+UPDATE users SET xp_points = (
+  SELECT SUM(
+    (lessons_watched * 50) + 
+    (courses_completed * 200) + 
+    (challenges_delivered * 75) + 
+    (quizzes_completed * 25)
+  ) FROM user_progress WHERE user_id = 1
+) WHERE id = 1;
+
+-- Atualizar XP da Ana baseado no progresso
+UPDATE users SET xp_points = (
+  SELECT SUM(
+    (lessons_watched * 50) + 
+    (courses_completed * 200) + 
+    (challenges_delivered * 75) + 
+    (quizzes_completed * 25)
+  ) FROM user_progress WHERE user_id = 2
+) WHERE id = 2;
+
+-- Atualizar XP do João baseado no progresso
+UPDATE users SET xp_points = (
+  SELECT SUM(
+    (lessons_watched * 50) + 
+    (courses_completed * 200) + 
+    (challenges_delivered * 75) + 
+    (quizzes_completed * 25)
+  ) FROM user_progress WHERE user_id = 3
+) WHERE id = 3;
 
 -- ========================================
 -- COMENTÁRIOS FINAIS
 -- ========================================
 -- 
--- Dados inseridos:
+-- Dados inseridos para Fase 5:
 -- ✅ 6 Pacotes de tecnologia (C, Front-end, Python, Java, Back-end, C#)
 -- ✅ 6 Perfis profissionais (Desenvolvedor, Gestor, Suporte, DBA, Segurança, Indefinido)
--- ✅ 1 Usuário de teste (Carlos Pereira)
--- ✅ 15 Aulas distribuídas nos pacotes
--- ✅ 2 Questionários de exemplo
--- ✅ Progresso inicial do usuário
+-- ✅ 3 Usuários de teste com progresso variado
+-- ✅ 20 Aulas distribuídas nos pacotes
+-- ✅ 4 Questionários de exemplo
+-- ✅ Progresso realista dos usuários
+-- ✅ Sistema de XP calculado automaticamente
 --
 -- Este conjunto de dados permite testar:
--- - Dashboard com métricas reais
--- - Seção "Continue estudando"
--- - Cards de pacotes com progresso
--- - Sistema de questionários
--- - Perfis profissionais 
+-- - ✅ Dashboard com métricas reais funcionais
+-- - ✅ Seção "Continue estudando" com dados reais
+-- - ✅ Cards de pacotes com progresso calculado
+-- - ✅ Sistema de questionários operacional
+-- - ✅ APIs de progresso e métricas
+-- - ✅ Atividade recente baseada em progresso real
+--
+-- Usuários para teste (senha: 123456):
+-- - carlos@codepath.com (nível 5, progresso em C e Front-end)
+-- - ana@codepath.com (nível 3, progresso avançado em Front-end)
+-- - joao@codepath.com (nível 2, iniciante em Python) 

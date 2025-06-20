@@ -13,8 +13,7 @@ const {
   processLogin,
   showRegister,
   processRegister,
-  processLogout,
-  showDashboard
+  processLogout
 } = require('../controllers/authController');
 
 const router = express.Router();
@@ -70,14 +69,6 @@ router.post('/logout', requireAuth, processLogout);
  */
 router.get('/logout', requireAuth, processLogout);
 
-// ========================================
-// ROTAS DO DASHBOARD
-// ========================================
 
-/**
- * GET /dashboard - Exibe o dashboard principal
- * Apenas usuários autenticados podem acessar
- */
-router.get('/dashboard', requireAuth, showDashboard);
 
 module.exports = router; 

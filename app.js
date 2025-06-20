@@ -21,6 +21,8 @@ const { validateSessionMiddleware, addUserToViews } = require('./middleware/auth
 
 // Importação das rotas
 const authRoutes = require('./routes/authRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
+const careerRoutes = require('./routes/careerRoutes');
 
 // Inicialização da aplicação Express
 const app = express();
@@ -69,6 +71,12 @@ app.use(addUserToViews);
 
 // Usar as rotas de autenticação
 app.use('/', authRoutes);
+
+// Usar as rotas do dashboard
+app.use('/dashboard', dashboardRoutes);
+
+// Usar as rotas de carreiras
+app.use('/', careerRoutes);
 
 // ========================================
 // ROTA PRINCIPAL TEMPORÁRIA
