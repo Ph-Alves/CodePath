@@ -23,6 +23,7 @@ const { validateSessionMiddleware, addUserToViews } = require('./middleware/auth
 const authRoutes = require('./routes/authRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const careerRoutes = require('./routes/careerRoutes');
+const contentRoutes = require('./routes/contentRoutes');
 
 // Inicialização da aplicação Express
 const app = express();
@@ -77,6 +78,9 @@ app.use('/dashboard', dashboardRoutes);
 
 // Usar as rotas de carreiras
 app.use('/', careerRoutes);
+
+// Usar as rotas de conteúdos
+app.use('/content', contentRoutes);
 
 // ========================================
 // ROTA PRINCIPAL TEMPORÁRIA

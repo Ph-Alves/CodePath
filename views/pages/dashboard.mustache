@@ -1,5 +1,37 @@
-<!-- Dashboard Content -->
-            <div class="dashboard-content">
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{#pageTitle}}{{pageTitle}} - {{/pageTitle}}CodePath</title>
+    
+    <!-- CSS Global -->
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/responsive.css">
+    
+    <!-- CSS Específico da Página -->
+    {{#additionalCSS}}
+        <link rel="stylesheet" href="/css/{{additionalCSS}}.css">
+    {{/additionalCSS}}
+    
+    <!-- Fontes -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Ícones -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="{{bodyClass}}">
+    <div class="app-container">
+        <!-- Sidebar -->
+        {{>partials/sidebar}}
+        
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Header/Topbar -->
+            {{>partials/header}}
+            
+            <!-- Page Content -->
+            <main class="content-area" role="main">
                 <!-- Welcome Section -->
                 <div class="welcome-section">
                     <div class="welcome-header">
@@ -113,7 +145,7 @@
                             </div>
                             
                             <div class="package-actions">
-                                <a href="/packages/{{id}}/continue" class="btn btn-primary">
+                                <a href="/content/package/{{id}}/lessons" class="btn btn-primary">
                                     <i class="fas fa-play"></i>
                                     Continuar
                                 </a>
@@ -218,20 +250,81 @@
                             </div>
                         </a>
                     </div>
-                                 </div>
-             </div>
-
-<!-- Progress Modal (será implementado posteriormente) -->
-<div id="progressModal" class="modal" style="display: none;">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>Progresso do Pacote</h3>
-            <button class="modal-close" onclick="closeProgressModal()">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="modal-body">
-            <!-- Conteúdo será carregado dinamicamente -->
+                </div>
+            </main>
+            
+            <!-- Footer -->
+            {{>partials/footer}}
         </div>
     </div>
-</div> 
+    
+    <!-- Overlay para mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    
+    <!-- Progress Modal -->
+    <div id="progressModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Progresso do Pacote</h3>
+                <button class="modal-close" onclick="closeProgressModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Conteúdo será carregado dinamicamente -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- JavaScript Global -->
+    <script src="/js/main.js"></script>
+    
+    <!-- JavaScript Específico da Página -->
+    {{#additionalJS}}
+        <script src="/js/{{additionalJS}}.js"></script>
+    {{/additionalJS}}
+    
+    <script>
+    // JavaScript para funcionalidades do dashboard
+    document.addEventListener('DOMContentLoaded', function() {
+        // Função para mostrar modal de progresso
+        window.showProgressModal = function(packageId) {
+            const modal = document.getElementById('progressModal');
+            modal.style.display = 'flex';
+            
+            const modalBody = modal.querySelector('.modal-body');
+            modalBody.innerHTML = `
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Carregando dados do progresso...</p>
+                </div>
+            `;
+            
+            // Simular carregamento
+            setTimeout(() => {
+                modalBody.innerHTML = `
+                    <div class="progress-details">
+                        <p>Funcionalidade será implementada na próxima fase!</p>
+                        <p>Pacote ID: ${packageId}</p>
+                    </div>
+                `;
+            }, 1000);
+        };
+        
+        // Função para fechar modal
+        window.closeProgressModal = function() {
+            const modal = document.getElementById('progressModal');
+            modal.style.display = 'none';
+        };
+        
+        // Fechar modal ao clicar fora
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('progressModal');
+            if (event.target === modal) {
+                closeProgressModal();
+            }
+        });
+    });
+    </script>
+</body>
+</html>

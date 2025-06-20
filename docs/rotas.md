@@ -1,7 +1,7 @@
 # Documentação de Rotas - CodePath
 
-**Última Atualização:** 19 de Dezembro de 2024  
-**Status:** Fases 1-4 implementadas  
+**Última Atualização:** 20 de Dezembro de 2024  
+**Status:** Fases 1-7 implementadas  
 
 ## 📋 Resumo das Rotas
 
@@ -21,6 +21,13 @@
 | POST | `/careers/package/:id/continue` | ✅ | Continuar progresso em pacote | 6 |
 | POST | `/career-profiles/select` | ✅ | Selecionar perfil profissional | 6 |
 | GET | `/api/careers/package/:id` | ✅ | API de dados do pacote | 6 |
+| GET | `/content/package/:packageId/lessons` | ✅ | Lista de aulas do pacote | 7 |
+| GET | `/content/lesson/:lessonId` | ✅ | Visualização de aula específica | 7 |
+| GET | `/content/lesson/:lessonId/next` | ✅ | Navegar para próxima aula | 7 |
+| GET | `/content/lesson/:lessonId/previous` | ✅ | Navegar para aula anterior | 7 |
+| POST | `/content/lesson/:lessonId/complete` | ✅ | Marcar aula como concluída | 7 |
+| GET | `/content/api/package/:packageId/progress` | ✅ | API de progresso do pacote | 7 |
+| GET | `/content/api/package/:packageId/lessons` | ✅ | API de aulas do pacote | 7 |
 | GET | `/my-area` | ⏳ | Minha área do usuário | 5 |
 | GET | `/performance` | ⏳ | Página de desempenho | 9 |
 | GET | `/settings` | ⏳ | Configurações do usuário | 5 |
@@ -441,15 +448,156 @@ Location: /login ou /dashboard
 }
 ```  
 
-### Fase 7 - Sistema de Conteúdos
+### Fase 7 - Sistema de Conteúdos ✅
 
-#### GET `/content/:id`
-**Descrição:** Visualizar conteúdo específico  
-**Status:** ⏳ Planejada  
+#### GET `/content/package/:packageId/lessons`
+**Descrição:** Lista todas as aulas de um pacote específico  
+**Status:** ✅ Implementada  
+**Controlador:** `contentController.showPackageLessons`  
+**Template:** `views/pages/package-lessons.mustache`  
+**Middleware:** `requireAuth`  
 
-#### POST `/content/:id/complete`
-**Descrição:** Marcar conteúdo como concluído  
-**Status:** ⏳ Planejada  
+**Parâmetros:**
+- `packageId` (Integer): ID do pacote
+
+**Template Data:**
+```javascript
+{
+  title: 'Pacote C - Aulas',
+  user: { /* dados do usuário */ },
+  package: {
+    id: 1,
+    name: 'Pacote C',
+    description: 'Aprenda programação em C...',
+    icon: 'C'
+  },
+  lessons: [
+    {
+      id: 1,
+      name: 'C - Introdução',
+      description: 'Conceitos básicos da linguagem C',
+      lesson_number: 1,
+      order_sequence: 1
+    }
+  ],
+  progressStats: {
+    totalLessons: 5,
+    watchedLessons: 2,
+    progressPercentage: 40,
+    status: 'in_progress'
+  }
+}
+```
+
+#### GET `/content/lesson/:lessonId`
+**Descrição:** Exibe uma aula específica com player de conteúdo  
+**Status:** ✅ Implementada  
+**Controlador:** `contentController.showLesson`  
+**Template:** `views/pages/lesson-view.mustache`  
+**Middleware:** `requireAuth`  
+
+**Parâmetros:**
+- `lessonId` (Integer): ID da aula
+
+**Funcionalidades:**
+- Player de vídeo simulado com controles
+- Navegação para aula anterior/próxima
+- Botão para marcar como concluída
+- Recursos complementares
+- Questionários relacionados
+
+#### GET `/content/lesson/:lessonId/next`
+**Descrição:** Navega para a próxima aula do pacote  
+**Status:** ✅ Implementada  
+**Controlador:** `contentController.goToNextLesson`  
+**Middleware:** `requireAuth`  
+
+**Comportamento:**
+- Busca próxima aula na sequência
+- Se existe: redireciona para `/content/lesson/:nextLessonId`
+- Se não existe: redireciona para lista de aulas com mensagem de sucesso
+
+#### GET `/content/lesson/:lessonId/previous`
+**Descrição:** Navega para a aula anterior do pacote  
+**Status:** ✅ Implementada  
+**Controlador:** `contentController.goToPreviousLesson`  
+**Middleware:** `requireAuth`  
+
+**Comportamento:**
+- Busca aula anterior na sequência
+- Se existe: redireciona para `/content/lesson/:previousLessonId`
+- Se não existe: redireciona para lista de aulas com mensagem informativa
+
+#### POST `/content/lesson/:lessonId/complete`
+**Descrição:** Marca uma aula como concluída e atualiza progresso  
+**Status:** ✅ Implementada  
+**Controlador:** `contentController.markLessonComplete`  
+**Middleware:** `requireAuth`  
+**Formato:** JSON
+
+**Parâmetros:**
+- `lessonId` (Integer): ID da aula
+
+**Comportamento:**
+- Marca aula como assistida
+- Adiciona +50 XP ao usuário
+- Atualiza percentual de progresso do pacote
+- Retorna dados da próxima aula (se houver)
+
+**Resposta de Sucesso:**
+```javascript
+{
+  success: true,
+  message: 'Aula marcada como concluída! +50 XP',
+  nextLesson: {
+    id: 2,
+    name: 'C - Variáveis',
+    url: '/content/lesson/2'
+  }
+}
+```
+
+#### GET `/content/api/package/:packageId/progress`
+**Descrição:** API para obter estatísticas de progresso de um pacote  
+**Status:** ✅ Implementada  
+**Controlador:** `contentController.getPackageProgress`  
+**Middleware:** `requireAuth`  
+**Formato:** JSON
+
+**Resposta:**
+```javascript
+{
+  success: true,
+  data: {
+    package: { /* dados do pacote */ },
+    totalLessons: 5,
+    watchedLessons: 2,
+    progressPercentage: 40,
+    status: 'in_progress',
+    completedCourses: 0,
+    completedQuizzes: 1,
+    deliveredChallenges: 0
+  }
+}
+```
+
+#### GET `/content/api/package/:packageId/lessons`
+**Descrição:** API para obter lista de aulas de um pacote  
+**Status:** ✅ Implementada  
+**Controlador:** `contentController.getPackageLessonsAPI`  
+**Middleware:** `requireAuth`  
+**Formato:** JSON
+
+**Resposta:**
+```javascript
+{
+  success: true,
+  data: {
+    lessons: [ /* array de aulas */ ],
+    progressStats: { /* estatísticas de progresso */ }
+  }
+}
+```  
 
 ### Fase 8 - Sistema de Questionários
 
@@ -501,15 +649,15 @@ app.get('/dashboard', requireAuth, authController.showDashboard);
 ## 📊 Estatísticas das Rotas
 
 ### Por Status
-- **✅ Implementadas:** 16 rotas
+- **✅ Implementadas:** 23 rotas
 - **⏳ Planejadas:** 10+ rotas
-- **📈 Progresso:** ~62% das rotas principais
+- **📈 Progresso:** ~77% das rotas principais
 
 ### Por Funcionalidade
 - **Autenticação:** 6/6 rotas implementadas ✅
 - **Dashboard:** 3/4 rotas implementadas (75%) 🔥
 - **Carreiras:** 7/7 rotas implementadas ✅
-- **Conteúdos:** 0/3 rotas implementadas (0%)
+- **Conteúdos:** 7/7 rotas implementadas ✅
 - **Questionários:** 0/3 rotas implementadas (0%)
 - **Progresso:** 0/2 rotas implementadas (0%)
 

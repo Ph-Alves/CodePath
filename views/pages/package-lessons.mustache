@@ -1,0 +1,361 @@
+{{>partials/header}}
+
+<main class="main-content">
+  <div class="container">
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+      <a href="/dashboard" class="breadcrumb-item">Dashboard</a>
+      <span class="breadcrumb-separator">/</span>
+      <a href="/careers" class="breadcrumb-item">Carreiras</a>
+      <span class="breadcrumb-separator">/</span>
+      <span class="breadcrumb-current">{{package.name}}</span>
+    </nav>
+
+    <!-- Cabeçalho do Pacote -->
+    <div class="package-header">
+      <div class="package-info">
+        <div class="package-icon">
+          <span class="icon-tech">{{package.icon}}</span>
+        </div>
+        <div class="package-details">
+          <h1 class="package-title">{{package.name}}</h1>
+          <p class="package-description">{{package.description}}</p>
+          <div class="package-stats">
+            <div class="stat-item">
+              <span class="stat-number">{{progressStats.totalLessons}}</span>
+              <span class="stat-label">Aulas</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">{{progressStats.watchedLessons}}</span>
+              <span class="stat-label">Assistidas</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">{{progressStats.progressPercentage}}%</span>
+              <span class="stat-label">Progresso</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Barra de Progresso -->
+      <div class="progress-section">
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: {{progressStats.progressPercentage}}%"></div>
+        </div>
+        <span class="progress-text">{{progressStats.progressPercentage}}% concluído</span>
+      </div>
+    </div>
+
+    <!-- Lista de Aulas -->
+    <div class="lessons-container">
+      <h2 class="section-title">Aulas do Pacote</h2>
+      
+      {{#lessons}}
+      <div class="lesson-card" data-lesson-id="{{id}}">
+        <div class="lesson-number">
+          <span class="lesson-order">{{lesson_number}}</span>
+        </div>
+        
+        <div class="lesson-content">
+          <h3 class="lesson-title">{{name}}</h3>
+          <p class="lesson-description">{{description}}</p>
+          
+          <div class="lesson-meta">
+            <span class="lesson-duration">
+              <i class="icon-clock" aria-hidden="true"></i>
+              ~15 min
+            </span>
+            <span class="lesson-type">
+              <i class="icon-video" aria-hidden="true"></i>
+              Aula Prática
+            </span>
+          </div>
+        </div>
+        
+        <div class="lesson-actions">
+          <a href="/content/lesson/{{id}}" class="btn btn-primary">
+            <i class="icon-play" aria-hidden="true"></i>
+            Assistir Aula
+          </a>
+        </div>
+        
+        <!-- Status da Aula -->
+        <div class="lesson-status">
+          <i class="icon-check-circle lesson-status-icon" aria-hidden="true"></i>
+        </div>
+      </div>
+      {{/lessons}}
+      
+      {{^lessons}}
+      <div class="empty-state">
+        <i class="icon-book-open empty-icon" aria-hidden="true"></i>
+        <h3>Nenhuma aula disponível</h3>
+        <p>Este pacote ainda não possui aulas cadastradas.</p>
+        <a href="/careers" class="btn btn-outline">Voltar para Carreiras</a>
+      </div>
+      {{/lessons}}
+    </div>
+
+    <!-- Ações do Pacote -->
+    <div class="package-actions">
+      <a href="/careers" class="btn btn-outline">
+        <i class="icon-arrow-left" aria-hidden="true"></i>
+        Voltar para Carreiras
+      </a>
+      
+      {{#lessons}}
+      {{#lessons.0}}
+      <a href="/content/lesson/{{lessons.0.id}}" class="btn btn-primary">
+        <i class="icon-play" aria-hidden="true"></i>
+        {{#progressStats.watchedLessons}}Continuar Estudando{{/progressStats.watchedLessons}}
+        {{^progressStats.watchedLessons}}Começar Agora{{/progressStats.watchedLessons}}
+      </a>
+      {{/lessons.0}}
+      {{/lessons}}
+    </div>
+  </div>
+</main>
+
+<!-- Flash Messages -->
+{{#flash}}
+<div class="flash-message flash-{{type}}" role="alert">
+  <i class="flash-icon icon-{{type}}" aria-hidden="true"></i>
+  <span class="flash-text">{{message}}</span>
+  <button class="flash-close" aria-label="Fechar mensagem">
+    <i class="icon-x" aria-hidden="true"></i>
+  </button>
+</div>
+{{/flash}}
+
+<style>
+/* Estilos específicos para a página de aulas do pacote */
+.package-header {
+  background: linear-gradient(135deg, #8B5CF6, #A855F7);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  color: white;
+}
+
+.package-info {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.package-icon {
+  width: 80px;
+  height: 80px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.package-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+}
+
+.package-description {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin: 0 0 1rem 0;
+}
+
+.package-stats {
+  display: flex;
+  gap: 2rem;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-number {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.progress-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #10B981;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.lessons-container {
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 1.5rem 0;
+  color: var(--text-primary);
+}
+
+.lesson-card {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.lesson-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.lesson-number {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #8B5CF6, #A855F7);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.lesson-content {
+  flex: 1;
+}
+
+.lesson-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+  color: var(--text-primary);
+}
+
+.lesson-description {
+  color: var(--text-secondary);
+  margin: 0 0 0.75rem 0;
+  line-height: 1.5;
+}
+
+.lesson-meta {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.lesson-meta i {
+  margin-right: 0.25rem;
+}
+
+.lesson-actions {
+  margin-left: auto;
+}
+
+.lesson-status {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lesson-status-icon {
+  color: #10B981;
+  font-size: 1.2rem;
+}
+
+.package-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--text-secondary);
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.empty-state h3 {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-primary);
+}
+
+.empty-state p {
+  margin: 0 0 1.5rem 0;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .package-info {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+  
+  .package-stats {
+    justify-content: center;
+  }
+  
+  .lesson-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+  
+  .lesson-actions {
+    margin-left: 0;
+  }
+  
+  .package-actions {
+    flex-direction: column;
+  }
+}
+</style>
+
+{{>partials/footer}} 
