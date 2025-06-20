@@ -1,155 +1,249 @@
-# 🚀 CodePath
+# CodePath - Plataforma Educacional
 
 > **Descubra o seu caminho na tecnologia**  
 > Trilhas de estudo pensadas pra onde você quer ir!
 
+[![Status](https://img.shields.io/badge/Status-Em%20Desenvolvimento-yellow)](https://github.com)
+[![Progresso](https://img.shields.io/badge/Progresso-36%25-blue)](docs/status-projeto.md)
+[![Fase Atual](https://img.shields.io/badge/Fase%20Atual-5%20(Dashboard)-orange)](docs/status-projeto.md)
+
 ## 📋 Sobre o Projeto
 
-O **CodePath** é uma plataforma web educacional moderna, desenvolvida para jovens que desejam descobrir e trilhar seu caminho na área de tecnologia. Com um design atrativo em tons de roxo e interface intuitiva, a plataforma oferece pacotes de estudo organizados por tecnologias e perfis profissionais.
+O **CodePath** é uma plataforma web educacional moderna desenvolvida para jovens que desejam descobrir seu caminho na tecnologia. Com design roxo/gradiente atrativo e interface responsiva, oferece trilhas de estudo organizadas por tecnologia e carreiras profissionais.
 
-## ✨ Funcionalidades Principais
+### 🎯 Características Principais
 
-- **🎯 Pacotes de Tecnologia**: C, Front-end (HTML/CSS), Python, Java, Back-end (JS), C#
-- **👥 Perfis Profissionais**: Desenvolvedor de Software, Gestor de Projeto, Analista de Suporte, Administrador de Banco de Dados, Segurança da Informação
-- **📊 Dashboard Personalizado**: Acompanhamento de progresso com métricas detalhadas
-- **🧩 Sistema de Questionários**: Interface interativa para prática de código
-- **🎮 Gamificação**: Sistema de XP, streak de dias e conquistas
-- **📱 Design Responsivo**: Interface adaptável para desktop e mobile
+- **Interface Moderna**: Design roxo/gradiente responsivo e acessível
+- **Trilhas Personalizadas**: Pacotes de estudo por tecnologia (C, Python, Java, etc.)
+- **Carreiras Profissionais**: Orientação para diferentes perfis (Desenvolvedor, Gestor, Analista, etc.)
+- **Gamificação**: Sistema de XP, níveis e progresso visual
+- **Dashboard Completo**: Métricas, atividades e acompanhamento de progresso
+
+## 🚀 Status do Projeto
+
+### ✅ Fases Concluídas (36%)
+
+| Fase | Descrição | Status |
+|------|-----------|--------|
+| **Fase 1** | Configuração inicial e estrutura base | ✅ Concluída |
+| **Fase 2** | Banco de dados e autenticação | ✅ Concluída |
+| **Fase 3** | Sistema de usuários | ✅ Concluída |
+| **Fase 4** | Layout base e navegação | ✅ Concluída |
+
+### ⏳ Próximas Fases
+
+| Fase | Descrição | Prioridade |
+|------|-----------|------------|
+| **Fase 5** | Dashboard e métricas | 🔥 Alta |
+| **Fase 6** | Sistema de carreiras | 🔥 Alta |
+| **Fase 7** | Sistema de conteúdos | 📋 Média |
+| **Fase 8** | Sistema de questionários | 📋 Média |
+
+📊 **Consulte** [`docs/status-projeto.md`](docs/status-projeto.md) **para detalhes completos**
 
 ## 🛠️ Tecnologias Utilizadas
 
-- **Backend**: Node.js, Express.js
-- **Template Engine**: Mustache
-- **Banco de Dados**: SQLite
-- **Frontend**: HTML5, CSS3, JavaScript
-- **Autenticação**: Sessions + bcrypt
-- **Outras**: express-session, express-validator, dotenv
+### Backend
+- **Node.js** - Runtime JavaScript
+- **Express.js** - Framework web
+- **SQLite3** - Banco de dados
+- **Mustache Express** - Template engine
+- **bcrypt** - Criptografia de senhas
+- **express-session** - Gerenciamento de sessões
 
-## 🚀 Instalação e Execução
+### Frontend
+- **HTML5** - Estrutura semântica
+- **CSS3** - Estilização moderna com variáveis CSS
+- **JavaScript ES6+** - Interatividade e funcionalidades
+- **Font Awesome** - Ícones
+- **Inter Font** - Tipografia
+
+### Ferramentas
+- **Git** - Controle de versão
+- **npm** - Gerenciador de pacotes
+- **SQLite** - Banco de dados local
+
+## 📦 Instalação e Execução
 
 ### Pré-requisitos
-- Node.js >= 16.0.0
+- Node.js (versão 16 ou superior)
 - npm ou yarn
+- Git
 
-### Passos para instalação
+### Passo a Passo
 
 1. **Clone o repositório**
-   ```bash
-   git clone <url-do-repositorio>
-   cd codepath
-   ```
+```bash
+git clone <url-do-repositorio>
+cd Projeto
+```
 
 2. **Instale as dependências**
-   ```bash
-   npm install
-   ```
+```bash
+npm install
+```
 
-3. **Configure as variáveis de ambiente**
-   ```bash
-   cp .env.example .env
-   # Edite o arquivo .env conforme necessário
-   ```
+3. **Configure o banco de dados**
+```bash
+# O banco será criado automaticamente na primeira execução
+# Localização: db/codepath.db
+```
 
-4. **Execute o servidor**
-   ```bash
-   # Desenvolvimento (com nodemon)
-   npm run dev
-   
-   # Produção
-   npm start
-   ```
+4. **Execute o projeto**
+```bash
+npm start
+# ou
+node app.js
+```
 
 5. **Acesse a aplicação**
-   ```
-   http://localhost:4000              # Página principal com status do banco
-   http://localhost:4000/test-db      # Página de teste com dados detalhados
-   ```
+```
+http://localhost:4000
+```
 
-## 📁 Estrutura do Projeto
+### 🔧 Scripts Disponíveis
+
+```bash
+npm start          # Inicia o servidor
+npm run dev        # Modo desenvolvimento (se configurado)
+npm test           # Executa testes (quando implementados)
+```
+
+## 🏗️ Arquitetura do Projeto
 
 ```
 CodePath/
-├── app.js                 # Arquivo principal do servidor (✅ Configurado)
-├── package.json           # Dependências e scripts (✅ Completo)
-├── controllers/           # Lógica de controle das rotas
-├── models/               # Acesso e manipulação de dados
-│   └── database.js       # ✅ Classe Database SQLite configurada
-├── routes/               # Definição de rotas modulares
-├── views/                # Templates Mustache
-│   ├── layouts/          # Layouts principais
-│   ├── pages/            # Páginas da aplicação
-│   └── partials/         # Componentes reutilizáveis
-├── public/               # Arquivos estáticos
-│   ├── css/              # Estilos CSS
-│   ├── js/               # Scripts JavaScript
-│   └── images/           # Imagens e ícones
-├── db/                   # Banco de dados SQLite
-│   ├── codepath.db       # ✅ Banco SQLite funcional
-│   ├── schema.sql        # ✅ Esquema completo (6 tabelas)
-│   └── seed.sql          # ✅ Dados iniciais (Carlos Pereira, pacotes, perfis)
-├── middleware/           # Middlewares customizados
-├── tests/                # Scripts de teste
-└── docs/                 # Documentação do projeto
+├── 📁 controllers/     # Lógica de controle das rotas
+├── 📁 models/          # Acesso e manipulação de dados
+├── 📁 routes/          # Definição de rotas modulares
+├── 📁 views/           # Templates Mustache
+│   ├── 📁 layouts/     # Layouts principais
+│   ├── 📁 pages/       # Páginas da aplicação
+│   └── 📁 partials/    # Componentes reutilizáveis
+├── 📁 public/          # Arquivos estáticos
+│   ├── 📁 css/         # Estilos CSS
+│   ├── 📁 js/          # Scripts JavaScript
+│   └── 📁 images/      # Imagens e assets
+├── 📁 db/              # Banco de dados SQLite
+├── 📁 middleware/      # Middlewares customizados
+├── 📁 docs/            # Documentação do projeto
+└── 📄 app.js           # Arquivo principal do servidor
 ```
 
-## 🎨 Design System
+## 🎨 Design e Interface
 
-- **Paleta Principal**: Tons de roxo (#8B5CF6, #A855F7) com gradientes
-- **Tipografia**: Fonte sans-serif moderna
-- **Componentes**: Cards brancos com sombras, botões arredondados
-- **Layout**: Sidebar fixa roxa, área principal com gradiente
+### Tema Visual
+- **Cores Principais**: Roxo/gradiente (#6366f1, #8b5cf6, #a855f7)
+- **Tipografia**: Inter (sans-serif)
+- **Estilo**: Moderno, minimalista e funcional
 
-## 📋 Status do Desenvolvimento
+### Componentes Implementados
+- ✅ Layout responsivo com sidebar
+- ✅ Header com navegação e informações do usuário
+- ✅ Dashboard com métricas e progresso
+- ✅ Sistema de cards interativos
+- ✅ Modais e dropdowns funcionais
+- ✅ Animações e transições suaves
 
-### ✅ Fase 1 - Estrutura Inicial (Completa)
-- [x] Configuração do projeto e dependências
-- [x] Servidor Express básico funcionando
-- [x] Estrutura de pastas organizada
-- [x] Arquivos de configuração (.env, .gitignore)
+### Acessibilidade
+- ♿ Navegação por teclado
+- 🏷️ ARIA labels implementados
+- 🎨 Contraste adequado (4.5:1)
+- 📱 Design responsivo (mobile-first)
 
-### ✅ Fase 2 - Configuração do Banco de Dados (Completa)
-- [x] Conexão SQLite configurada e funcional
-- [x] Esquema do banco implementado (6 tabelas)
-- [x] Classe Database com métodos utilitários
-- [x] Dados iniciais inseridos (Carlos Pereira, 6 pacotes, 6 perfis)
-- [x] Rotas de teste para validação do banco
-- [x] Integração completa com o servidor Express
+## 🗄️ Banco de Dados
 
-### 🔄 Próximas Fases
-- [ ] Fase 3: Sistema de Autenticação
-- [ ] Fase 4: Layout Base e Navegação
-- [ ] Fase 5: Dashboard Principal
-- [ ] Fase 6: Sistema de Carreiras
-- [ ] Fase 7: Sistema de Conteúdos
-- [ ] Fase 8: Sistema de Questionários
-- [ ] Fase 9: Sistema de Progresso
-- [ ] Fase 10: Notificações e Melhorias de UX
-- [ ] Fase 11: Testes e Documentação Final
+### SQLite Schema
+- **15 tabelas** implementadas
+- **Relacionamentos** com foreign keys
+- **Dados de teste** inseridos
+- **Localização**: `db/codepath.db`
+
+### Principais Tabelas
+- `users` - Usuários da plataforma
+- `packages` - Pacotes de tecnologia
+- `careers` - Carreiras profissionais
+- `contents` - Conteúdos educacionais
+- `user_progress` - Progresso dos usuários
+
+## 📚 Documentação
+
+### Documentos Principais
+- [`docs/projeto-codepath-completo.md`](docs/projeto-codepath-completo.md) - Especificação completa
+- [`docs/status-projeto.md`](docs/status-projeto.md) - Status atual e progresso
+- [`docs/arquitetura.md`](docs/arquitetura.md) - Documentação da arquitetura
+- [`docs/db-schema.md`](docs/db-schema.md) - Esquema do banco de dados
+
+### Funcionalidades Implementadas
+
+#### ✅ Sistema de Autenticação
+- Cadastro de usuários
+- Login/logout seguro
+- Gerenciamento de sessões
+- Validação de dados
+
+#### ✅ Layout e Navegação
+- Layout base responsivo
+- Sidebar com navegação
+- Header com informações do usuário
+- Footer minimalista
+
+#### ✅ Dashboard
+- Página principal do usuário
+- Métricas de progresso (mockadas)
+- Seção "Continue Estudando"
+- Cards interativos
 
 ## 🤝 Contribuição
 
-Este projeto segue as melhores práticas de desenvolvimento:
+### Padrões de Desenvolvimento
+1. **Arquitetura MVC** - Separação clara de responsabilidades
+2. **Código Limpo** - Comentários e nomenclatura descritiva
+3. **Responsividade** - Mobile-first approach
+4. **Acessibilidade** - Seguir diretrizes WCAG
 
-- **Código Limpo**: Comentários explicativos e estrutura organizada
-- **Modularidade**: Separação clara de responsabilidades
-- **Documentação**: Documentação técnica completa
-- **Testes**: Validação manual e automática
+### Fluxo de Trabalho
+1. Criar branch para feature
+2. Implementar seguindo os padrões
+3. Testar funcionalidade
+4. Atualizar documentação
+5. Commit com mensagem clara
+6. Pull request para revisão
 
-## 📝 Scripts Disponíveis
+## 📈 Roadmap
 
-```bash
-npm start          # Iniciar servidor em produção
-npm run dev        # Iniciar servidor em desenvolvimento (nodemon)
-npm run test:manual # Executar testes manuais automatizados
-```
+### Curto Prazo (2 semanas)
+- [ ] Finalizar Fase 5 (Dashboard funcional)
+- [ ] Implementar Fase 6 (Sistema de carreiras)
+- [ ] Integrar dados reais do banco
+
+### Médio Prazo (1-2 meses)
+- [ ] Sistema de conteúdos (Fase 7)
+- [ ] Sistema de questionários (Fase 8)
+- [ ] Sistema de progresso (Fase 9)
+
+### Longo Prazo (3+ meses)
+- [ ] Melhorias de UX (Fase 10)
+- [ ] Testes automatizados (Fase 11)
+- [ ] Deploy e produção
 
 ## 📄 Licença
 
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+Este projeto está sob licença [MIT](LICENSE) - veja o arquivo LICENSE para detalhes.
+
+## 👥 Equipe
+
+- **Desenvolvimento**: Equipe CodePath
+- **Design**: Baseado em protótipos fornecidos
+- **Documentação**: Mantida pela equipe de desenvolvimento
+
+## 📞 Contato
+
+Para dúvidas, sugestões ou contribuições:
+- 📧 Email: [contato@codepath.com]
+- 📋 Issues: [GitHub Issues]
+- 📖 Documentação: [`docs/`](docs/)
 
 ---
 
-**CodePath** - Transformando o aprendizado em tecnologia através de uma experiência visual e educacional única.
-
-*Versão atual: 1.2.0 (Fases 1-2 Implementadas)*  
-*Última atualização: Dezembro 2024* 
+**CodePath** - Transformando o futuro através da educação em tecnologia 🚀 

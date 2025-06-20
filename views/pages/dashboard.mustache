@@ -1,116 +1,237 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{title}}</title>
-    <link rel="stylesheet" href="/css/dashboard.css">
-</head>
-<body>
-    <div class="dashboard-container">
-        <!-- Header -->
-        <header class="dashboard-header">
-            <div class="header-content">
-                <div class="logo">
-                    <h1>CodePath</h1>
-                </div>
-                <div class="user-info">
-                    <span class="user-name">{{userName}}</span>
-                    <div class="user-actions">
-                        <a href="/logout" class="btn btn-logout">Sair</a>
+<!-- Dashboard Content -->
+            <div class="dashboard-content">
+                <!-- Welcome Section -->
+                <div class="welcome-section">
+                    <div class="welcome-header">
+                        <h1 class="welcome-title">Bem-vindo de volta, {{user.name}}!</h1>
+                        <p class="welcome-subtitle">Continue sua jornada de aprendizado</p>
                     </div>
-                </div>
-            </div>
-        </header>
-
-        <!-- Main Content -->
-        <main class="dashboard-main">
-            <div class="welcome-section">
-                <h2>{{pageTitle}}</h2>
-                <p class="subtitle">{{subtitle}}</p>
-            </div>
-
-            <!-- User Stats -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon">📊</div>
-                    <div class="stat-info">
-                        <h3>Nível</h3>
-                        <p class="stat-value">{{userLevel}}</p>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon">⭐</div>
-                    <div class="stat-info">
-                        <h3>XP</h3>
-                        <p class="stat-value">{{userXP}}</p>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon">🔥</div>
-                    <div class="stat-info">
-                        <h3>Streak</h3>
-                        <p class="stat-value">{{userStreak}} dias</p>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon">🎯</div>
-                    <div class="stat-info">
-                        <h3>Status</h3>
-                        <p class="stat-value">Ativo</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Success Message -->
-            <div class="success-section">
-                <div class="success-card">
-                    <div class="success-icon">✅</div>
-                    <div class="success-content">
-                        <h3>Fase 3 Concluída!</h3>
-                        <p>Sistema de autenticação implementado com sucesso.</p>
-                        <ul class="feature-list">
-                            <li>✅ Login funcional</li>
-                            <li>✅ Registro de usuários</li>
-                            <li>✅ Controle de sessões</li>
-                            <li>✅ Logout seguro</li>
-                            <li>✅ Middleware de autenticação</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Next Steps -->
-            <div class="next-steps">
-                <h3>Próximas Etapas</h3>
-                <div class="steps-grid">
-                    <div class="step-card">
-                        <div class="step-number">4</div>
-                        <div class="step-content">
-                            <h4>Layout Base</h4>
-                            <p>Implementar layout principal com sidebar e navegação</p>
+                    
+                    <!-- User Progress Overview -->
+                    <div class="progress-overview">
+                        <div class="progress-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Nível Atual</span>
+                                <span class="stat-value">{{user.level}}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">XP Total</span>
+                                <span class="stat-value">{{user.xp_points}}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Sequência</span>
+                                <span class="stat-value">{{user.streak_days}} dias</span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="step-card">
-                        <div class="step-number">5</div>
-                        <div class="step-content">
-                            <h4>Dashboard Completo</h4>
-                            <p>Adicionar métricas e funcionalidades do dashboard</p>
-                        </div>
-                    </div>
-                    <div class="step-card">
-                        <div class="step-number">6</div>
-                        <div class="step-content">
-                            <h4>Sistema de Carreiras</h4>
-                            <p>Implementar seleção e trilhas de aprendizado</p>
+                        
+                        <!-- Level Progress Bar -->
+                        <div class="level-progress">
+                            <div class="progress-info">
+                                <span class="progress-label">Progresso para o próximo nível</span>
+                                <span class="progress-percentage">{{levelProgress}}%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: {{levelProgress}}%"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </main>
+                
+                <!-- Metrics Cards -->
+                <div class="metrics-section">
+                    <h2 class="section-title">Suas Estatísticas</h2>
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-icon">
+                                <i class="fas fa-play-circle"></i>
+                            </div>
+                            <div class="metric-content">
+                                <h3 class="metric-title">Aulas Assistidas</h3>
+                                <p class="metric-value">{{metrics.lessonsWatched}}</p>
+                                <span class="metric-change positive">+{{metrics.lessonsThisWeek}} esta semana</span>
+                            </div>
+                        </div>
+                        
+                        <div class="metric-card">
+                            <div class="metric-icon">
+                                <i class="fas fa-certificate"></i>
+                            </div>
+                            <div class="metric-content">
+                                <h3 class="metric-title">Cursos Concluídos</h3>
+                                <p class="metric-value">{{metrics.coursesCompleted}}</p>
+                                <span class="metric-change positive">+{{metrics.coursesThisMonth}} este mês</span>
+                            </div>
+                        </div>
+                        
+                        <div class="metric-card">
+                            <div class="metric-icon">
+                                <i class="fas fa-code"></i>
+                            </div>
+                            <div class="metric-content">
+                                <h3 class="metric-title">Desafios Entregues</h3>
+                                <p class="metric-value">{{metrics.challengesCompleted}}</p>
+                                <span class="metric-change neutral">{{metrics.challengesPending}} pendentes</span>
+                            </div>
+                        </div>
+                        
+                        <div class="metric-card">
+                            <div class="metric-icon">
+                                <i class="fas fa-question-circle"></i>
+                            </div>
+                            <div class="metric-content">
+                                <h3 class="metric-title">Questionários Realizados</h3>
+                                <p class="metric-value">{{metrics.quizzesCompleted}}</p>
+                                <span class="metric-change positive">{{metrics.averageScore}}% média</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Continue Studying Section -->
+                <div class="continue-section">
+                    <h2 class="section-title">Continue Estudando</h2>
+                    
+                    {{#currentPackages}}
+                    <div class="continue-grid">
+                        {{#packages}}
+                        <div class="package-card">
+                            <div class="package-header">
+                                <div class="package-icon">
+                                    <i class="{{icon}}"></i>
+                                </div>
+                                <div class="package-info">
+                                    <h3 class="package-name">{{name}}</h3>
+                                    <p class="package-lesson">{{currentLesson}}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="package-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: {{progressPercentage}}%"></div>
+                                </div>
+                                <span class="progress-text">{{progressPercentage}}% concluído</span>
+                            </div>
+                            
+                            <div class="package-actions">
+                                <a href="/packages/{{id}}/continue" class="btn btn-primary">
+                                    <i class="fas fa-play"></i>
+                                    Continuar
+                                </a>
+                                <button class="btn btn-secondary" onclick="showProgressModal('{{id}}')">
+                                    <i class="fas fa-chart-line"></i>
+                                    Ver Progresso
+                                </button>
+                            </div>
+                        </div>
+                        {{/packages}}
+                    </div>
+                    {{/currentPackages}}
+                    
+                    {{^currentPackages}}
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <h3>Comece sua jornada!</h3>
+                        <p>Escolha um pacote de tecnologia para começar a estudar.</p>
+                        <a href="/careers" class="btn btn-primary">
+                            <i class="fas fa-road"></i>
+                            Explorar Carreiras
+                        </a>
+                    </div>
+                    {{/currentPackages}}
+                </div>
+                
+                <!-- Recent Activity -->
+                <div class="activity-section">
+                    <h2 class="section-title">Atividade Recente</h2>
+                    
+                    {{#recentActivity}}
+                    <div class="activity-list">
+                        {{#activities}}
+                        <div class="activity-item">
+                            <div class="activity-icon {{type}}">
+                                <i class="{{icon}}"></i>
+                            </div>
+                            <div class="activity-content">
+                                <p class="activity-text">{{description}}</p>
+                                <span class="activity-time">{{timeAgo}}</span>
+                            </div>
+                            {{#points}}
+                            <div class="activity-points">
+                                +{{points}} XP
+                            </div>
+                            {{/points}}
+                        </div>
+                        {{/activities}}
+                    </div>
+                    {{/recentActivity}}
+                    
+                    {{^recentActivity}}
+                    <div class="empty-activity">
+                        <p>Nenhuma atividade recente. Comece a estudar para ver seu progresso aqui!</p>
+                    </div>
+                    {{/recentActivity}}
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <h2 class="section-title">Ações Rápidas</h2>
+                    <div class="actions-grid">
+                        <a href="/careers" class="action-card">
+                            <div class="action-icon">
+                                <i class="fas fa-road"></i>
+                            </div>
+                            <div class="action-content">
+                                <h3>Explorar Carreiras</h3>
+                                <p>Descubra novos caminhos na tecnologia</p>
+                            </div>
+                        </a>
+                        
+                        <a href="/profile" class="action-card">
+                            <div class="action-icon">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="action-content">
+                                <h3>Meu Perfil</h3>
+                                <p>Gerencie suas informações pessoais</p>
+                            </div>
+                        </a>
+                        
+                        <a href="/performance" class="action-card">
+                            <div class="action-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="action-content">
+                                <h3>Desempenho</h3>
+                                <p>Veja estatísticas detalhadas</p>
+                            </div>
+                        </a>
+                        
+                        <a href="/settings" class="action-card">
+                            <div class="action-icon">
+                                <i class="fas fa-cog"></i>
+                            </div>
+                            <div class="action-content">
+                                <h3>Configurações</h3>
+                                <p>Personalize sua experiência</p>
+                            </div>
+                        </a>
+                    </div>
+                                 </div>
+             </div>
+
+<!-- Progress Modal (será implementado posteriormente) -->
+<div id="progressModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Progresso do Pacote</h3>
+            <button class="modal-close" onclick="closeProgressModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <!-- Conteúdo será carregado dinamicamente -->
+        </div>
     </div>
-</body>
-</html> 
+</div> 
