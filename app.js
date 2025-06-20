@@ -1,0 +1,356 @@
+/**
+ * CodePath - Plataforma Educacional de Tecnologia
+ * Arquivo principal do servidor Express
+ * 
+ * Este arquivo configura o servidor Express com todas as configurações
+ * necessárias para o funcionamento da aplicação CodePath.
+ */
+
+// Importação das dependências principais
+const express = require('express');
+const mustacheExpress = require('mustache-express');
+const session = require('express-session');
+const path = require('path');
+require('dotenv').config();
+
+// Importação da configuração do banco de dados
+const { initializeDatabase, database } = require('./models/database');
+
+// Inicialização da aplicação Express
+const app = express();
+
+// Configuração da porta do servidor
+const PORT = process.env.PORT || 4000;
+
+// ========================================
+// CONFIGURAÇÃO DO TEMPLATE ENGINE
+// ========================================
+
+// Configuração do Mustache como template engine
+app.engine('mustache', mustacheExpress());
+app.set('view engine', 'mustache');
+app.set('views', path.join(__dirname, 'views'));
+
+// ========================================
+// MIDDLEWARES GLOBAIS
+// ========================================
+
+// Middleware para parsing de dados de formulários
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+// Configuração de arquivos estáticos
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Configuração de sessões
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'codepath-secret-key-change-in-production',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: false, // Mude para true em produção com HTTPS
+    maxAge: 24 * 60 * 60 * 1000 // 24 horas
+  }
+}));
+
+// Middleware para disponibilizar dados da sessão nas views
+app.use((req, res, next) => {
+  res.locals.user = req.session.user || null;
+  res.locals.isAuthenticated = !!req.session.user;
+  next();
+});
+
+// ========================================
+// ROTA PRINCIPAL TEMPORÁRIA
+// ========================================
+
+// Rota temporária para testar o servidor e banco
+app.get('/', async (req, res) => {
+  try {
+    // Testar conexão com o banco
+    const packages = await database.all('SELECT COUNT(*) as total FROM packages');
+    const users = await database.all('SELECT COUNT(*) as total FROM users');
+    const totalPackages = packages[0]?.total || 0;
+    const totalUsers = users[0]?.total || 0;
+    
+    res.send(`
+      <html>
+        <head>
+          <title>CodePath - Servidor Funcionando</title>
+          <style>
+            body { 
+              font-family: Arial, sans-serif; 
+              text-align: center; 
+              padding: 50px;
+              background: linear-gradient(135deg, #8B5CF6, #A855F7);
+              color: white;
+              min-height: 100vh;
+              margin: 0;
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+            }
+            .container {
+              max-width: 600px;
+              margin: 0 auto;
+              background: rgba(255, 255, 255, 0.1);
+              padding: 40px;
+              border-radius: 20px;
+              backdrop-filter: blur(10px);
+            }
+            h1 { font-size: 3em; margin-bottom: 20px; }
+            p { font-size: 1.2em; margin-bottom: 15px; }
+            .status { color: #4ade80; font-weight: bold; }
+            .db-info { 
+              background: rgba(255, 255, 255, 0.1); 
+              padding: 20px; 
+              border-radius: 10px; 
+              margin: 20px 0; 
+            }
+            .link { color: #60a5fa; text-decoration: none; }
+            .link:hover { text-decoration: underline; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h1>🚀 CodePath</h1>
+            <p class="status">✅ Servidor Express funcionando!</p>
+            <p><strong>Fase 2:</strong> Banco de Dados Configurado</p>
+            
+            <div class="db-info">
+              <h3>📊 Status do Banco de Dados</h3>
+              <p>✅ Conexão SQLite: <strong>Ativa</strong></p>
+              <p>📦 Pacotes cadastrados: <strong>${totalPackages}</strong></p>
+              <p>👤 Usuários cadastrados: <strong>${totalUsers}</strong></p>
+            </div>
+            
+            <p>Porta: ${PORT}</p>
+            <p>Ambiente: ${process.env.NODE_ENV || 'development'}</p>
+            <p><em>Descubra o seu caminho na tecnologia</em></p>
+            
+            <div style="margin-top: 30px;">
+              <a href="/test-db" class="link">🔍 Testar Dados do Banco</a>
+            </div>
+          </div>
+        </body>
+      </html>
+    `);
+  } catch (error) {
+    console.error('Erro ao consultar banco:', error);
+    res.status(500).send(`
+      <html>
+        <head><title>Erro - CodePath</title></head>
+        <body style="font-family: Arial; text-align: center; padding: 50px; background: #8B5CF6; color: white;">
+          <h1>❌ Erro no Banco de Dados</h1>
+          <p>Não foi possível conectar ao banco SQLite</p>
+          <p>Erro: ${error.message}</p>
+        </body>
+      </html>
+    `);
+  }
+});
+
+// Rota para testar dados do banco
+app.get('/test-db', async (req, res) => {
+  try {
+    // Buscar dados de exemplo do banco
+    const packages = await database.all('SELECT * FROM packages LIMIT 6');
+    const careerProfiles = await database.all('SELECT * FROM career_profiles LIMIT 6');
+    const user = await database.get('SELECT * FROM users WHERE id = 1');
+    
+    res.send(`
+      <html>
+        <head>
+          <title>Teste do Banco - CodePath</title>
+          <style>
+            body { 
+              font-family: Arial, sans-serif; 
+              padding: 20px;
+              background: linear-gradient(135deg, #8B5CF6, #A855F7);
+              color: white;
+              min-height: 100vh;
+              margin: 0;
+            }
+            .container { max-width: 1000px; margin: 0 auto; }
+            .section { 
+              background: rgba(255, 255, 255, 0.1); 
+              padding: 20px; 
+              border-radius: 10px; 
+              margin: 20px 0; 
+            }
+            .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; }
+            .card { 
+              background: rgba(255, 255, 255, 0.1); 
+              padding: 15px; 
+              border-radius: 8px; 
+              border-left: 4px solid #60a5fa;
+            }
+            .back-link { color: #60a5fa; text-decoration: none; font-size: 18px; }
+            .back-link:hover { text-decoration: underline; }
+            h1, h2 { margin-top: 0; }
+            .user-info { background: rgba(76, 175, 80, 0.2); }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <a href="/" class="back-link">← Voltar</a>
+            
+            <h1>🧪 Teste do Banco de Dados</h1>
+            
+            ${user ? `
+            <div class="section user-info">
+              <h2>👤 Usuário de Teste</h2>
+              <p><strong>Nome:</strong> ${user.name}</p>
+              <p><strong>Email:</strong> ${user.email}</p>
+              <p><strong>Nível:</strong> ${user.level}</p>
+              <p><strong>XP:</strong> ${user.xp_points}</p>
+              <p><strong>Streak:</strong> ${user.streak_days} dias</p>
+            </div>
+            ` : '<p>❌ Nenhum usuário encontrado</p>'}
+            
+            <div class="section">
+              <h2>📦 Pacotes de Tecnologia</h2>
+              <div class="grid">
+                ${packages.map(pkg => `
+                  <div class="card">
+                    <h3>${pkg.name}</h3>
+                    <p><strong>Ícone:</strong> ${pkg.icon}</p>
+                    <p><strong>Aula Atual:</strong> ${pkg.current_lesson}</p>
+                    <p><strong>Progresso:</strong> ${pkg.progress_percentage}%</p>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+            
+            <div class="section">
+              <h2>👥 Perfis Profissionais</h2>
+              <div class="grid">
+                ${careerProfiles.map(profile => `
+                  <div class="card">
+                    <h3>${profile.name}</h3>
+                    <p><strong>Ícone:</strong> ${profile.icon}</p>
+                    <p>${profile.description}</p>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+            
+            <div class="section">
+              <h2>✅ Status da Fase 2</h2>
+              <p>✅ Conexão SQLite funcionando</p>
+              <p>✅ Tabelas criadas com sucesso</p>
+              <p>✅ Dados iniciais inseridos</p>
+              <p>✅ Queries funcionando corretamente</p>
+              <p><strong>Próxima:</strong> Fase 3 - Sistema de Autenticação</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `);
+  } catch (error) {
+    console.error('Erro ao buscar dados:', error);
+    res.status(500).send(`
+      <html>
+        <body style="font-family: Arial; text-align: center; padding: 50px; background: #8B5CF6; color: white;">
+          <h1>❌ Erro ao Buscar Dados</h1>
+          <p>Erro: ${error.message}</p>
+          <a href="/" style="color: #60a5fa;">← Voltar</a>
+        </body>
+      </html>
+    `);
+  }
+});
+
+// ========================================
+// TRATAMENTO DE ERROS
+// ========================================
+
+// Middleware para rotas não encontradas (404)
+app.use((req, res) => {
+  res.status(404).send(`
+    <html>
+      <head>
+        <title>Página não encontrada - CodePath</title>
+        <style>
+          body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            padding: 50px;
+            background: linear-gradient(135deg, #8B5CF6, #A855F7);
+            color: white;
+          }
+        </style>
+      </head>
+      <body>
+        <h1>404 - Página não encontrada</h1>
+        <p>A página que você procura não existe.</p>
+        <a href="/" style="color: white;">Voltar ao início</a>
+      </body>
+    </html>
+  `);
+});
+
+// Middleware para tratamento de erros gerais
+app.use((err, req, res, next) => {
+  console.error('Erro no servidor:', err.stack);
+  res.status(500).send(`
+    <html>
+      <head>
+        <title>Erro interno - CodePath</title>
+        <style>
+          body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            padding: 50px;
+            background: linear-gradient(135deg, #8B5CF6, #A855F7);
+            color: white;
+          }
+        </style>
+      </head>
+      <body>
+        <h1>500 - Erro interno do servidor</h1>
+        <p>Algo deu errado. Tente novamente mais tarde.</p>
+        <a href="/" style="color: white;">Voltar ao início</a>
+      </body>
+    </html>
+  `);
+});
+
+// ========================================
+// INICIALIZAÇÃO DO SERVIDOR
+// ========================================
+
+/**
+ * Função para inicializar o servidor com banco de dados
+ */
+async function startServer() {
+  try {
+    // Inicializar o banco de dados primeiro
+    console.log('🔄 Inicializando banco de dados...');
+    await initializeDatabase();
+    
+    // Iniciar o servidor após o banco estar pronto
+    app.listen(PORT, () => {
+      console.log('🚀 ========================================');
+      console.log('   CodePath - Servidor Iniciado');
+      console.log('🚀 ========================================');
+      console.log(`   📍 URL: http://localhost:${PORT}`);
+      console.log(`   🌍 Ambiente: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`   📅 Iniciado em: ${new Date().toLocaleString('pt-BR')}`);
+      console.log('🚀 ========================================');
+      console.log('   ✅ Fase 2: Banco de Dados Configurado');
+      console.log('   📋 Próxima: Fase 3 - Autenticação');
+      console.log('🚀 ========================================');
+    });
+    
+  } catch (error) {
+    console.error('💥 Erro ao iniciar servidor:', error.message);
+    process.exit(1);
+  }
+}
+
+// Inicializar o servidor
+startServer();
+
+// Exportar a aplicação para testes
+module.exports = app; 
