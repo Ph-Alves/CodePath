@@ -15,7 +15,7 @@ const quizModel = {
             const query = `
                 SELECT q.*, 
                        COUNT(qq.id) as total_questions,
-                       l.title as lesson_title,
+                       l.name as lesson_title,
                        p.name as package_name
                 FROM quizzes q
                 LEFT JOIN quiz_questions qq ON q.id = qq.quiz_id

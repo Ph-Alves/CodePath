@@ -851,3 +851,33 @@ li:not([class]) {
     color: var(--gray-700);
     font-weight: 500;
 }
+
+/* ===================================
+   ADMIN STYLES
+   =================================== */
+
+/* Admin badge na sidebar */
+.admin-badge {
+    background: #EF4444;
+    color: white;
+    font-size: 0.6em;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: auto;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+
+.nav-item.admin-only .nav-link {
+    border-left: 3px solid #EF4444;
+    background: rgba(239, 68, 68, 0.05);
+}
+
+.nav-item.admin-only .nav-link:hover {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.nav-item.admin-only .nav-link.active {
+    background: rgba(239, 68, 68, 0.15);
+    border-left-color: #DC2626;
+}

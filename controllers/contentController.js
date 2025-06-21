@@ -6,6 +6,7 @@
  */
 
 const contentModel = require('../models/contentModel');
+const progressModel = require('../models/progressModel');
 
 /**
  * Exibe a lista de aulas de um pacote específico
@@ -118,7 +119,7 @@ async function showLesson(req, res) {
 }
 
 /**
- * Marca uma aula como assistida
+ * Marca uma aula como assistida (usando o novo sistema de progresso)
  * @param {Object} req - Request object
  * @param {Object} res - Response object
  */
@@ -127,36 +128,32 @@ async function markLessonComplete(req, res) {
     const lessonId = parseInt(req.params.lessonId);
     const userId = req.session.user.id;
 
-    // Buscar dados da aula para obter o package_id
-    const lesson = await contentModel.getLessonById(lessonId);
-    
-    if (!lesson) {
-      return res.status(404).json({
-        success: false,
-        message: 'Aula não encontrada.'
-      });
-    }
+    // Usar o novo sistema de progresso para marcar aula como concluída
+    const result = await progressModel.markLessonComplete(userId, lessonId);
 
-    // Marcar aula como assistida
-    const success = await contentModel.markLessonAsWatched(userId, lessonId, lesson.package_id);
-
-    if (success) {
+    if (result.success) {
       // Buscar próxima aula para sugerir
-      const nextLesson = await contentModel.getNextLesson(lesson.package_id, lessonId);
+      const nextLesson = await contentModel.getNextLesson(result.lesson.package_id, lessonId);
       
       res.json({
         success: true,
-        message: 'Aula marcada como concluída! +50 XP',
+        message: result.message,
+        xp_gained: result.xp_gained,
+        lesson: result.lesson,
+        progress_stats: result.progress_stats,
         nextLesson: nextLesson ? {
           id: nextLesson.id,
           name: nextLesson.name,
           url: `/content/lesson/${nextLesson.id}`
-        } : null
+        } : null,
+        leveled_up: result.xp_result?.leveled_up || false,
+        new_level: result.xp_result?.new_level || null
       });
     } else {
-      res.status(500).json({
+      res.status(400).json({
         success: false,
-        message: 'Erro ao marcar aula como concluída.'
+        message: result.message,
+        already_completed: result.already_completed || false
       });
     }
 
@@ -313,6 +310,139 @@ async function goToPreviousLesson(req, res) {
   }
 }
 
+/**
+ * API para verificar status de uma aula específica
+ * @param {Object} req - Request object
+ * @param {Object} res - Response object
+ */
+async function getLessonStatus(req, res) {
+  try {
+    const lessonId = parseInt(req.params.lessonId);
+    const userId = req.session.user.id;
+
+    // Buscar status da aula usando o novo modelo de progresso
+    const lessonStatus = await progressModel.getLessonStatus(userId, lessonId);
+
+    if (!lessonStatus) {
+      return res.status(404).json({
+        success: false,
+        message: 'Aula não encontrada.'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        lesson_id: lessonStatus.id,
+        lesson_name: lessonStatus.name,
+        lesson_number: lessonStatus.lesson_number,
+        package_id: lessonStatus.package_id,
+        package_name: lessonStatus.package_name,
+        is_completed: lessonStatus.is_completed === 1,
+        lessons_watched: lessonStatus.lessons_watched || 0,
+        progress_percentage: lessonStatus.progress_percentage || 0,
+        package_status: lessonStatus.package_status || 'not_started'
+      }
+    });
+
+  } catch (error) {
+    console.error('Erro ao verificar status da aula:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao verificar status da aula.'
+    });
+  }
+}
+
+/**
+ * API para verificar pré-requisitos de uma aula
+ * @param {Object} req - Request object
+ * @param {Object} res - Response object
+ */
+async function checkLessonPrerequisites(req, res) {
+  try {
+    const lessonId = parseInt(req.params.lessonId);
+    const userId = req.session.user.id;
+
+    const prerequisites = await contentModel.checkLessonPrerequisites(userId, lessonId);
+
+    res.json({
+      success: true,
+      data: prerequisites
+    });
+
+  } catch (error) {
+    console.error('Erro ao verificar pré-requisitos:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao verificar pré-requisitos da aula.'
+    });
+  }
+}
+
+/**
+ * API para obter dados completos de navegação de uma aula
+ * @param {Object} req - Request object
+ * @param {Object} res - Response object
+ */
+async function getLessonNavigationData(req, res) {
+  try {
+    const lessonId = parseInt(req.params.lessonId);
+    const userId = req.session.user.id;
+
+    const navigationData = await contentModel.getLessonNavigationData(userId, lessonId);
+
+    if (!navigationData) {
+      return res.status(404).json({
+        success: false,
+        message: 'Aula não encontrada.'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: navigationData
+    });
+
+  } catch (error) {
+    console.error('Erro ao buscar dados de navegação:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao buscar dados de navegação.'
+    });
+  }
+}
+
+/**
+ * API para obter aulas com status de conclusão
+ * @param {Object} req - Request object
+ * @param {Object} res - Response object
+ */
+async function getPackageLessonsWithStatus(req, res) {
+  try {
+    const packageId = parseInt(req.params.packageId);
+    const userId = req.session.user.id;
+
+    const lessons = await contentModel.getLessonsWithCompletionStatus(userId, packageId);
+    const progressStats = await contentModel.getPackageProgressStats(userId, packageId);
+
+    res.json({
+      success: true,
+      data: {
+        lessons: lessons,
+        progressStats: progressStats
+      }
+    });
+
+  } catch (error) {
+    console.error('Erro ao buscar aulas com status:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao buscar aulas.'
+    });
+  }
+}
+
 module.exports = {
   showPackageLessons,
   showLesson,
@@ -320,5 +450,9 @@ module.exports = {
   getPackageProgress,
   getPackageLessonsAPI,
   goToNextLesson,
-  goToPreviousLesson
+  goToPreviousLesson,
+  getLessonStatus,
+  checkLessonPrerequisites,
+  getLessonNavigationData,
+  getPackageLessonsWithStatus
 }; 

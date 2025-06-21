@@ -198,61 +198,268 @@ const createSystemNotifications = {
             userId,
             type: 'welcome',
             title: '🎉 Bem-vindo ao CodePath!',
-            message: `Olá ${userName}! Estamos felizes em tê-lo conosco. Explore nossas trilhas e descubra seu caminho na tecnologia!`,
+            message: `Olá ${userName}! Comece sua jornada de aprendizado explorando nossas trilhas de carreira.`,
             actionUrl: '/careers'
         });
     },
 
     /**
-     * Notificação de progresso em curso
+     * Notificação de subida de nível
      */
-    progressUpdate: async (userId, packageName, progress) => {
+    levelUp: async (userId, newLevel, xpGained) => {
         await notificationModel.createNotification({
             userId,
-            type: 'progress',
-            title: '📈 Progresso Atualizado',
-            message: `Parabéns! Você completou ${progress}% do pacote ${packageName}. Continue assim!`,
+            type: 'level_up',
+            title: '🎊 Parabéns! Você subiu de nível!',
+            message: `Você alcançou o nível ${newLevel} e ganhou ${xpGained} XP! Continue assim!`,
             actionUrl: '/progress'
         });
     },
 
     /**
-     * Notificação de questionário concluído
+     * Notificação de conquista desbloqueada
      */
-    quizCompleted: async (userId, quizName, score) => {
-        const emoji = score >= 80 ? '🏆' : score >= 60 ? '👏' : '💪';
+    achievementUnlocked: async (userId, achievementName, achievementDescription) => {
         await notificationModel.createNotification({
             userId,
-            type: 'quiz',
-            title: `${emoji} Questionário Concluído`,
-            message: `Você obteve ${score}% no questionário "${quizName}". ${score >= 80 ? 'Excelente trabalho!' : score >= 60 ? 'Bom trabalho!' : 'Continue praticando!'}`,
-            actionUrl: '/quiz'
+            type: 'achievement',
+            title: '🏆 Nova conquista desbloqueada!',
+            message: `${achievementName}: ${achievementDescription}`,
+            actionUrl: '/progress'
         });
     },
 
     /**
-     * Notificação de streak mantido
+     * Notificação de streak diário
      */
-    streakMaintained: async (userId, streakDays) => {
+    dailyStreak: async (userId, streakDays) => {
+        const streakIcon = streakDays >= 7 ? '🔥' : '⭐';
         await notificationModel.createNotification({
             userId,
             type: 'streak',
-            title: '🔥 Streak Mantido!',
-            message: `Incrível! Você manteve sua sequência de estudos por ${streakDays} dias consecutivos!`,
+            title: `${streakIcon} Streak de ${streakDays} dias!`,
+            message: `Você está mantendo uma sequência incrível de ${streakDays} dias consecutivos!`,
             actionUrl: '/dashboard'
         });
     },
 
     /**
-     * Notificação de novo conteúdo disponível
+     * Notificação de aula concluída
      */
-    newContent: async (userId, contentTitle, packageName) => {
+    lessonCompleted: async (userId, lessonName, xpGained) => {
         await notificationModel.createNotification({
             userId,
-            type: 'content',
-            title: '📚 Novo Conteúdo Disponível',
-            message: `O conteúdo "${contentTitle}" foi adicionado ao pacote ${packageName}. Confira agora!`,
+            type: 'lesson_complete',
+            title: '📚 Aula concluída!',
+            message: `Você completou "${lessonName}" e ganhou ${xpGained} XP!`,
+            actionUrl: '/progress'
+        });
+    },
+
+    /**
+     * Notificação de quiz completado
+     */
+    quizCompleted: async (userId, quizName, score, xpGained) => {
+        const scoreIcon = score >= 90 ? '🎯' : score >= 70 ? '👍' : '📝';
+        await notificationModel.createNotification({
+            userId,
+            type: 'quiz_complete',
+            title: `${scoreIcon} Quiz completado!`,
+            message: `Você completou "${quizName}" com ${score}% de acerto e ganhou ${xpGained} XP!`,
+            actionUrl: '/progress'
+        });
+    },
+
+    /**
+     * Notificação de pacote concluído
+     */
+    packageCompleted: async (userId, packageName, xpGained) => {
+        await notificationModel.createNotification({
+            userId,
+            type: 'package_complete',
+            title: '🎉 Pacote concluído!',
+            message: `Parabéns! Você completou o pacote "${packageName}" e ganhou ${xpGained} XP!`,
             actionUrl: '/careers'
+        });
+    },
+
+    /**
+     * Notificação de login diário
+     */
+    dailyLogin: async (userId, xpGained, streakDays) => {
+        await notificationModel.createNotification({
+            userId,
+            type: 'daily_login',
+            title: '🌟 Login diário!',
+            message: `Bem-vindo de volta! Você ganhou ${xpGained} XP pelo login diário. Streak: ${streakDays} dias.`,
+            actionUrl: '/dashboard'
+        });
+    },
+
+    /**
+     * Notificação de quiz perfeito
+     */
+    perfectQuiz: async (userId, quizName, bonusXP) => {
+        await notificationModel.createNotification({
+            userId,
+            type: 'perfect_quiz',
+            title: '🎯 Quiz perfeito!',
+            message: `Incrível! Você acertou 100% do quiz "${quizName}" e ganhou ${bonusXP} XP de bônus!`,
+            actionUrl: '/progress'
+        });
+    }
+};
+
+/**
+ * Processar eventos automáticos de notificação
+ * Esta função é chamada por outros controladores para disparar notificações
+ */
+const processAutoNotification = async (eventType, userId, eventData) => {
+    try {
+        switch (eventType) {
+            case 'user_registered':
+                await createSystemNotifications.welcome(userId, eventData.userName);
+                break;
+
+            case 'level_up':
+                await createSystemNotifications.levelUp(userId, eventData.newLevel, eventData.xpGained);
+                break;
+
+            case 'achievement_unlocked':
+                await createSystemNotifications.achievementUnlocked(
+                    userId, 
+                    eventData.achievementName, 
+                    eventData.achievementDescription
+                );
+                break;
+
+            case 'daily_streak':
+                await createSystemNotifications.dailyStreak(userId, eventData.streakDays);
+                break;
+
+            case 'lesson_completed':
+                await createSystemNotifications.lessonCompleted(
+                    userId, 
+                    eventData.lessonName, 
+                    eventData.xpGained
+                );
+                break;
+
+            case 'quiz_completed':
+                await createSystemNotifications.quizCompleted(
+                    userId, 
+                    eventData.quizName, 
+                    eventData.score, 
+                    eventData.xpGained
+                );
+                
+                // Se foi quiz perfeito, adiciona notificação especial
+                if (eventData.score === 100 && eventData.bonusXP) {
+                    await createSystemNotifications.perfectQuiz(
+                        userId, 
+                        eventData.quizName, 
+                        eventData.bonusXP
+                    );
+                }
+                break;
+
+            case 'package_completed':
+                await createSystemNotifications.packageCompleted(
+                    userId, 
+                    eventData.packageName, 
+                    eventData.xpGained
+                );
+                break;
+
+            case 'daily_login':
+                await createSystemNotifications.dailyLogin(
+                    userId, 
+                    eventData.xpGained, 
+                    eventData.streakDays
+                );
+                break;
+
+            default:
+                console.warn(`Tipo de evento de notificação não reconhecido: ${eventType}`);
+        }
+    } catch (error) {
+        console.error(`Erro ao processar notificação automática (${eventType}):`, error);
+    }
+};
+
+/**
+ * Endpoint para buscar notificações em tempo real (polling)
+ * @param {Object} req - Request object
+ * @param {Object} res - Response object
+ */
+const pollNotifications = async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        const { lastCheck } = req.query;
+
+        // Buscar notificações criadas após o último check
+        let query = `
+            SELECT 
+                id, type, title, message, action_url, is_read, created_at,
+                CASE 
+                    WHEN datetime('now', '-1 hour') < created_at THEN 'Agora'
+                    WHEN datetime('now', '-1 day') < created_at THEN 'Hoje'
+                    WHEN datetime('now', '-7 days') < created_at THEN 'Esta semana'
+                    ELSE 'Mais antigas'
+                END as time_group
+            FROM notifications 
+            WHERE user_id = ?
+        `;
+        
+        const params = [userId];
+        
+        if (lastCheck) {
+            query += ` AND created_at > ?`;
+            params.push(lastCheck);
+        }
+        
+        query += ` ORDER BY created_at DESC LIMIT 5`;
+        
+        const newNotifications = await notificationModel.database.all(query, params);
+        const unreadCount = await notificationModel.getUnreadCount(userId);
+
+        res.json({
+            success: true,
+            newNotifications,
+            unreadCount,
+            timestamp: new Date().toISOString()
+        });
+
+    } catch (error) {
+        console.error('Erro no polling de notificações:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro ao verificar notificações'
+        });
+    }
+};
+
+/**
+ * Endpoint para estatísticas de notificações
+ * @param {Object} req - Request object
+ * @param {Object} res - Response object
+ */
+const getNotificationStats = async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        
+        const stats = await notificationModel.getNotificationStats(userId);
+        
+        res.json({
+            success: true,
+            stats
+        });
+
+    } catch (error) {
+        console.error('Erro ao buscar estatísticas de notificações:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro ao carregar estatísticas'
         });
     }
 };
@@ -264,5 +471,8 @@ module.exports = {
     markAllAsRead,
     deleteNotification,
     cleanupOldNotifications,
-    createSystemNotifications
+    createSystemNotifications,
+    processAutoNotification,
+    pollNotifications,
+    getNotificationStats
 }; 

@@ -1,0 +1,194 @@
+{{>header}}
+
+<div class="achievements-container">
+    <!-- Header da Página -->
+    <div class="achievements-header">
+        <div class="header-content">
+            <div class="header-text">
+                <h1 class="page-title">
+                    <span class="title-icon">🏆</span>
+                    Conquistas
+                </h1>
+                <p class="page-subtitle">
+                    Acompanhe seu progresso e desbloqueie conquistas incríveis
+                </p>
+            </div>
+            <div class="header-stats">
+                <div class="stat-card">
+                    <div class="stat-number">{{achievementStats.unlocked_achievements}}</div>
+                    <div class="stat-label">Desbloqueadas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{achievementStats.completion_percentage}}%</div>
+                    <div class="stat-label">Progresso</div>
+                </div>
+                <div class="stat-card streak-card">
+                    <div class="stat-number">
+                        <span class="streak-icon">🔥</span>
+                        {{userStats.current_streak}}
+                    </div>
+                    <div class="stat-label">Dias de Streak</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Barra de Progresso Geral -->
+        <div class="progress-section">
+            <div class="progress-header">
+                <span class="progress-text">
+                    {{achievementStats.unlocked_achievements}} de {{achievementStats.total_achievements}} conquistas
+                </span>
+                <span class="progress-percentage">{{achievementStats.completion_percentage}}%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: {{achievementStats.completion_percentage}}%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conquistas Recentes -->
+    {{#recentAchievements}}
+    <div class="recent-achievements">
+        <h2 class="section-title">
+            <span class="section-icon">⭐</span>
+            Conquistas Recentes
+        </h2>
+        <div class="recent-grid">
+            {{#recentAchievements}}
+            <div class="recent-achievement">
+                <div class="achievement-icon">{{icon}}</div>
+                <div class="achievement-info">
+                    <div class="achievement-name">{{name}}</div>
+                    <div class="achievement-date">
+                        Desbloqueada em {{unlocked_at}}
+                    </div>
+                </div>
+                <div class="achievement-xp">+{{xp_reward}} XP</div>
+            </div>
+            {{/recentAchievements}}
+        </div>
+    </div>
+    {{/recentAchievements}}
+
+    <!-- Filtros de Categoria -->
+    <div class="category-filters">
+        <button class="filter-btn active" data-category="all">
+            <span class="filter-icon">🏆</span>
+            Todas
+        </button>
+        {{#categories}}
+        <button class="filter-btn" data-category="{{key}}">
+            <span class="filter-icon">{{icon}}</span>
+            {{name}}
+        </button>
+        {{/categories}}
+    </div>
+
+    <!-- Grid de Conquistas -->
+    <div class="achievements-grid">
+        {{#categories}}
+        <div class="category-section" data-category="{{key}}">
+            <h3 class="category-title">
+                <span class="category-icon">{{icon}}</span>
+                {{name}}
+            </h3>
+            
+            <div class="achievements-row">
+                {{#achievementsByCategory}}
+                {{#.}}
+                <div class="achievement-card {{#is_unlocked}}unlocked{{/is_unlocked}}" 
+                     data-achievement-id="{{id}}" 
+                     data-category="{{category}}">
+                    
+                    <!-- Badge de Status -->
+                    <div class="achievement-badge">
+                        {{#is_unlocked}}
+                        <span class="badge-unlocked">✓</span>
+                        {{/is_unlocked}}
+                        {{^is_unlocked}}
+                        <span class="badge-locked">🔒</span>
+                        {{/is_unlocked}}
+                    </div>
+                    
+                    <!-- Ícone da Conquista -->
+                    <div class="achievement-icon-large">{{icon}}</div>
+                    
+                    <!-- Informações -->
+                    <div class="achievement-content">
+                        <h4 class="achievement-title">{{name}}</h4>
+                        <p class="achievement-description">{{description}}</p>
+                        
+                        <!-- Requisito -->
+                        <div class="achievement-requirement">
+                            <span class="requirement-text">
+                                {{requirement_value}} {{requirement_type}}
+                            </span>
+                        </div>
+                        
+                        <!-- Barra de Progresso (apenas para não desbloqueadas) -->
+                        {{^is_unlocked}}
+                        <div class="achievement-progress">
+                            <div class="progress-bar-small">
+                                <div class="progress-fill-small" data-progress="0"></div>
+                            </div>
+                            <span class="progress-text-small">0%</span>
+                        </div>
+                        {{/is_unlocked}}
+                        
+                        <!-- Data de Desbloqueio -->
+                        {{#is_unlocked}}
+                        <div class="achievement-unlocked-date">
+                            Desbloqueada em {{unlocked_at}}
+                        </div>
+                        {{/is_unlocked}}
+                        
+                        <!-- Recompensa XP -->
+                        <div class="achievement-reward">
+                            <span class="xp-icon">⚡</span>
+                            +{{xp_reward}} XP
+                        </div>
+                    </div>
+                </div>
+                {{/.}}
+                {{/achievementsByCategory}}
+            </div>
+        </div>
+        {{/categories}}
+    </div>
+
+    <!-- Modal de Conquista Desbloqueada -->
+    <div id="achievementModal" class="achievement-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">🎉 Conquista Desbloqueada!</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-achievement-icon"></div>
+                <h4 class="modal-achievement-name"></h4>
+                <p class="modal-achievement-description"></p>
+                <div class="modal-achievement-reward">
+                    <span class="xp-icon">⚡</span>
+                    <span class="xp-amount"></span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary modal-continue">Continuar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <p>Verificando conquistas...</p>
+    </div>
+</div>
+
+<!-- CSS Específico -->
+<link rel="stylesheet" href="/css/achievements.css">
+
+<!-- JavaScript -->
+<script src="/js/achievements.js"></script>
+
+{{>footer}} 

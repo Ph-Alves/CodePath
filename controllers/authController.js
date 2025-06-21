@@ -13,6 +13,7 @@ const {
   removeSession 
 } = require('../models/userModel');
 const { createSystemNotifications } = require('./notificationController');
+const ValidationModel = require('../models/validationModel');
 
 /**
  * Exibe a página de login
@@ -37,36 +38,75 @@ function showLogin(req, res) {
  * Processa o login do usuário
  */
 async function processLogin(req, res) {
+  const ip = req.ip || req.connection.remoteAddress || req.socket.remoteAddress;
+  
   try {
     console.log('[AUTH] Iniciando processo de login...');
     const { email, password } = req.body;
     console.log(`[AUTH] Email recebido: ${email}`);
     
+    // Sanitizar dados de entrada
+    const sanitizedEmail = ValidationModel.sanitizeEmail(email);
+    
     // Validar campos obrigatórios
-    if (!email || !password) {
+    if (!sanitizedEmail || !password) {
       console.log('[AUTH] Erro: Campos obrigatórios não preenchidos');
+      
+      // Log tentativa de login com dados inválidos
+      await ValidationModel.logLoginAttempt(sanitizedEmail || 'EMPTY', ip, false);
+      
       return res.render('pages/login', {
         title: 'Login - CodePath',
         pageTitle: 'Faça seu login',
         subtitle: 'Descubra o seu caminho na tecnologia',
         additionalCSS: 'auth',
         error: 'Email e senha são obrigatórios',
-        email: email // Manter o email preenchido
+        email: sanitizedEmail
+      });
+    }
+    
+    // Validar formato do email
+    if (!ValidationModel.isValidEmail(sanitizedEmail)) {
+      await ValidationModel.logLoginAttempt(sanitizedEmail, ip, false);
+      
+      return res.render('pages/login', {
+        title: 'Login - CodePath',
+        pageTitle: 'Faça seu login',
+        subtitle: 'Descubra o seu caminho na tecnologia',
+        additionalCSS: 'auth',
+        error: 'Por favor, insira um email válido',
+        email: sanitizedEmail
       });
     }
     
     console.log('[AUTH] Validando credenciais...');
     // Validar credenciais
-    const user = await validateUser(email, password);
+    const user = await validateUser(sanitizedEmail, password);
     if (!user) {
       console.log('[AUTH] Erro: Credenciais inválidas');
+      
+      // Log tentativa de login falhada
+      await ValidationModel.logLoginAttempt(sanitizedEmail, ip, false);
+      
+      // Log atividade suspeita para múltiplas tentativas
+      await ValidationModel.logSuspiciousActivity(
+        null,
+        'failed_login',
+        ip,
+        JSON.stringify({
+          email: sanitizedEmail,
+          userAgent: req.get('User-Agent'),
+          timestamp: new Date().toISOString()
+        })
+      );
+      
       return res.render('pages/login', {
         title: 'Login - CodePath',
         pageTitle: 'Faça seu login',
         subtitle: 'Descubra o seu caminho na tecnologia',
         additionalCSS: 'auth',
         error: 'Email ou senha incorretos',
-        email: email
+        email: sanitizedEmail
       });
     }
     
@@ -85,6 +125,9 @@ async function processLogin(req, res) {
     // Log de sucesso
     console.log(`[AUTH] Login realizado com sucesso: ${user.email}`);
     
+    // Log tentativa de login bem-sucedida
+    await ValidationModel.logLoginAttempt(sanitizedEmail, ip, true);
+    
     console.log('[AUTH] Redirecionando para dashboard...');
     // Redirecionar para dashboard
     res.redirect('/dashboard');
@@ -92,13 +135,26 @@ async function processLogin(req, res) {
   } catch (error) {
     console.error('Erro ao processar login:', error);
     console.error('Stack trace:', error.stack);
+    
+    // Log erro como atividade suspeita
+    await ValidationModel.logSuspiciousActivity(
+      null,
+      'login_error',
+      ip,
+      JSON.stringify({
+        error: error.message,
+        email: req.body.email,
+        userAgent: req.get('User-Agent')
+      })
+    );
+    
     res.render('pages/login', {
       title: 'Login - CodePath',
       pageTitle: 'Faça seu login',
       subtitle: 'Descubra o seu caminho na tecnologia',
       additionalCSS: 'auth',
       error: 'Erro interno do servidor. Tente novamente.',
-      email: req.body.email
+      email: ValidationModel.sanitizeEmail(req.body.email)
     });
   }
 }
@@ -153,38 +209,52 @@ async function processRegister(req, res) {
       });
     }
     
-    // Validar tamanho da senha
-    if (password.length < 6) {
+    // Validar força da senha
+    const passwordValidation = ValidationModel.validatePassword(password);
+    if (!passwordValidation.isValid) {
       return res.render('pages/register', {
         title: 'Cadastro - CodePath',
         pageTitle: 'Crie sua conta',
         subtitle: 'Comece sua jornada na tecnologia',
         additionalCSS: 'auth',
-        error: 'A senha deve ter pelo menos 6 caracteres',
+        error: passwordValidation.errors.join('. '),
         formData: { name, email, birthDate, educationLevel }
       });
     }
     
-    // Validar formato do email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    // Sanitizar e validar email
+    const sanitizedEmail = ValidationModel.sanitizeEmail(email);
+    if (!ValidationModel.isValidEmail(sanitizedEmail)) {
       return res.render('pages/register', {
         title: 'Cadastro - CodePath',
         pageTitle: 'Crie sua conta',
         subtitle: 'Comece sua jornada na tecnologia',
         additionalCSS: 'auth',
         error: 'Por favor, insira um email válido',
-        formData: { name, email, birthDate, educationLevel }
+        formData: { name: ValidationModel.sanitizeString(name), email: sanitizedEmail, birthDate, educationLevel }
       });
     }
     
-    // Criar usuário
+    // Validar nome
+    const nameValidation = ValidationModel.validateName(name);
+    if (!nameValidation.isValid) {
+      return res.render('pages/register', {
+        title: 'Cadastro - CodePath',
+        pageTitle: 'Crie sua conta',
+        subtitle: 'Comece sua jornada na tecnologia',
+        additionalCSS: 'auth',
+        error: nameValidation.errors.join('. '),
+        formData: { name: ValidationModel.sanitizeString(name), email: sanitizedEmail, birthDate, educationLevel }
+      });
+    }
+    
+    // Criar usuário com dados sanitizados
     const newUser = await createUser({
-      name,
-      email,
+      name: ValidationModel.sanitizeString(name),
+      email: sanitizedEmail,
       password,
       birthDate,
-      educationLevel
+      educationLevel: ValidationModel.sanitizeString(educationLevel)
     });
     
     // Log de sucesso

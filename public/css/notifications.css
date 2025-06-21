@@ -488,4 +488,240 @@
         min-width: auto;
         margin-right: 0;
     }
+}
+
+/* Animações para notificações em tempo real */
+
+/* Animação de flash do badge */
+.notification-badge.flash {
+    animation: badgeFlash 1s ease-in-out;
+}
+
+@keyframes badgeFlash {
+    0%, 100% { 
+        transform: scale(1); 
+        background-color: var(--danger-color);
+    }
+    25% { 
+        transform: scale(1.2); 
+        background-color: #ff6b6b;
+    }
+    50% { 
+        transform: scale(1.1); 
+        background-color: var(--warning-color);
+    }
+    75% { 
+        transform: scale(1.15); 
+        background-color: #ff6b6b;
+    }
+}
+
+/* Animação de entrada para novas notificações */
+.notification-item.new-notification {
+    animation: slideInFromTop 0.4s ease-out;
+    border-left: 4px solid var(--primary-color);
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.05));
+}
+
+@keyframes slideInFromTop {
+    0% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Pulse para notificações importantes */
+.notification-item.important {
+    animation: notificationPulse 2s infinite;
+}
+
+@keyframes notificationPulse {
+    0%, 100% {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    50% {
+        box-shadow: 0 4px 16px rgba(99, 102, 241, 0.2);
+    }
+}
+
+/* Estilos para diferentes tipos de notificação */
+.notification-item[data-type="level_up"] {
+    border-left-color: var(--success-color);
+}
+
+.notification-item[data-type="achievement"] {
+    border-left-color: var(--warning-color);
+}
+
+.notification-item[data-type="streak"] {
+    border-left-color: #ff6b6b;
+}
+
+.notification-item[data-type="lesson_complete"] {
+    border-left-color: var(--info-color);
+}
+
+.notification-item[data-type="quiz_complete"] {
+    border-left-color: var(--primary-color);
+}
+
+.notification-item[data-type="package_complete"] {
+    border-left-color: var(--success-color);
+}
+
+.notification-item[data-type="daily_login"] {
+    border-left-color: #ffd93d;
+}
+
+.notification-item[data-type="perfect_quiz"] {
+    border-left-color: #ff6b6b;
+    background: linear-gradient(135deg, rgba(255, 107, 107, 0.05), rgba(255, 193, 7, 0.05));
+}
+
+/* Indicador de notificação não lida */
+.notification-item:not(.read) {
+    position: relative;
+}
+
+.notification-item:not(.read)::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 8px;
+    width: 8px;
+    height: 8px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    transform: translateY(-50%);
+    animation: unreadPulse 2s infinite;
+}
+
+@keyframes unreadPulse {
+    0%, 100% {
+        opacity: 1;
+        transform: translateY(-50%) scale(1);
+    }
+    50% {
+        opacity: 0.6;
+        transform: translateY(-50%) scale(1.2);
+    }
+}
+
+/* Toast melhorado para notificações em tempo real */
+.notification-toast.info {
+    background: linear-gradient(135deg, var(--info-color), #3b82f6);
+    border-left: 4px solid #1e40af;
+}
+
+.notification-toast.info .toast-icon {
+    color: #1e40af;
+}
+
+/* Animação de entrada do toast */
+.notification-toast.show {
+    animation: toastSlideIn 0.3s ease-out;
+}
+
+@keyframes toastSlideIn {
+    0% {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Hover effects melhorados */
+.notification-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.2s ease;
+}
+
+/* Loading state melhorado */
+.notification-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    color: var(--text-muted);
+}
+
+.notification-loading::after {
+    content: '';
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border-color);
+    border-top: 2px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-left: 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Botão de polling status */
+.polling-status {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--success-color);
+    animation: pollingPulse 2s infinite;
+}
+
+.polling-status.offline {
+    background: var(--danger-color);
+    animation: none;
+}
+
+@keyframes pollingPulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.6;
+        transform: scale(1.2);
+    }
+}
+
+/* Responsividade melhorada */
+@media (max-width: 768px) {
+    .notification-item {
+        padding: 12px;
+        margin-bottom: 8px;
+    }
+    
+    .notification-item:not(.read)::before {
+        left: 6px;
+        width: 6px;
+        height: 6px;
+    }
+    
+    .notification-badge.flash {
+        animation-duration: 0.8s;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .notification-item.new-notification {
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+    }
+    
+    .notification-item[data-type="perfect_quiz"] {
+        background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(255, 193, 7, 0.1));
+    }
 } 

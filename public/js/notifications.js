@@ -9,6 +9,7 @@
  * - Carregar mais notificações (paginação)
  * - Toast de feedback
  * - Atualização automática de badge
+ * - Polling em tempo real
  */
 
 class NotificationManager {
@@ -18,6 +19,9 @@ class NotificationManager {
         this.limit = 10;
         this.hasMore = true;
         this.isLoading = false;
+        this.lastCheck = null;
+        this.pollingInterval = null;
+        this.pollingEnabled = true;
         
         // Elementos DOM
         this.elements = {
@@ -42,10 +46,22 @@ class NotificationManager {
         this.bindEvents();
         this.loadInitialNotifications();
         
+        // Iniciar polling automático
+        this.startPolling();
+        
         // Auto-atualizar a cada 30 segundos
         setInterval(() => {
             this.updateBadgeCount();
         }, 30000);
+        
+        // Pausar polling quando a aba perde foco
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                this.stopPolling();
+            } else {
+                this.startPolling();
+            }
+        });
     }
 
     /**
@@ -574,6 +590,116 @@ class NotificationManager {
         if (this.elements.toast) {
             this.elements.toast.classList.remove('show');
         }
+    }
+
+    /**
+     * Iniciar polling em tempo real
+     */
+    startPolling() {
+        if (!this.pollingEnabled || this.pollingInterval) return;
+        
+        this.pollingInterval = setInterval(() => {
+            this.pollForNewNotifications();
+        }, 15000); // Poll a cada 15 segundos
+    }
+
+    /**
+     * Parar polling
+     */
+    stopPolling() {
+        if (this.pollingInterval) {
+            clearInterval(this.pollingInterval);
+            this.pollingInterval = null;
+        }
+    }
+
+    /**
+     * Verificar novas notificações via polling
+     */
+    async pollForNewNotifications() {
+        try {
+            const params = new URLSearchParams();
+            if (this.lastCheck) {
+                params.append('lastCheck', this.lastCheck);
+            }
+            
+            const response = await fetch(`/notifications/poll?${params}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Atualizar timestamp do último check
+                this.lastCheck = data.timestamp;
+                
+                // Se há novas notificações, adiciona ao topo da lista
+                if (data.newNotifications && data.newNotifications.length > 0) {
+                    this.prependNotifications(data.newNotifications);
+                    
+                    // Mostrar toast para primeira notificação nova
+                    const firstNew = data.newNotifications[0];
+                    this.showToast(`Nova notificação: ${firstNew.title}`, 'info');
+                    
+                    // Piscar o badge se há notificações não lidas
+                    if (data.unreadCount > 0) {
+                        this.flashBadge();
+                    }
+                }
+                
+                // Atualizar badge count
+                this.updateBadge(data.unreadCount);
+            }
+        } catch (error) {
+            console.error('Erro no polling de notificações:', error);
+            // Em caso de erro, reduzir frequência do polling
+            this.stopPolling();
+            setTimeout(() => this.startPolling(), 60000); // Tentar novamente em 1 minuto
+        }
+    }
+
+    /**
+     * Adicionar notificações no topo da lista
+     */
+    prependNotifications(notifications) {
+        if (!this.elements.content) return;
+        
+        const existingContent = this.elements.content.innerHTML;
+        const newNotificationsHTML = notifications.map(n => this.getNotificationHTML(n)).join('');
+        
+        this.elements.content.innerHTML = newNotificationsHTML + existingContent;
+        
+        // Animar entrada das novas notificações
+        const newElements = this.elements.content.querySelectorAll('.notification-item:nth-child(-n+' + notifications.length + ')');
+        newElements.forEach((el, index) => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(-10px)';
+            
+            setTimeout(() => {
+                el.style.transition = 'all 0.3s ease';
+                el.style.opacity = '1';
+                el.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+    }
+
+    /**
+     * Piscar o badge para chamar atenção
+     */
+    flashBadge() {
+        if (!this.elements.badge) return;
+        
+        this.elements.badge.classList.add('flash');
+        setTimeout(() => {
+            this.elements.badge.classList.remove('flash');
+        }, 1000);
     }
 }
 

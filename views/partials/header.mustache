@@ -34,6 +34,28 @@
             <!-- Progresso/XP do Usuário -->
             {{#user}}
             <div class="user-progress">
+                {{#userXP}}
+                <div class="xp-info">
+                    <span class="xp-points">{{totalXP}} XP</span>
+                    <div class="level-badge">
+                        <i class="fas fa-star"></i>
+                        <span>Nível {{currentLevel}}</span>
+                    </div>
+                </div>
+                <div class="xp-progress-bar">
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: {{progressToNextLevel}}%"></div>
+                    </div>
+                    <span class="next-level-info">{{xpForNextLevel}} XP para nível {{#math}}{{currentLevel}}+1{{/math}}</span>
+                </div>
+                {{#currentStreak}}
+                <div class="streak-info">
+                    <i class="fas fa-fire"></i>
+                    <span>{{currentStreak}} dias</span>
+                </div>
+                {{/currentStreak}}
+                {{/userXP}}
+                {{^userXP}}
                 <div class="xp-info">
                     <span class="xp-points">{{xp_points}} XP</span>
                     <div class="level-badge">
@@ -47,6 +69,7 @@
                     <span>{{streak_days}} dias</span>
                 </div>
                 {{/streak_days}}
+                {{/userXP}}
             </div>
             {{/user}}
             

@@ -9,12 +9,16 @@ const express = require('express');
 const router = express.Router();
 const contentController = require('../controllers/contentController');
 const { requireAuth } = require('../middleware/auth');
+const { processLessonComplete, attachXPToResponse, attachXPToTemplate } = require('../middleware/xpMiddleware');
 
 // ========================================
-// MIDDLEWARE DE AUTENTICAÇÃO
+// MIDDLEWARE DE AUTENTICAÇÃO E XP
 // ========================================
 // Todas as rotas de conteúdo requerem autenticação
 router.use(requireAuth);
+
+// Middleware para anexar dados de XP aos templates
+router.use(attachXPToTemplate);
 
 // ========================================
 // ROTAS DE VISUALIZAÇÃO DE CONTEÚDO
@@ -54,9 +58,9 @@ router.get('/lesson/:lessonId/previous', contentController.goToPreviousLesson);
 
 /**
  * POST /content/lesson/:lessonId/complete
- * Marca uma aula como concluída
+ * Marca uma aula como concluída e processa XP
  */
-router.post('/lesson/:lessonId/complete', contentController.markLessonComplete);
+router.post('/lesson/:lessonId/complete', attachXPToResponse, processLessonComplete, contentController.markLessonComplete);
 
 // ========================================
 // APIs PARA DADOS DE CONTEÚDO
@@ -73,5 +77,29 @@ router.get('/api/package/:packageId/progress', contentController.getPackageProgr
  * API para obter aulas de um pacote
  */
 router.get('/api/package/:packageId/lessons', contentController.getPackageLessonsAPI);
+
+/**
+ * GET /content/api/lesson/:lessonId/status
+ * API para verificar status de uma aula específica
+ */
+router.get('/api/lesson/:lessonId/status', contentController.getLessonStatus);
+
+/**
+ * GET /content/api/lesson/:lessonId/prerequisites
+ * API para verificar pré-requisitos de uma aula
+ */
+router.get('/api/lesson/:lessonId/prerequisites', contentController.checkLessonPrerequisites);
+
+/**
+ * GET /content/api/lesson/:lessonId/navigation
+ * API para obter dados completos de navegação de uma aula
+ */
+router.get('/api/lesson/:lessonId/navigation', contentController.getLessonNavigationData);
+
+/**
+ * GET /content/api/package/:packageId/lessons-with-status
+ * API para obter aulas de um pacote com status de conclusão
+ */
+router.get('/api/package/:packageId/lessons-with-status', contentController.getPackageLessonsWithStatus);
 
 module.exports = router; 

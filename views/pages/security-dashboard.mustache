@@ -1,0 +1,825 @@
+{{>partials/header}}
+{{>partials/sidebar}}
+
+<div class="main-content">
+    <div class="dashboard-header">
+        <div class="breadcrumb">
+            <a href="/dashboard">Dashboard</a>
+            <span class="separator">></span>
+            <span class="current">Segurança</span>
+        </div>
+        
+        <div class="page-title">
+            <h1>🔐 Dashboard de Segurança</h1>
+            <p class="subtitle">Monitoramento e controle de segurança do sistema</p>
+        </div>
+    </div>
+
+    <!-- Cards de Estatísticas -->
+    <div class="security-stats-grid">
+        <div class="stat-card login-stats">
+            <div class="stat-icon">🔑</div>
+            <div class="stat-content">
+                <h3>Tentativas de Login (24h)</h3>
+                <div class="stat-number">{{stats.loginAttempts.total}}</div>
+                <div class="stat-details">
+                    <span class="success">✅ {{stats.loginAttempts.successful}} bem-sucedidas</span>
+                    <span class="failed">❌ {{stats.loginAttempts.failed}} falhadas</span>
+                    <span class="rate">📊 {{stats.loginAttempts.successRate}}% taxa de sucesso</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card ip-stats">
+            <div class="stat-icon">🌐</div>
+            <div class="stat-content">
+                <h3>IPs Únicos (24h)</h3>
+                <div class="stat-number">{{stats.uniqueIPs}}</div>
+                <div class="stat-details">
+                    <span class="blocked">🚫 {{stats.blockedIPs}} bloqueados</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card suspicious-stats">
+            <div class="stat-icon">⚠️</div>
+            <div class="stat-content">
+                <h3>Atividades Suspeitas (24h)</h3>
+                <div class="stat-number">{{stats.suspiciousActivities}}</div>
+                <div class="stat-details">
+                    <span class="warning">Requer atenção</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card system-stats">
+            <div class="stat-icon">⚡</div>
+            <div class="stat-content">
+                <h3>Status do Sistema</h3>
+                <div class="stat-number system-status">🟢</div>
+                <div class="stat-details">
+                    <span class="online">Sistema operacional</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráfico de Requisições por Hora -->
+    {{#stats.requestsPerHour}}
+    <div class="chart-container">
+        <h3>📈 Requisições por Hora (Últimas 24h)</h3>
+        <div class="requests-chart">
+            {{#stats.requestsPerHour}}
+            <div class="chart-bar">
+                <div class="bar" style="height: {{requests}}px;" title="{{hour}}:00 - {{requests}} requisições"></div>
+                <span class="hour-label">{{hour}}h</span>
+            </div>
+            {{/stats.requestsPerHour}}
+        </div>
+    </div>
+    {{/stats.requestsPerHour}}
+
+    <!-- Endpoints Mais Acessados -->
+    {{#stats.topEndpoints}}
+    <div class="endpoints-container">
+        <h3>🎯 Endpoints Mais Acessados (24h)</h3>
+        <div class="endpoints-list">
+            {{#stats.topEndpoints}}
+            <div class="endpoint-item">
+                <span class="endpoint-path">{{endpoint}}</span>
+                <span class="endpoint-count">{{requests}} requisições</span>
+            </div>
+            {{/stats.topEndpoints}}
+        </div>
+    </div>
+    {{/stats.topEndpoints}}
+
+    <!-- IPs Bloqueados -->
+    <div class="blocked-ips-section">
+        <div class="section-header">
+            <h3>🚫 IPs Bloqueados</h3>
+            <button class="refresh-btn" onclick="refreshBlockedIPs()">🔄 Atualizar</button>
+        </div>
+        
+        <div class="blocked-ips-list" id="blockedIPsList">
+            {{#blockedIPs}}
+            <div class="blocked-ip-item">
+                <div class="ip-info">
+                    <span class="ip-address">{{address}}</span>
+                    <span class="ip-attempts">{{failedAttempts}} tentativas falhadas</span>
+                    <span class="ip-time">Última tentativa: {{lastAttemptFormatted}}</span>
+                    <span class="ip-remaining">Desbloqueio em: {{remainingTime}} min</span>
+                </div>
+                <button class="unblock-btn" onclick="unblockIP('{{address}}')" title="Desbloquear IP">
+                    🔓 Desbloquear
+                </button>
+            </div>
+            {{/blockedIPs}}
+            {{^blockedIPs}}
+            <div class="no-data">
+                <p>✅ Nenhum IP bloqueado no momento</p>
+            </div>
+            {{/blockedIPs}}
+        </div>
+    </div>
+
+    <!-- Atividades Suspeitas Recentes -->
+    <div class="suspicious-activities-section">
+        <div class="section-header">
+            <h3>⚠️ Atividades Suspeitas Recentes</h3>
+            <button class="refresh-btn" onclick="refreshSuspiciousActivities()">🔄 Atualizar</button>
+        </div>
+        
+        <div class="activities-list" id="activitiesList">
+            {{#recentActivities}}
+            <div class="activity-item {{activityType}}">
+                <div class="activity-icon">
+                    {{#activityType}}
+                        {{#equals activityType "failed_login"}}🔑❌{{/equals}}
+                        {{#equals activityType "unauthorized_access"}}🚪❌{{/equals}}
+                        {{#equals activityType "invalid_session"}}🎫❌{{/equals}}
+                        {{#equals activityType "security_access"}}🔐{{/equals}}
+                        {{#equals activityType "admin_action"}}👨‍💼{{/equals}}
+                    {{/activityType}}
+                </div>
+                <div class="activity-content">
+                    <div class="activity-header">
+                        <span class="activity-type">{{activityType}}</span>
+                        <span class="activity-time">{{detectedAtFormatted}}</span>
+                    </div>
+                    <div class="activity-details">
+                        <span class="activity-user">{{userName}} ({{userEmail}})</span>
+                        <span class="activity-ip">IP: {{ipAddress}}</span>
+                    </div>
+                    {{#details}}
+                    <div class="activity-extra">
+                        <details>
+                            <summary>Ver detalhes</summary>
+                            <pre>{{details}}</pre>
+                        </details>
+                    </div>
+                    {{/details}}
+                </div>
+            </div>
+            {{/recentActivities}}
+            {{^recentActivities}}
+            <div class="no-data">
+                <p>✅ Nenhuma atividade suspeita recente</p>
+            </div>
+            {{/recentActivities}}
+        </div>
+    </div>
+
+    <!-- Controles Administrativos -->
+    <div class="admin-controls">
+        <h3>🛠️ Controles Administrativos</h3>
+        <div class="controls-grid">
+            <button class="control-btn danger" onclick="cleanOldLogs()">
+                🧹 Limpar Logs Antigos
+            </button>
+            <button class="control-btn info" onclick="exportSecurityReport()">
+                📊 Exportar Relatório
+            </button>
+            <button class="control-btn warning" onclick="refreshAllStats()">
+                🔄 Atualizar Tudo
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmação -->
+<div id="confirmModal" class="modal">
+    <div class="modal-content">
+        <h3 id="confirmTitle">Confirmar Ação</h3>
+        <p id="confirmMessage">Tem certeza que deseja realizar esta ação?</p>
+        <div class="modal-actions">
+            <button class="btn secondary" onclick="closeConfirmModal()">Cancelar</button>
+            <button class="btn primary" id="confirmButton">Confirmar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast de Notificação -->
+<div id="toast" class="toast">
+    <span id="toastMessage"></span>
+    <button onclick="closeToast()">×</button>
+</div>
+
+<style>
+.security-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-icon {
+    font-size: 2.5em;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #8B5CF6, #A855F7);
+}
+
+.stat-content h3 {
+    margin: 0 0 10px 0;
+    font-size: 0.9em;
+    color: #6B7280;
+    font-weight: 600;
+}
+
+.stat-number {
+    font-size: 2em;
+    font-weight: bold;
+    color: #1F2937;
+    margin-bottom: 5px;
+}
+
+.stat-details {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    font-size: 0.8em;
+}
+
+.stat-details .success { color: #10B981; }
+.stat-details .failed { color: #EF4444; }
+.stat-details .blocked { color: #F59E0B; }
+.stat-details .warning { color: #F59E0B; }
+.stat-details .online { color: #10B981; }
+
+.chart-container, .endpoints-container {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.requests-chart {
+    display: flex;
+    align-items: end;
+    gap: 8px;
+    height: 200px;
+    padding: 20px 0;
+}
+
+.chart-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    flex: 1;
+}
+
+.bar {
+    width: 100%;
+    max-width: 30px;
+    background: linear-gradient(135deg, #8B5CF6, #A855F7);
+    border-radius: 4px 4px 0 0;
+    min-height: 5px;
+    transition: all 0.3s ease;
+}
+
+.bar:hover {
+    opacity: 0.8;
+}
+
+.hour-label {
+    font-size: 0.8em;
+    color: #6B7280;
+}
+
+.endpoints-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.endpoint-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: #F9FAFB;
+    border-radius: 8px;
+    border-left: 4px solid #8B5CF6;
+}
+
+.endpoint-path {
+    font-family: 'Courier New', monospace;
+    color: #1F2937;
+    font-weight: 500;
+}
+
+.endpoint-count {
+    color: #6B7280;
+    font-size: 0.9em;
+}
+
+.blocked-ips-section, .suspicious-activities-section, .admin-controls {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.refresh-btn {
+    background: #8B5CF6;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background 0.2s ease;
+}
+
+.refresh-btn:hover {
+    background: #7C3AED;
+}
+
+.blocked-ip-item, .activity-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.ip-info, .activity-content {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+}
+
+.ip-address, .activity-type {
+    font-weight: 600;
+    color: #1F2937;
+}
+
+.ip-attempts, .ip-time, .ip-remaining,
+.activity-time, .activity-user, .activity-ip {
+    font-size: 0.9em;
+    color: #6B7280;
+}
+
+.unblock-btn {
+    background: #10B981;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9em;
+}
+
+.unblock-btn:hover {
+    background: #059669;
+}
+
+.activity-item {
+    align-items: flex-start;
+}
+
+.activity-icon {
+    font-size: 1.5em;
+    margin-right: 15px;
+    margin-top: 5px;
+}
+
+.activity-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.activity-extra {
+    margin-top: 10px;
+}
+
+.activity-extra details {
+    cursor: pointer;
+}
+
+.activity-extra pre {
+    background: #F3F4F6;
+    padding: 10px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    overflow-x: auto;
+    margin-top: 5px;
+}
+
+.controls-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.control-btn {
+    padding: 15px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.control-btn.danger {
+    background: #EF4444;
+    color: white;
+}
+
+.control-btn.info {
+    background: #3B82F6;
+    color: white;
+}
+
+.control-btn.warning {
+    background: #F59E0B;
+    color: white;
+}
+
+.control-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.no-data {
+    text-align: center;
+    padding: 40px;
+    color: #6B7280;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #1F2937;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    display: none;
+    align-items: center;
+    gap: 10px;
+    z-index: 1001;
+}
+
+.toast.show {
+    display: flex;
+}
+
+.toast button {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 1.2em;
+}
+
+@media (max-width: 768px) {
+    .security-stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stat-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        gap: 10px;
+        align-items: stretch;
+    }
+    
+    .blocked-ip-item, .activity-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+    
+    .controls-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+class SecurityDashboard {
+    constructor() {
+        this.csrfToken = '{{csrfToken}}';
+        this.initializeEventListeners();
+        this.startAutoRefresh();
+    }
+
+    initializeEventListeners() {
+        // Event listeners já são definidos inline nos elementos
+    }
+
+    startAutoRefresh() {
+        // Atualiza estatísticas a cada 30 segundos
+        setInterval(() => {
+            this.refreshStats();
+        }, 30000);
+
+        // Atualiza IPs bloqueados a cada 60 segundos
+        setInterval(() => {
+            this.refreshBlockedIPs();
+        }, 60000);
+    }
+
+    async refreshStats() {
+        try {
+            const response = await fetch('/security/api/stats');
+            const data = await response.json();
+            
+            if (data.success) {
+                this.updateStatsDisplay(data.data);
+            }
+        } catch (error) {
+            console.error('Erro ao atualizar estatísticas:', error);
+        }
+    }
+
+    async refreshBlockedIPs() {
+        try {
+            const response = await fetch('/security/api/blocked-ips');
+            const data = await response.json();
+            
+            if (data.success) {
+                this.updateBlockedIPsDisplay(data.data);
+            }
+        } catch (error) {
+            console.error('Erro ao atualizar IPs bloqueados:', error);
+        }
+    }
+
+    async refreshSuspiciousActivities() {
+        try {
+            const response = await fetch('/security/api/activities?limit=20');
+            const data = await response.json();
+            
+            if (data.success) {
+                this.updateActivitiesDisplay(data.data);
+            }
+        } catch (error) {
+            console.error('Erro ao atualizar atividades:', error);
+        }
+    }
+
+    async unblockIP(ip) {
+        const confirmed = await this.showConfirmModal(
+            'Desbloquear IP',
+            `Tem certeza que deseja desbloquear o IP ${ip}?`
+        );
+
+        if (!confirmed) return;
+
+        try {
+            const response = await fetch('/security/api/unblock-ip', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': this.csrfToken
+                },
+                body: JSON.stringify({ 
+                    ip: ip,
+                    _csrf: this.csrfToken 
+                })
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                this.showToast('IP desbloqueado com sucesso!', 'success');
+                this.refreshBlockedIPs();
+            } else {
+                this.showToast(data.message || 'Erro ao desbloquear IP', 'error');
+            }
+        } catch (error) {
+            console.error('Erro ao desbloquear IP:', error);
+            this.showToast('Erro interno do servidor', 'error');
+        }
+    }
+
+    async cleanOldLogs() {
+        const confirmed = await this.showConfirmModal(
+            'Limpar Logs Antigos',
+            'Esta ação irá remover logs antigos permanentemente. Continuar?'
+        );
+
+        if (!confirmed) return;
+
+        try {
+            const response = await fetch('/security/api/clean-logs', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': this.csrfToken
+                },
+                body: JSON.stringify({ _csrf: this.csrfToken })
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                this.showToast('Logs limpos com sucesso!', 'success');
+                this.refreshAllStats();
+            } else {
+                this.showToast(data.message || 'Erro ao limpar logs', 'error');
+            }
+        } catch (error) {
+            console.error('Erro ao limpar logs:', error);
+            this.showToast('Erro interno do servidor', 'error');
+        }
+    }
+
+    async refreshAllStats() {
+        this.showToast('Atualizando dados...', 'info');
+        
+        await Promise.all([
+            this.refreshStats(),
+            this.refreshBlockedIPs(),
+            this.refreshSuspiciousActivities()
+        ]);
+        
+        this.showToast('Dados atualizados!', 'success');
+    }
+
+    exportSecurityReport() {
+        // Implementação futura para exportar relatório
+        this.showToast('Funcionalidade em desenvolvimento', 'info');
+    }
+
+    showConfirmModal(title, message) {
+        return new Promise((resolve) => {
+            const modal = document.getElementById('confirmModal');
+            const titleEl = document.getElementById('confirmTitle');
+            const messageEl = document.getElementById('confirmMessage');
+            const confirmBtn = document.getElementById('confirmButton');
+
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+            modal.classList.add('show');
+
+            const handleConfirm = () => {
+                modal.classList.remove('show');
+                confirmBtn.removeEventListener('click', handleConfirm);
+                resolve(true);
+            };
+
+            const handleCancel = () => {
+                modal.classList.remove('show');
+                confirmBtn.removeEventListener('click', handleConfirm);
+                resolve(false);
+            };
+
+            confirmBtn.addEventListener('click', handleConfirm);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) handleCancel();
+            });
+        });
+    }
+
+    showToast(message, type = 'info') {
+        const toast = document.getElementById('toast');
+        const messageEl = document.getElementById('toastMessage');
+        
+        messageEl.textContent = message;
+        toast.className = `toast show ${type}`;
+        
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }
+
+    closeConfirmModal() {
+        document.getElementById('confirmModal').classList.remove('show');
+    }
+
+    closeToast() {
+        document.getElementById('toast').classList.remove('show');
+    }
+
+    // Métodos de atualização de display (implementação básica)
+    updateStatsDisplay(stats) {
+        // Atualizar elementos DOM com novas estatísticas
+        // Implementação completa seria mais extensa
+    }
+
+    updateBlockedIPsDisplay(blockedIPs) {
+        // Atualizar lista de IPs bloqueados
+        // Implementação completa seria mais extensa
+    }
+
+    updateActivitiesDisplay(activities) {
+        // Atualizar lista de atividades suspeitas
+        // Implementação completa seria mais extensa
+    }
+}
+
+// Funções globais para uso inline
+let dashboard;
+
+document.addEventListener('DOMContentLoaded', () => {
+    dashboard = new SecurityDashboard();
+});
+
+function refreshBlockedIPs() {
+    dashboard.refreshBlockedIPs();
+}
+
+function refreshSuspiciousActivities() {
+    dashboard.refreshSuspiciousActivities();
+}
+
+function unblockIP(ip) {
+    dashboard.unblockIP(ip);
+}
+
+function cleanOldLogs() {
+    dashboard.cleanOldLogs();
+}
+
+function exportSecurityReport() {
+    dashboard.exportSecurityReport();
+}
+
+function refreshAllStats() {
+    dashboard.refreshAllStats();
+}
+
+function closeConfirmModal() {
+    dashboard.closeConfirmModal();
+}
+
+function closeToast() {
+    dashboard.closeToast();
+}
+</script>
+
+{{>partials/footer}} 

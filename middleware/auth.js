@@ -7,6 +7,24 @@
  */
 
 const { validateSession } = require('../models/userModel');
+const ValidationModel = require('../models/validationModel');
+const database = require('../models/database');
+
+/**
+ * Função auxiliar para atualizar atividade da sessão
+ */
+async function updateSessionActivity(sessionToken) {
+  try {
+    const db = database.database;
+    await db.run(`
+      UPDATE user_sessions 
+      SET last_activity = datetime('now') 
+      WHERE session_token = ?
+    `, [sessionToken]);
+  } catch (error) {
+    console.error('Erro ao atualizar atividade da sessão:', error);
+  }
+}
 
 /**
  * Middleware para verificar se o usuário está autenticado
@@ -15,6 +33,21 @@ const { validateSession } = require('../models/userModel');
 function requireAuth(req, res, next) {
   // Verificar se existe sessão
   if (!req.session.user) {
+    // Log tentativa de acesso não autorizado
+    const ip = req.ip || req.connection.remoteAddress || req.socket.remoteAddress;
+    setImmediate(() => {
+      ValidationModel.logSuspiciousActivity(
+        null,
+        'unauthorized_access',
+        ip,
+        JSON.stringify({
+          url: req.originalUrl,
+          method: req.method,
+          userAgent: req.get('User-Agent')
+        })
+      );
+    });
+    
     return res.redirect('/login');
   }
   
@@ -56,8 +89,26 @@ async function validateSessionMiddleware(req, res, next) {
       req.session.user = userData;
       res.locals.user = userData;
       res.locals.isAuthenticated = true;
+      
+      // Atualizar last_activity da sessão
+      await updateSessionActivity(req.session.sessionToken);
     } else {
-      // Sessão inválida - limpar dados da sessão
+      // Sessão inválida - limpar dados da sessão e log atividade suspeita
+      const ip = req.ip || req.connection.remoteAddress || req.socket.remoteAddress;
+      
+      setImmediate(() => {
+        ValidationModel.logSuspiciousActivity(
+          null,
+          'invalid_session',
+          ip,
+          JSON.stringify({
+            sessionToken: req.session.sessionToken?.substring(0, 10) + '...',
+            url: req.originalUrl,
+            userAgent: req.get('User-Agent')
+          })
+        );
+      });
+      
       req.session.user = null;
       req.session.sessionToken = null;
       res.locals.user = null;
@@ -67,6 +118,20 @@ async function validateSessionMiddleware(req, res, next) {
     next();
   } catch (error) {
     console.error('Erro ao validar sessão:', error);
+    
+    // Log erro como atividade suspeita
+    const ip = req.ip || req.connection.remoteAddress || req.socket.remoteAddress;
+    setImmediate(() => {
+      ValidationModel.logSuspiciousActivity(
+        null,
+        'session_validation_error',
+        ip,
+        JSON.stringify({
+          error: error.message,
+          url: req.originalUrl
+        })
+      );
+    });
     
     // Em caso de erro, limpar sessão por segurança
     req.session.user = null;
@@ -93,6 +158,7 @@ function addUserToViews(req, res, next) {
     res.locals.userLevel = req.session.user.level || 1;
     res.locals.userXP = req.session.user.xp_points || 0;
     res.locals.userStreak = req.session.user.streak_days || 0;
+    res.locals.isAdmin = req.session.user.role === 'admin';
   }
   
   next();

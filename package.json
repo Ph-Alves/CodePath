@@ -8,6 +8,7 @@
     "dev": "nodemon app.js",
     "test": "node tests/test-runner.js",
     "test:performance": "node tests/performance-test.js",
+    "test:notifications": "node scripts/test-notifications.js",
     "test:all": "npm run test && npm run test:performance",
     "validate": "node -e \"console.log('✅ Validação de sintaxe passou')\"",
     "setup": "npm install && node -e \"console.log('📦 Setup completo')\"",

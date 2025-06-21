@@ -17,10 +17,10 @@ const { database } = require('./database');
  */
 async function getUserByEmail(email) {
   try {
-    const user = await database.get(
-      'SELECT * FROM users WHERE email = ?',
-      [email]
-    );
+      const user = await database.database.get(
+    'SELECT * FROM users WHERE email = ?',
+    [email]
+  );
     return user || null;
   } catch (error) {
     console.error('Erro ao buscar usuário por email:', error);
@@ -35,10 +35,10 @@ async function getUserByEmail(email) {
  */
 async function getUserById(id) {
   try {
-    const user = await database.get(
-      'SELECT * FROM users WHERE id = ?',
-      [id]
-    );
+      const user = await database.database.get(
+    'SELECT * FROM users WHERE id = ?',
+    [id]
+  );
     return user || null;
   } catch (error) {
     console.error('Erro ao buscar usuário por ID:', error);
@@ -71,7 +71,7 @@ async function createUser(userData) {
     const passwordHash = await bcrypt.hash(password, saltRounds);
     
     // Inserir o usuário no banco
-    const result = await database.run(
+    const result = await database.database.run(
       `INSERT INTO users (name, email, password_hash, birth_date, education_level) 
        VALUES (?, ?, ?, ?, ?)`,
       [name, email, passwordHash, birthDate, educationLevel]
@@ -129,7 +129,7 @@ async function createSession(userId) {
     expiresAt.setHours(expiresAt.getHours() + 24);
     
     // Inserir a sessão no banco
-    await database.run(
+    await database.database.run(
       'INSERT INTO user_sessions (user_id, session_token, expires_at) VALUES (?, ?, ?)',
       [userId, sessionToken, expiresAt.toISOString()]
     );
@@ -148,7 +148,7 @@ async function createSession(userId) {
  */
 async function validateSession(sessionToken) {
   try {
-    const session = await database.get(
+    const session = await database.database.get(
       `SELECT s.*, u.* FROM user_sessions s
        JOIN users u ON s.user_id = u.id
        WHERE s.session_token = ? AND s.expires_at > datetime('now')`,
@@ -174,7 +174,7 @@ async function validateSession(sessionToken) {
  */
 async function removeSession(sessionToken) {
   try {
-    await database.run(
+    await database.database.run(
       'DELETE FROM user_sessions WHERE session_token = ?',
       [sessionToken]
     );
@@ -189,7 +189,7 @@ async function removeSession(sessionToken) {
  */
 async function cleanExpiredSessions() {
   try {
-    await database.run(
+    await database.database.run(
       'DELETE FROM user_sessions WHERE expires_at < datetime("now")'
     );
   } catch (error) {
@@ -206,7 +206,7 @@ async function cleanExpiredSessions() {
 async function getUserMetrics(userId) {
   try {
     // Buscar métricas agregadas do progresso do usuário
-    const metrics = await database.get(
+    const metrics = await database.database.get(
       `SELECT 
         SUM(up.lessons_watched) as lessons_watched,
         SUM(CASE WHEN up.completed_at > date('now', '-7 days') THEN up.lessons_watched ELSE 0 END) as lessons_this_week,
@@ -273,7 +273,7 @@ async function getUserProgress(userId, packageId = null) {
     query += ' ORDER BY up.completed_at DESC NULLS LAST';
     
     if (packageId) {
-      const result = await database.get(query, params);
+      const result = await database.database.get(query, params);
       return result || null;
     } else {
       const results = await database.all(query, params);

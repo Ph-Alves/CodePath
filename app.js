@@ -19,6 +19,14 @@ const { initializeDatabase, database } = require('./models/database');
 // Importação dos middlewares de autenticação
 const { validateSessionMiddleware, addUserToViews } = require('./middleware/auth');
 
+// Importação dos middlewares de segurança
+const { 
+  securityHeaders, 
+  sanitizeInput, 
+  checkBlockedIP,
+  rateLimiter 
+} = require('./middleware/security');
+
 // Importação das rotas
 const authRoutes = require('./routes/authRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
@@ -27,6 +35,9 @@ const contentRoutes = require('./routes/contentRoutes');
 const quizRoutes = require('./routes/quizRoutes');
 const progressRoutes = require('./routes/progressRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
+const xpRoutes = require('./routes/xpRoutes');
+const achievementRoutes = require('./routes/achievementRoutes');
+const securityRoutes = require('./routes/securityRoutes');
 
 // Inicialização da aplicação Express
 const app = express();
@@ -47,9 +58,25 @@ app.set('views', path.join(__dirname, 'views'));
 // MIDDLEWARES GLOBAIS
 // ========================================
 
+// Middleware de headers de segurança (deve ser o primeiro)
+app.use(securityHeaders);
+
+// Middleware de verificação de IP bloqueado
+app.use(checkBlockedIP);
+
+// Rate limiting global
+app.use(rateLimiter({
+  limit: 1000,
+  windowMinutes: 15,
+  message: 'Muitas requisições do seu IP. Tente novamente em alguns minutos.'
+}));
+
 // Middleware para parsing de dados de formulários
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+// Middleware de sanitização de dados
+app.use(sanitizeInput);
 
 // Configuração de arquivos estáticos
 app.use(express.static(path.join(__dirname, 'public')));
@@ -61,7 +88,9 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     secure: false, // Mude para true em produção com HTTPS
-    maxAge: 24 * 60 * 60 * 1000 // 24 horas
+    maxAge: 24 * 60 * 60 * 1000, // 24 horas
+    httpOnly: true, // Previne acesso via JavaScript
+    sameSite: 'strict' // Proteção CSRF adicional
   }
 }));
 
@@ -91,6 +120,15 @@ app.use('/', progressRoutes);
 
 // Usar as rotas de notificações
 app.use('/notifications', notificationRoutes);
+
+// Usar as rotas de XP e gamificação
+app.use('/xp', xpRoutes);
+
+// Usar as rotas de conquistas
+app.use('/achievements', achievementRoutes);
+
+// Usar as rotas de segurança
+app.use('/security', securityRoutes);
 
 // ========================================
 // ROTA PRINCIPAL TEMPORÁRIA
@@ -199,7 +237,7 @@ app.get('/test-db', async (req, res) => {
     // Buscar dados de exemplo do banco
     const packages = await database.all('SELECT * FROM packages LIMIT 6');
     const careerProfiles = await database.all('SELECT * FROM career_profiles LIMIT 6');
-    const user = await database.get('SELECT * FROM users WHERE id = 1');
+    const user = await database.database.get('SELECT * FROM users WHERE id = 1');
     
     res.send(`
       <html>

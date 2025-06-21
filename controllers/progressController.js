@@ -13,7 +13,6 @@ const progressController = {
     showProgressPage: async (req, res) => {
         try {
             const userId = req.session.user.id;
-            
             // Buscar estatísticas gerais
             const overallStats = await progressModel.getUserOverallStats(userId);
             
@@ -23,8 +22,19 @@ const progressController = {
             // Buscar atividade recente
             const recentActivity = await progressModel.getUserRecentActivity(userId, 8);
             
-            // Buscar metas/objetivos
-            const goals = await progressModel.getUserGoals(userId);
+            // Buscar metas/objetivos (versão simplificada)
+            const goals = [
+                {
+                    id: 'xp_goal',
+                    title: 'Alcançar Próximo Nível',
+                    description: 'Continue estudando para subir de nível',
+                    current: overallStats.xp_points || 0,
+                    target: (overallStats.level || 1) * 100,
+                    progress: Math.round(((overallStats.xp_points || 0) / ((overallStats.level || 1) * 100)) * 100),
+                    type: 'xp',
+                    icon: 'fas fa-star'
+                }
+            ];
             
             // Buscar estatísticas de desempenho do mês
             const monthlyStats = await progressModel.getUserPerformanceStats(userId, 'month');

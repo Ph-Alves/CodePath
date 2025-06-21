@@ -16,14 +16,15 @@ const {
   updateMetrics 
 } = require('../controllers/dashboardController');
 
-// Middleware de autenticação
+// Middleware de autenticação e XP
 const { requireAuth } = require('../middleware/auth');
+const { attachXPToTemplate, checkPendingAchievements } = require('../middleware/xpMiddleware');
 
 /**
  * Rota principal do dashboard
  * GET /dashboard
  */
-router.get('/', requireAuth, showDashboard);
+router.get('/', requireAuth, attachXPToTemplate, checkPendingAchievements, showDashboard);
 
 /**
  * API para buscar progresso detalhado de um pacote

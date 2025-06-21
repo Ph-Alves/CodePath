@@ -255,6 +255,145 @@ async function getQuizzesByLesson(lessonId) {
   }
 }
 
+/**
+ * Verificar pré-requisitos de uma aula
+ * @param {number} userId - ID do usuário
+ * @param {number} lessonId - ID da aula
+ * @returns {Promise<Object>} Status de acesso e pré-requisitos
+ */
+async function checkLessonPrerequisites(userId, lessonId) {
+  try {
+    const lesson = await database.get(`
+      SELECT l.*, p.name as package_name 
+      FROM lessons l
+      JOIN packages p ON l.package_id = p.id
+      WHERE l.id = ?
+    `, [lessonId]);
+
+    if (!lesson) {
+      return { can_access: false, message: 'Aula não encontrada' };
+    }
+
+    // Para aulas sequenciais, verificar se a anterior foi concluída
+    if (lesson.order_sequence > 1) {
+      const previousLesson = await database.get(`
+        SELECT l.id, l.name 
+        FROM lessons l
+        WHERE l.package_id = ? AND l.order_sequence = ?
+      `, [lesson.package_id, lesson.order_sequence - 1]);
+
+      if (previousLesson) {
+        // Verificar se a aula anterior foi concluída
+        const isCompleted = await database.get(`
+          SELECT COUNT(*) as completed
+          FROM lesson_completions lc
+          WHERE lc.user_id = ? AND lc.lesson_id = ?
+        `, [userId, previousLesson.id]);
+
+        if (!isCompleted || isCompleted.completed === 0) {
+          return {
+            can_access: false,
+            message: 'Você precisa concluir a aula anterior primeiro',
+            missing_prerequisites: [
+              {
+                id: previousLesson.id,
+                name: previousLesson.name,
+                type: 'lesson'
+              }
+            ]
+          };
+        }
+      }
+    }
+
+    // Para primeira aula de um pacote, verificar se tem acesso ao pacote
+    if (lesson.order_sequence === 1) {
+      // Verificar se o usuário tem acesso ao pacote (pode ser expandido futuramente)
+      // Por enquanto, todos têm acesso
+    }
+
+    return {
+      can_access: true,
+      message: 'Acesso liberado',
+      missing_prerequisites: []
+    };
+
+  } catch (error) {
+    console.error('Erro ao verificar pré-requisitos:', error);
+    return { 
+      can_access: false, 
+      message: 'Erro ao verificar pré-requisitos',
+      missing_prerequisites: []
+    };
+  }
+}
+
+/**
+ * Buscar todas as aulas de um pacote com status de conclusão
+ * @param {number} userId - ID do usuário
+ * @param {number} packageId - ID do pacote
+ * @returns {Promise<Array>} Lista de aulas com status
+ */
+async function getLessonsWithCompletionStatus(userId, packageId) {
+  try {
+    const lessons = await database.all(`
+      SELECT 
+        l.*,
+        p.name as package_name,
+        p.icon as package_icon,
+        CASE 
+          WHEN lc.lesson_id IS NOT NULL THEN 1 
+          ELSE 0 
+        END as is_completed,
+        lc.completed_at
+      FROM lessons l
+      JOIN packages p ON l.package_id = p.id
+      LEFT JOIN lesson_completions lc ON l.id = lc.lesson_id AND lc.user_id = ?
+      WHERE l.package_id = ?
+      ORDER BY l.order_sequence ASC
+    `, [userId, packageId]);
+
+    return lessons;
+  } catch (error) {
+    console.error('Erro ao buscar aulas com status:', error);
+    throw error;
+  }
+}
+
+/**
+ * Obter estatísticas de navegação para uma aula
+ * @param {number} userId - ID do usuário
+ * @param {number} lessonId - ID da aula
+ * @returns {Promise<Object>} Dados de navegação
+ */
+async function getLessonNavigationData(userId, lessonId) {
+  try {
+    const lesson = await getLessonById(lessonId);
+    if (!lesson) return null;
+
+    const [nextLesson, previousLesson, packageStats, prerequisites] = await Promise.all([
+      getNextLesson(lesson.package_id, lessonId),
+      getPreviousLesson(lesson.package_id, lessonId),
+      getPackageProgressStats(userId, lesson.package_id),
+      checkLessonPrerequisites(userId, lessonId)
+    ]);
+
+    return {
+      current_lesson: lesson,
+      next_lesson: nextLesson,
+      previous_lesson: previousLesson,
+      package_stats: packageStats,
+      prerequisites: prerequisites,
+      can_navigate_next: nextLesson !== null,
+      can_navigate_previous: previousLesson !== null
+    };
+
+  } catch (error) {
+    console.error('Erro ao buscar dados de navegação:', error);
+    throw error;
+  }
+}
+
 module.exports = {
   getLessonsByPackage,
   getLessonById,
@@ -263,5 +402,8 @@ module.exports = {
   getNextLesson,
   getPreviousLesson,
   getPackageProgressStats,
-  getQuizzesByLesson
+  getQuizzesByLesson,
+  checkLessonPrerequisites,
+  getLessonsWithCompletionStatus,
+  getLessonNavigationData
 }; 

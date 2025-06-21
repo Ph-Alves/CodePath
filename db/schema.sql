@@ -22,8 +22,10 @@ CREATE TABLE IF NOT EXISTS users (
     current_package_id INTEGER,                    -- Pacote atual do usuário
     selected_career_profile_id INTEGER,            -- Perfil profissional selecionado
     level INTEGER DEFAULT 1,                       -- Para barra de nível no topo
-    xp_points INTEGER DEFAULT 0,                   -- Para sistema de XP
-    streak_days INTEGER DEFAULT 0,                 -- Para "2 dias" de streak
+    total_xp INTEGER DEFAULT 0,                    -- Total de XP acumulado
+    current_streak INTEGER DEFAULT 0,              -- Streak atual de dias consecutivos
+    longest_streak INTEGER DEFAULT 0,              -- Maior streak já alcançado
+    last_login_date DATE,                          -- Data do último login para cálculo de streak
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (current_package_id) REFERENCES packages(id),
@@ -167,6 +169,7 @@ CREATE TABLE IF NOT EXISTS user_sessions (
     user_id INTEGER NOT NULL,
     session_token VARCHAR(255) UNIQUE NOT NULL,
     expires_at DATETIME NOT NULL,
+    last_activity DATETIME DEFAULT CURRENT_TIMESTAMP,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
@@ -189,6 +192,47 @@ CREATE TABLE IF NOT EXISTS notifications (
 );
 
 -- ========================================
+-- TABELAS DE SEGURANÇA
+-- ========================================
+
+-- ========================================
+-- TABELA: login_attempts
+-- ========================================
+-- Armazena tentativas de login para detecção de ataques de força bruta
+CREATE TABLE IF NOT EXISTS login_attempts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email VARCHAR(255) NOT NULL,                   -- Email usado na tentativa
+    ip_address VARCHAR(45) NOT NULL,               -- IP da tentativa (IPv4 ou IPv6)
+    success BOOLEAN NOT NULL DEFAULT FALSE,        -- Se a tentativa foi bem-sucedida
+    attempted_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ========================================
+-- TABELA: suspicious_activities
+-- ========================================
+-- Armazena atividades suspeitas detectadas pelo sistema
+CREATE TABLE IF NOT EXISTS suspicious_activities (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,                               -- ID do usuário (NULL se não identificado)
+    activity_type VARCHAR(50) NOT NULL,            -- Tipo de atividade suspeita
+    ip_address VARCHAR(45) NOT NULL,               -- IP da atividade
+    details TEXT,                                  -- Detalhes adicionais (JSON)
+    detected_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- ========================================
+-- TABELA: api_requests
+-- ========================================
+-- Armazena requisições à API para rate limiting
+CREATE TABLE IF NOT EXISTS api_requests (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ip_address VARCHAR(45) NOT NULL,               -- IP da requisição
+    endpoint VARCHAR(500) NOT NULL,                -- Endpoint acessado
+    requested_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ========================================
 -- ÍNDICES PARA OTIMIZAÇÃO
 -- ========================================
 
@@ -196,6 +240,7 @@ CREATE TABLE IF NOT EXISTS notifications (
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_user_sessions_token ON user_sessions(session_token);
 CREATE INDEX IF NOT EXISTS idx_user_sessions_user_id ON user_sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_sessions_last_activity ON user_sessions(last_activity);
 CREATE INDEX IF NOT EXISTS idx_user_progress_user_id ON user_progress(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_progress_package_id ON user_progress(package_id);
 CREATE INDEX IF NOT EXISTS idx_lessons_package_id ON lessons(package_id);
@@ -208,6 +253,98 @@ CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);
 CREATE INDEX IF NOT EXISTS idx_notifications_type ON notifications(type);
 CREATE INDEX IF NOT EXISTS idx_notifications_read ON notifications(is_read);
 
+-- Índices para tabelas de segurança
+CREATE INDEX IF NOT EXISTS idx_login_attempts_email ON login_attempts(email);
+CREATE INDEX IF NOT EXISTS idx_login_attempts_ip ON login_attempts(ip_address);
+CREATE INDEX IF NOT EXISTS idx_login_attempts_attempted_at ON login_attempts(attempted_at);
+CREATE INDEX IF NOT EXISTS idx_login_attempts_success ON login_attempts(success);
+CREATE INDEX IF NOT EXISTS idx_suspicious_activities_user_id ON suspicious_activities(user_id);
+CREATE INDEX IF NOT EXISTS idx_suspicious_activities_ip ON suspicious_activities(ip_address);
+CREATE INDEX IF NOT EXISTS idx_suspicious_activities_type ON suspicious_activities(activity_type);
+CREATE INDEX IF NOT EXISTS idx_suspicious_activities_detected_at ON suspicious_activities(detected_at);
+CREATE INDEX IF NOT EXISTS idx_api_requests_ip ON api_requests(ip_address);
+CREATE INDEX IF NOT EXISTS idx_api_requests_endpoint ON api_requests(endpoint);
+CREATE INDEX IF NOT EXISTS idx_api_requests_requested_at ON api_requests(requested_at);
+
+-- ========================================
+-- TABELAS PARA SISTEMA DE XP E GAMIFICAÇÃO
+-- ========================================
+
+-- Atualização da tabela users para incluir campos de XP
+-- Adicionando colunas necessárias para o sistema de gamificação
+-- (Usando ALTER TABLE pois a tabela já existe)
+
+-- ========================================
+-- TABELA: xp_history
+-- ========================================
+-- Histórico de ganho de XP dos usuários
+CREATE TABLE IF NOT EXISTS xp_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    xp_gained INTEGER NOT NULL,                    -- XP ganho nesta ação
+    reason TEXT NOT NULL,                          -- Motivo do ganho de XP
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- ========================================
+-- TABELA: level_history
+-- ========================================
+-- Histórico de mudanças de nível dos usuários
+CREATE TABLE IF NOT EXISTS level_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    old_level INTEGER NOT NULL,                    -- Nível anterior
+    new_level INTEGER NOT NULL,                    -- Novo nível
+    achieved_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- ========================================
+-- TABELA: achievements
+-- ========================================
+-- Conquistas disponíveis no sistema
+CREATE TABLE IF NOT EXISTS achievements (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name VARCHAR(255) NOT NULL,                    -- Nome da conquista
+    description TEXT NOT NULL,                     -- Descrição da conquista
+    icon VARCHAR(10) NOT NULL,                     -- Emoji/ícone da conquista
+    category VARCHAR(50) NOT NULL,                 -- Categoria (beginner, progress, mastery, social, streak, special)
+    requirement_type VARCHAR(50) NOT NULL,         -- Tipo de requisito (lessons_completed, quizzes_completed, etc.)
+    requirement_value INTEGER NOT NULL,            -- Valor necessário para desbloquear
+    xp_reward INTEGER DEFAULT 0,                   -- XP ganho ao desbloquear
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ========================================
+-- TABELA: user_achievements
+-- ========================================
+-- Conquistas desbloqueadas pelos usuários
+CREATE TABLE IF NOT EXISTS user_achievements (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    achievement_id INTEGER NOT NULL,               -- Referência à tabela achievements
+    unlocked_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (achievement_id) REFERENCES achievements(id) ON DELETE CASCADE,
+    UNIQUE(user_id, achievement_id)                -- Usuário não pode desbloquear a mesma conquista duas vezes
+);
+
+-- ========================================
+-- ÍNDICES PARA SISTEMA DE XP
+-- ========================================
+
+-- Índices para otimizar consultas de XP
+CREATE INDEX IF NOT EXISTS idx_xp_history_user_id ON xp_history(user_id);
+CREATE INDEX IF NOT EXISTS idx_xp_history_created_at ON xp_history(created_at);
+CREATE INDEX IF NOT EXISTS idx_level_history_user_id ON level_history(user_id);
+
+-- Índices para sistema de conquistas
+CREATE INDEX IF NOT EXISTS idx_achievements_category ON achievements(category);
+CREATE INDEX IF NOT EXISTS idx_achievements_requirement ON achievements(requirement_type, requirement_value);
+CREATE INDEX IF NOT EXISTS idx_user_achievements_user_id ON user_achievements(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_achievements_unlocked_at ON user_achievements(unlocked_at);
+
 -- ========================================
 -- COMENTÁRIOS FINAIS
 -- ========================================
@@ -219,5 +356,6 @@ CREATE INDEX IF NOT EXISTS idx_notifications_read ON notifications(is_read);
 -- - Sistema de progresso e métricas
 -- - Questionários de código
 -- - Gamificação (XP, streak, níveis)
+-- - Sistema de XP avançado com histórico e conquistas
 --
 -- Para popular o banco com dados iniciais, execute db/seed.sql 

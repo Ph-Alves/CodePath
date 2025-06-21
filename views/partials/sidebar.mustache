@@ -46,6 +46,14 @@
                 </a>
             </li>
             
+            <!-- Conquistas -->
+            <li class="nav-item">
+                <a href="/achievements" class="nav-link {{#isAchievements}}active{{/isAchievements}}" title="Conquistas">
+                    <i class="fas fa-trophy nav-icon"></i>
+                    <span class="nav-text">Conquistas</span>
+                </a>
+            </li>
+            
             <!-- Configurações -->
             <li class="nav-item">
                 <a href="/settings" class="nav-link {{#isSettings}}active{{/isSettings}}" title="Configurações">
@@ -53,6 +61,19 @@
                     <span class="nav-text">Configurações</span>
                 </a>
             </li>
+            
+            <!-- Dashboard de Segurança (apenas para admins) -->
+            {{#user}}
+            {{#isAdmin}}
+            <li class="nav-item admin-only">
+                <a href="/security/dashboard" class="nav-link {{#isSecurity}}active{{/isSecurity}}" title="Segurança">
+                    <i class="fas fa-shield-alt nav-icon"></i>
+                    <span class="nav-text">Segurança</span>
+                    <span class="admin-badge">ADMIN</span>
+                </a>
+            </li>
+            {{/isAdmin}}
+            {{/user}}
         </ul>
     </nav>
     

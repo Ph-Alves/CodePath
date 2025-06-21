@@ -54,10 +54,10 @@ INSERT INTO career_profiles (id, name, description, icon) VALUES
 -- Usuário principal "Carlos Pereira" conforme design do dashboard
 -- Senha padrão para todos: "123456"
 
-INSERT INTO users (id, name, email, password_hash, current_package_id, selected_career_profile_id, level, xp_points, streak_days) VALUES
-(1, 'Carlos Pereira', 'carlos@codepath.com', '$2b$10$Q.NypOTY6H9gzA/XefdajefeJJleNUBeAxy04MLNApQ3Ft..ub3uW', 1, 1, 5, 1250, 2),
-(2, 'Ana Silva', 'ana@codepath.com', '$2b$10$XOTnuahK0JNAk9YGL/eo8uoHC7d1DW.DFDWmbunPGIMmd72vaiJZu', 2, 1, 3, 650, 5),
-(3, 'João Santos', 'joao@codepath.com', '$2b$10$3zjLlIt/q.ikRcFb4Y1yU.MpA1iri4ANC78YYlWyfSeuH4dYtTEyG', 3, 2, 2, 350, 1);
+INSERT INTO users (id, name, email, password_hash, current_package_id, selected_career_profile_id, level, total_xp, current_streak, last_login_date) VALUES
+(1, 'Carlos Pereira', 'carlos@codepath.com', '$2b$10$Q.NypOTY6H9gzA/XefdajefeJJleNUBeAxy04MLNApQ3Ft..ub3uW', 1, 1, 5, 1250, 2, date('now', '-1 day')),
+(2, 'Ana Silva', 'ana@codepath.com', '$2b$10$XOTnuahK0JNAk9YGL/eo8uoHC7d1DW.DFDWmbunPGIMmd72vaiJZu', 2, 1, 3, 650, 5, date('now')),
+(3, 'João Santos', 'joao@codepath.com', '$2b$10$3zjLlIt/q.ikRcFb4Y1yU.MpA1iri4ANC78YYlWyfSeuH4dYtTEyG', 3, 2, 2, 350, 1, date('now'));
 
 -- ========================================
 -- INSERIR AULAS DOS PACOTES
@@ -105,7 +105,7 @@ INSERT INTO quizzes (id, lesson_id, title, description, total_questions) VALUES
 (1, 3, 'Questionário: C - Operações', 'Teste seus conhecimentos sobre operadores em C', 3);
 
 -- Questões do Questionário 1
-INSERT INTO quiz_questions (quiz_id, question_number, question_type, question_text, expected_answer, points) VALUES
+INSERT INTO quiz_questions (quiz_id, question_order, question_type, question_text, correct_answer, points) VALUES
 (1, 1, 'code', 'Escreva um programa simples em C que declare duas variáveis inteiras, some-as e exiba o resultado.', '#include <stdio.h>\nint main() {\n    int a = 5, b = 3;\n    int soma = a + b;\n    printf("Resultado: %d", soma);\n    return 0;\n}', 20),
 (1, 2, 'multiple_choice', 'Qual operador é usado para o resto da divisão em C?', '%', 10),
 (1, 3, 'text', 'Qual é o resultado da expressão: 10 / 3 em C (considerando variáveis inteiras)?', '3', 10);
@@ -122,7 +122,7 @@ INSERT INTO quizzes (id, lesson_id, title, description, total_questions) VALUES
 (2, 8, 'Questionário: JavaScript Básico', 'Fundamentos de programação em JavaScript', 2);
 
 -- Questões do Questionário 2
-INSERT INTO quiz_questions (quiz_id, question_number, question_type, question_text, expected_answer, points) VALUES
+INSERT INTO quiz_questions (quiz_id, question_order, question_type, question_text, correct_answer, points) VALUES
 (2, 1, 'code', 'Crie uma função JavaScript que receba dois números e retorne a soma.', 'function somar(a, b) {\n    return a + b;\n}', 25),
 (2, 2, 'multiple_choice', 'Como declarar uma variável constante em JavaScript?', 'const', 15);
 
@@ -138,7 +138,7 @@ INSERT INTO quizzes (id, lesson_id, title, description, total_questions) VALUES
 (3, 13, 'Questionário: Python Básico', 'Conceitos fundamentais de Python', 2);
 
 -- Questões do Questionário 3
-INSERT INTO quiz_questions (quiz_id, question_number, question_type, question_text, expected_answer, points) VALUES
+INSERT INTO quiz_questions (quiz_id, question_order, question_type, question_text, correct_answer, points) VALUES
 (3, 1, 'code', 'Escreva um código Python que crie uma lista com 5 números e imprima cada um.', 'numeros = [1, 2, 3, 4, 5]\nfor num in numeros:\n    print(num)', 20),
 (3, 2, 'text', 'Qual função é usada para imprimir em Python?', 'print', 10);
 
@@ -166,7 +166,7 @@ INSERT INTO user_progress (user_id, package_id, status, progress_percentage, les
 -- ========================================
 
 -- Atualizar XP do Carlos baseado no progresso
-UPDATE users SET xp_points = (
+UPDATE users SET total_xp = (
   SELECT SUM(
     (lessons_watched * 50) + 
     (courses_completed * 200) + 
@@ -176,7 +176,7 @@ UPDATE users SET xp_points = (
 ) WHERE id = 1;
 
 -- Atualizar XP da Ana baseado no progresso
-UPDATE users SET xp_points = (
+UPDATE users SET total_xp = (
   SELECT SUM(
     (lessons_watched * 50) + 
     (courses_completed * 200) + 
@@ -186,7 +186,7 @@ UPDATE users SET xp_points = (
 ) WHERE id = 2;
 
 -- Atualizar XP do João baseado no progresso
-UPDATE users SET xp_points = (
+UPDATE users SET total_xp = (
   SELECT SUM(
     (lessons_watched * 50) + 
     (courses_completed * 200) + 
