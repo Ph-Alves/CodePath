@@ -22,6 +22,7 @@ const {
   processRegister,
   processLogout
 } = require('../controllers/authController');
+const userModel = require('../models/userModel');
 
 const router = express.Router();
 
@@ -136,6 +137,78 @@ router.post('/logout', requireAuth, processLogout);
  */
 router.get('/logout', requireAuth, processLogout);
 
+// Rota para mostrar a página de login
+router.get('/login', (req, res) => {
+    // Se usuário já está logado, redirecionar para dashboard
+    if (req.session.user) {
+        return res.redirect('/dashboard');
+    }
+    
+    res.render('pages/login', {
+        title: 'Login - CodePath',
+        error: req.query.error,
+        message: req.query.message
+    });
+});
 
+// Rota temporária para Minha Área
+router.get('/my-area', requireAuth, async (req, res) => {
+    try {
+        // Buscar dados do usuário para a página
+        const user = req.session.user;
+        const userData = await userModel.getUserById(user.id);
+        
+        // Calcular progresso XP para próximo nível
+        const xpForNextLevel = userData.level * 1000;
+        const xpProgress = Math.round((userData.total_xp / xpForNextLevel) * 100);
+        
+        res.render('pages/my-area', {
+            title: 'Minha Área - CodePath',
+            user: {
+                ...userData,
+                xpProgress: xpProgress
+            },
+            isMyArea: true,
+            comingSoon: true
+        });
+    } catch (error) {
+        console.error('Erro ao carregar Minha Área:', error);
+        res.status(500).render('pages/error', {
+            title: 'Erro - CodePath',
+            error: 'Erro interno do servidor',
+            user: req.session.user
+        });
+    }
+});
+
+// Rota temporária para Configurações
+router.get('/settings', requireAuth, async (req, res) => {
+    try {
+        // Buscar dados do usuário para a página
+        const user = req.session.user;
+        const userData = await userModel.getUserById(user.id);
+        
+        // Calcular progresso XP para próximo nível
+        const xpForNextLevel = userData.level * 1000;
+        const xpProgress = Math.round((userData.total_xp / xpForNextLevel) * 100);
+        
+        res.render('pages/settings', {
+            title: 'Configurações - CodePath',
+            user: {
+                ...userData,
+                xpProgress: xpProgress
+            },
+            isSettings: true,
+            comingSoon: true
+        });
+    } catch (error) {
+        console.error('Erro ao carregar Configurações:', error);
+        res.status(500).render('pages/error', {
+            title: 'Erro - CodePath',
+            error: 'Erro interno do servidor',
+            user: req.session.user
+        });
+    }
+});
 
 module.exports = router; 

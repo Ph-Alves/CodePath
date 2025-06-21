@@ -83,6 +83,11 @@ app.use(sanitizeInput);
 // Configuração de arquivos estáticos
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Rota de teste muito simples (antes de tudo)
+app.get('/debug-test', (req, res) => {
+  res.send('DEBUG: Servidor funcionando!');
+});
+
 // Configuração de sessões
 app.use(session({
   secret: process.env.SESSION_SECRET || 'codepath-secret-key-change-in-production',
@@ -95,6 +100,83 @@ app.use(session({
     sameSite: 'strict' // Proteção CSRF adicional
   }
 }));
+
+// Rota de teste (antes da autenticação)
+app.get('/test-lesson', (req, res) => {
+  res.send(`
+    <html>
+      <head><title>Teste</title></head>
+      <body>
+        <h1>🧪 Teste de Servidor</h1>
+        <p>Se você está vendo esta mensagem, o servidor está funcionando!</p>
+        <p>Hora atual: ${new Date().toLocaleString('pt-BR')}</p>
+      </body>
+    </html>
+  `);
+});
+
+// Rota de teste para aula (com autenticação simples)
+app.get('/test-lesson-auth', (req, res) => {
+  // Simular dados da aula
+  const lessonContent = {
+    content: `
+      <div style="padding: 2rem; background: white; border-radius: 12px; margin: 2rem 0;">
+        <h1>🎯 Teste da Aula de C - Introdução</h1>
+        <p>Este é um teste para verificar se o conteúdo da aula está sendo renderizado corretamente.</p>
+        
+        <div style="background: #f0f9ff; border: 2px solid #0ea5e9; padding: 1.5rem; border-radius: 8px; margin: 1rem 0;">
+          <h3>✅ Checklist de Funcionamento</h3>
+          <ul>
+            <li>✅ Servidor está funcionando</li>
+            <li>✅ Rota está acessível</li>
+            <li>✅ Conteúdo está sendo exibido</li>
+            <li>✅ CSS está sendo aplicado</li>
+          </ul>
+        </div>
+        
+        <h2>Exemplo de Código C</h2>
+        <div style="background: #1e1e1e; color: #f8f8f2; padding: 1rem; border-radius: 8px; font-family: monospace;">
+#include &lt;stdio.h&gt;
+
+int main() {
+    printf("Olá, mundo!\\n");
+    return 0;
+}
+        </div>
+        
+        <p><strong>Status:</strong> Teste funcionando! 🎉</p>
+      </div>
+    `
+  };
+  
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Teste - Aula de C</title>
+      <style>
+        body { 
+          font-family: Arial, sans-serif; 
+          background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+          margin: 0; 
+          padding: 2rem; 
+        }
+        .container { 
+          max-width: 1000px; 
+          margin: 0 auto; 
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        ${lessonContent.content}
+      </div>
+    </body>
+    </html>
+  `);
+});
 
 // Middlewares de autenticação
 app.use(validateSessionMiddleware);
@@ -352,6 +434,10 @@ app.get('/test-db', async (req, res) => {
 });
 
 // ========================================
+// ROTA DE TESTE PARA DEBUG
+// ========================================
+
+// ========================================
 // TRATAMENTO DE ERROS
 // ========================================
 
@@ -426,34 +512,35 @@ app.use((err, req, res, next) => {
 // ========================================
 
 /**
- * Função para inicializar o servidor com banco de dados
+ * Função para inicializar o servidor
  */
 async function startServer() {
   try {
-    // Inicializar o banco de dados primeiro
+    // Inicializar conexão com banco de dados
     console.log('🔄 Inicializando banco de dados...');
-    const db = await initializeDatabase();
+    await database.initialize();
     
-    // Configurar instância global do database
-    setDatabaseInstance(db);
+    // Configurar a instância global do banco
+    setDatabaseInstance(database);
+    console.log('🎉 Banco de dados pronto para uso!');
     
-    // Iniciar o servidor após o banco estar pronto
+    // Iniciar servidor
     app.listen(PORT, () => {
-          console.log('🚀 ========================================');
-    console.log('   CodePath - Servidor Iniciado');
-    console.log('🚀 ========================================');
-    console.log(`   📍 URL: http://localhost:${PORT}`);
-    console.log(`   🌍 Ambiente: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`   📅 Iniciado em: ${new Date().toLocaleString('pt-BR')}`);
-    console.log('🚀 ========================================');
-    console.log('   ✅ Fase 3: Sistema de Autenticação');
-    console.log('   🔐 Login, Registro e Sessões Funcionais');
-    console.log('   📋 Próxima: Fase 4 - Layout Base');
-    console.log('🚀 ========================================');
+      console.log('🚀 ========================================');
+      console.log('   CodePath - Servidor Iniciado');
+      console.log('🚀 ========================================');
+      console.log(`   📍 URL: http://localhost:${PORT}`);
+      console.log(`   🌍 Ambiente: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`   📅 Iniciado em: ${new Date().toLocaleString('pt-BR')}`);
+      console.log('🚀 ========================================');
+      console.log('   ✅ Fase 21: Sistema de Pacotes Interativo');
+      console.log('   🎯 10 Pacotes + Filtros + Modal de Preview');
+      console.log('   📋 Próxima: Fase 22 - Quizzes Funcionais');
+      console.log('🚀 ========================================');
     });
     
   } catch (error) {
-    console.error('💥 Erro ao iniciar servidor:', error.message);
+    console.error('❌ Erro ao inicializar servidor:', error);
     process.exit(1);
   }
 }

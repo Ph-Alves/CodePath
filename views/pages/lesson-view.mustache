@@ -5,6 +5,13 @@
 <link rel="stylesheet" href="/css/lesson-progress.css">
 <link rel="stylesheet" href="/css/lesson-navigation.css">
 
+<!-- DEBUG: Seção sempre visível para identificar problemas -->
+<div style="background: #ff6b6b; color: white; padding: 1rem; margin: 1rem; border-radius: 8px; font-weight: bold; text-align: center; position: relative; z-index: 9999;">
+  🔧 DEBUG MODE: Se você está vendo esta mensagem, o template está carregando!
+  <br>Timestamp: {{debugInfo.timestamp}}
+  <br>Lesson ID: {{lesson.id}} | Has Content: {{debugInfo.hasContent}}
+</div>
+
 <main class="lesson-viewer">
   <div class="container">
     <!-- Breadcrumb -->
@@ -46,7 +53,7 @@
       <div class="content-player">
         <div class="video-placeholder">
           <div class="play-button" id="playButton">
-            <i class="icon-play" aria-hidden="true"></i>
+            <i class="fas fa-play" aria-hidden="true"></i>
           </div>
           <div class="video-overlay">
             <h3>{{lesson.name}}</h3>
@@ -57,7 +64,7 @@
         <!-- Controles do Player -->
         <div class="player-controls">
           <button class="control-btn" id="playPauseBtn" aria-label="Play/Pause">
-            <i class="icon-play" aria-hidden="true"></i>
+            <i class="fas fa-play" aria-hidden="true"></i>
           </button>
           
           <div class="progress-container">
@@ -76,7 +83,7 @@
           
           <div class="volume-controls">
             <button class="control-btn" id="volumeBtn" aria-label="Volume">
-              <i class="icon-volume-2" aria-hidden="true"></i>
+              <i class="fas fa-volume-up" aria-hidden="true"></i>
             </button>
             <div class="volume-slider">
               <div class="volume-track">
@@ -86,21 +93,96 @@
           </div>
           
           <button class="control-btn" id="fullscreenBtn" aria-label="Tela cheia">
-            <i class="icon-maximize" aria-hidden="true"></i>
+            <i class="fas fa-expand" aria-hidden="true"></i>
           </button>
         </div>
       </div>
 
-      <!-- Conteúdo Textual da Aula -->
+      <!-- Conteúdo Interativo da Aula -->
+      {{#lessonContent}}
+      <div class="lesson-interactive-content">
+        {{{lessonContent.content}}}
+      </div>
+      {{/lessonContent}}
+      
+      {{^lessonContent}}
+      <!-- Conteúdo Padrão da Aula -->
       <div class="lesson-text-content">
         <h2>Conteúdo da Aula</h2>
+        
+        <!-- CONTEÚDO DE DEBUG - SEMPRE VISÍVEL -->
+        <div style="background: #f0f9ff; border: 2px solid #0ea5e9; padding: 2rem; margin: 2rem 0; border-radius: 12px;">
+          <h3 style="color: #0ea5e9; margin-bottom: 1rem;">🔍 Debug: Esta seção deve estar sempre visível</h3>
+          <p style="color: #1e293b; font-size: 1.1rem; margin-bottom: 1rem;">
+            Se você está vendo esta mensagem, significa que:
+          </p>
+          <ul style="color: #1e293b; padding-left: 1.5rem;">
+            <li>✅ A página está carregando corretamente</li>
+            <li>✅ O CSS está sendo aplicado</li>
+            <li>✅ O template Mustache está funcionando</li>
+            <li>❌ O conteúdo interativo específico não foi carregado</li>
+          </ul>
+          <p style="color: #dc2626; font-weight: 600; margin-top: 1rem;">
+            Aula ID: {{lesson.id}} | Nome: {{lesson.name}}
+          </p>
+          {{#debugInfo}}
+          <p style="color: #059669; font-weight: 600; margin-top: 1rem;">
+            Debug Info: Lesson {{debugInfo.lessonId}} | Has Content: {{debugInfo.hasContent}} | Time: {{debugInfo.timestamp}}
+          </p>
+          {{/debugInfo}}
+        </div>
+        
+        <!-- CONTEÚDO ESPECÍFICO PARA AULA DE C (ID = 1) -->
+        {{#lesson.id}}
+        <div style="background: #e0f2fe; border-left: 4px solid #0ea5e9; padding: 2rem; margin: 2rem 0; border-radius: 0 8px 8px 0;">
+          <h3 style="color: #0ea5e9; margin-bottom: 1rem;">🎯 Aula de C - Introdução</h3>
+          <p style="color: #1e293b; line-height: 1.6; margin-bottom: 1rem;">
+            Bem-vindo ao mundo da programação em C! Esta é uma das linguagens mais importantes da história da computação.
+          </p>
+          
+          <h4 style="color: #1e293b; margin: 1.5rem 0 1rem 0;">Seu primeiro programa:</h4>
+          <div style="background: #1e1e1e; color: #f8f8f2; padding: 1.5rem; border-radius: 8px; font-family: 'Courier New', monospace; overflow-x: auto; margin: 1rem 0;">
+#include &lt;stdio.h&gt;
+
+int main() {
+    printf("Hello, World!\\n");
+    return 0;
+}
+          </div>
+          
+          <h4 style="color: #1e293b; margin: 1.5rem 0 1rem 0;">Explicação linha por linha:</h4>
+          <ul style="color: #1e293b; line-height: 1.6; padding-left: 1.5rem;">
+            <li><code>#include &lt;stdio.h&gt;</code> - Inclui a biblioteca padrão de entrada/saída</li>
+            <li><code>int main()</code> - Função principal do programa</li>
+            <li><code>printf("Hello, World!\\n")</code> - Imprime texto na tela</li>
+            <li><code>return 0</code> - Retorna 0 indicando sucesso</li>
+          </ul>
+          
+          <div style="background: #f0fdf4; border: 1px solid #22c55e; padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0;">
+            <h4 style="color: #15803d; margin: 0 0 1rem 0;">💡 Dica Importante</h4>
+            <p style="color: #166534; margin: 0; line-height: 1.6;">
+              A linguagem C é a base para muitas outras linguagens. Dominar C te dará uma base sólida para aprender Python, Java, C++ e muitas outras!
+            </p>
+          </div>
+          
+          <div style="background: #fef3c7; border: 1px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0;">
+            <h4 style="color: #d97706; margin: 0 0 1rem 0;">🚀 Seu Desafio</h4>
+            <p style="color: #92400e; margin: 0; line-height: 1.6;">
+              Tente modificar o programa para exibir seu nome ao invés de "Hello, World!". Por exemplo: "Olá, João! Bem-vindo ao C!"
+            </p>
+          </div>
+        </div>
+        {{/lesson.id}}
+        
+        <!-- CONTEÚDO GENÉRICO PARA OUTRAS AULAS -->
         <div class="content-sections">
           <div class="content-section">
             <h3>Objetivos de Aprendizado</h3>
             <ul>
-              <li>Compreender os conceitos fundamentais abordados</li>
+              <li>Compreender os conceitos fundamentais abordados nesta aula</li>
               <li>Aplicar os conhecimentos em exercícios práticos</li>
               <li>Desenvolver habilidades de resolução de problemas</li>
+              <li>Preparar-se para os próximos tópicos do curso</li>
             </ul>
           </div>
           
@@ -108,21 +190,40 @@
             <h3>Recursos Complementares</h3>
             <div class="resource-links">
               <a href="#" class="resource-link">
-                <i class="icon-file-text" aria-hidden="true"></i>
+                <i class="fas fa-file-pdf" aria-hidden="true"></i>
                 Material de Apoio (PDF)
               </a>
               <a href="#" class="resource-link">
-                <i class="icon-code" aria-hidden="true"></i>
+                <i class="fas fa-code" aria-hidden="true"></i>
                 Código de Exemplo
               </a>
               <a href="#" class="resource-link">
-                <i class="icon-external-link" aria-hidden="true"></i>
+                <i class="fas fa-external-link-alt" aria-hidden="true"></i>
                 Documentação Oficial
               </a>
+              <a href="#" class="resource-link">
+                <i class="fas fa-video" aria-hidden="true"></i>
+                Vídeos Complementares
+              </a>
+            </div>
+          </div>
+          
+          <div class="content-section">
+            <h3>Próximos Passos</h3>
+            <p style="color: #475569; line-height: 1.6;">
+              Após concluir esta aula, você estará pronto para avançar para tópicos mais avançados. 
+              Certifique-se de praticar os conceitos apresentados antes de prosseguir.
+            </p>
+            <div style="background: #f1f5f9; padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+              <p style="color: #334155; margin: 0; font-weight: 500;">
+                💡 <strong>Dica:</strong> Pratique escrevendo código similar ao mostrado nos exemplos. 
+                A prática é essencial para fixar o aprendizado!
+              </p>
             </div>
           </div>
         </div>
       </div>
+      {{/lessonContent}}
     </div>
 
     <!-- Navegação entre Aulas -->
@@ -130,7 +231,7 @@
       <div class="nav-section">
         {{#previousLesson}}
         <a href="/content/lesson/{{id}}" class="nav-btn nav-prev">
-          <i class="icon-arrow-left" aria-hidden="true"></i>
+          <i class="fas fa-arrow-left" aria-hidden="true"></i>
           <div class="nav-content">
             <span class="nav-label">Aula Anterior</span>
             <span class="nav-title">{{name}}</span>
@@ -147,7 +248,7 @@
 
       <div class="nav-center">
         <button class="btn btn-primary" id="markCompleteBtn" data-lesson-id="{{lesson.id}}">
-          <i class="icon-check" aria-hidden="true"></i>
+          <i class="fas fa-check" aria-hidden="true"></i>
           Marcar como Concluída
         </button>
       </div>
@@ -159,7 +260,7 @@
             <span class="nav-label">Próxima Aula</span>
             <span class="nav-title">{{name}}</span>
           </div>
-          <i class="icon-arrow-right" aria-hidden="true"></i>
+          <i class="fas fa-arrow-right" aria-hidden="true"></i>
         </a>
         {{/nextLesson}}
         
@@ -184,7 +285,7 @@
           </div>
           <p class="quiz-question">{{question_text}}</p>
           <a href="/quiz/{{id}}" class="btn btn-outline">
-            <i class="icon-code" aria-hidden="true"></i>
+            <i class="fas fa-code" aria-hidden="true"></i>
             Responder Questão
           </a>
         </div>
@@ -198,10 +299,10 @@
 <!-- Flash Messages -->
 {{#flash}}
 <div class="flash-message flash-{{type}}" role="alert">
-  <i class="flash-icon icon-{{type}}" aria-hidden="true"></i>
+  <i class="flash-icon fas fa-info-circle" aria-hidden="true"></i>
   <span class="flash-text">{{message}}</span>
   <button class="flash-close" aria-label="Fechar mensagem">
-    <i class="icon-x" aria-hidden="true"></i>
+          <i class="fas fa-times" aria-hidden="true"></i>
   </button>
 </div>
 {{/flash}}

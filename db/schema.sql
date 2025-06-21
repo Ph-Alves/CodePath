@@ -36,13 +36,19 @@ CREATE TABLE IF NOT EXISTS users (
 -- TABELA: packages
 -- ========================================
 -- Armazena os pacotes de tecnologia (C, Python, Java, etc.)
+-- Expandida para Fase 21 - Sistema de Pacotes Interativo
 CREATE TABLE IF NOT EXISTS packages (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name VARCHAR(100) NOT NULL,                    -- "Pacote C", "Pacote Front-end", etc.
     description TEXT,
-    icon VARCHAR(50),                              -- "C", "HTML/CSS", "Python", etc.
+    icon VARCHAR(50),                              -- "fas fa-code", "fab fa-html5", etc.
     current_lesson VARCHAR(200),                   -- "C - Operações", "Aula 51", etc.
     progress_percentage INTEGER DEFAULT 0,
+    difficulty VARCHAR(20) DEFAULT 'iniciante',    -- 'iniciante', 'intermediário', 'avançado'
+    duration_hours INTEGER DEFAULT 0,             -- Duração estimada em horas
+    rating DECIMAL(2,1) DEFAULT 0.0,              -- Rating de 0.0 a 5.0
+    tags TEXT,                                     -- Tags separadas por vírgula
+    prerequisites TEXT,                            -- Pré-requisitos separados por vírgula
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 

@@ -1,6 +1,6 @@
 /**
- * JavaScript do Sistema de Conquistas
- * Gerencia interações e atualizações em tempo real
+ * JavaScript do Sistema de Conquistas - Fase 24
+ * Sistema completamente funcional com filtros, busca e animações
  */
 
 class AchievementManager {
@@ -8,7 +8,10 @@ class AchievementManager {
         this.modal = null;
         this.loadingOverlay = null;
         this.currentFilter = 'all';
+        this.currentSearch = '';
         this.checkInterval = null;
+        this.achievements = [];
+        this.filteredAchievements = [];
         
         this.init();
     }
@@ -17,11 +20,14 @@ class AchievementManager {
      * Inicializa o sistema de conquistas
      */
     init() {
-        console.log('[ACHIEVEMENTS] Inicializando sistema de conquistas...');
+        console.log('[ACHIEVEMENTS] Inicializando sistema de conquistas avançado...');
         
         // Elementos do DOM
         this.modal = document.getElementById('achievementModal');
         this.loadingOverlay = document.getElementById('loadingOverlay');
+        
+        // Carrega dados iniciais
+        this.loadInitialData();
         
         // Event listeners
         this.setupEventListeners();
@@ -35,7 +41,76 @@ class AchievementManager {
         // Verifica conquistas automaticamente
         this.startAutoCheck();
         
+        // Adiciona sistema de busca
+        this.setupSearchSystem();
+        
         console.log('[ACHIEVEMENTS] Sistema inicializado com sucesso!');
+    }
+    
+    /**
+     * Carrega dados iniciais das conquistas
+     */
+    async loadInitialData() {
+        try {
+            const response = await fetch('/achievements/api/user');
+            const data = await response.json();
+            
+            if (data.success) {
+                this.achievements = data.data.achievements;
+                this.filteredAchievements = [...this.achievements];
+                console.log('[ACHIEVEMENTS] Dados carregados:', this.achievements.length, 'conquistas');
+            }
+        } catch (error) {
+            console.error('[ACHIEVEMENTS] Erro ao carregar dados iniciais:', error);
+        }
+    }
+    
+    /**
+     * Configura sistema de busca
+     */
+    setupSearchSystem() {
+        // Cria campo de busca se não existir
+        const header = document.querySelector('.achievements-header');
+        if (header && !document.querySelector('.search-container')) {
+            const searchContainer = document.createElement('div');
+            searchContainer.className = 'search-container';
+            searchContainer.innerHTML = `
+                <div class="search-box">
+                    <input type="text" id="achievementSearch" placeholder="Buscar conquistas..." class="search-input">
+                    <span class="search-icon">🔍</span>
+                </div>
+                <div class="search-filters">
+                    <button class="filter-status active" data-status="all">Todas</button>
+                    <button class="filter-status" data-status="unlocked">Desbloqueadas</button>
+                    <button class="filter-status" data-status="locked">Pendentes</button>
+                </div>
+            `;
+            
+            // Insere após os filtros de categoria
+            const categoryFilters = document.querySelector('.category-filters');
+            if (categoryFilters) {
+                categoryFilters.parentNode.insertBefore(searchContainer, categoryFilters.nextSibling);
+            }
+            
+            // Event listeners para busca
+            const searchInput = document.getElementById('achievementSearch');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    this.currentSearch = e.target.value.toLowerCase();
+                    this.applyFilters();
+                });
+            }
+            
+            // Event listeners para filtros de status
+            const statusFilters = document.querySelectorAll('.filter-status');
+            statusFilters.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    statusFilters.forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    this.applyFilters();
+                });
+            });
+        }
     }
     
     /**
@@ -55,7 +130,16 @@ class AchievementManager {
         achievementCards.forEach(card => {
             card.addEventListener('click', (e) => {
                 const achievementId = card.dataset.achievementId;
-                this.showAchievementProgress(achievementId);
+                this.showAchievementDetails(achievementId);
+            });
+            
+            // Efeito hover melhorado
+            card.addEventListener('mouseenter', () => {
+                this.addHoverEffect(card);
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                this.removeHoverEffect(card);
             });
         });
         
@@ -81,6 +165,172 @@ class AchievementManager {
                 this.hideModal();
             }
         });
+        
+        // Atalhos de teclado para filtros
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case '1': this.filterAchievements('beginner'); e.preventDefault(); break;
+                    case '2': this.filterAchievements('progress'); e.preventDefault(); break;
+                    case '3': this.filterAchievements('mastery'); e.preventDefault(); break;
+                    case '4': this.filterAchievements('streak'); e.preventDefault(); break;
+                    case '5': this.filterAchievements('social'); e.preventDefault(); break;
+                    case '6': this.filterAchievements('special'); e.preventDefault(); break;
+                    case '0': this.filterAchievements('all'); e.preventDefault(); break;
+                }
+            }
+        });
+    }
+    
+    /**
+     * Aplica filtros combinados (categoria + busca + status)
+     */
+    applyFilters() {
+        const activeStatusFilter = document.querySelector('.filter-status.active')?.dataset.status || 'all';
+        
+        // Filtra por categoria
+        let filtered = this.currentFilter === 'all' 
+            ? [...this.achievements] 
+            : this.achievements.filter(a => a.category === this.currentFilter);
+        
+        // Filtra por status
+        if (activeStatusFilter !== 'all') {
+            filtered = filtered.filter(a => {
+                return activeStatusFilter === 'unlocked' ? a.is_unlocked : !a.is_unlocked;
+            });
+        }
+        
+        // Filtra por busca
+        if (this.currentSearch) {
+            filtered = filtered.filter(a => 
+                a.name.toLowerCase().includes(this.currentSearch) ||
+                a.description.toLowerCase().includes(this.currentSearch) ||
+                a.category.toLowerCase().includes(this.currentSearch)
+            );
+        }
+        
+        this.filteredAchievements = filtered;
+        this.updateAchievementDisplay();
+    }
+    
+    /**
+     * Atualiza exibição das conquistas filtradas
+     */
+    updateAchievementDisplay() {
+        const sections = document.querySelectorAll('.category-section');
+        
+        sections.forEach(section => {
+            const category = section.dataset.category;
+            const categoryAchievements = this.filteredAchievements.filter(a => a.category === category);
+            
+            if (categoryAchievements.length > 0 && (this.currentFilter === 'all' || this.currentFilter === category)) {
+                section.style.display = 'block';
+                section.classList.remove('hidden');
+                
+                // Atualiza cards dentro da seção
+                const achievementsRow = section.querySelector('.achievements-row');
+                if (achievementsRow) {
+                    const cards = achievementsRow.querySelectorAll('.achievement-card');
+                    cards.forEach(card => {
+                        const cardId = parseInt(card.dataset.achievementId);
+                        const shouldShow = categoryAchievements.some(a => a.id === cardId);
+                        
+                        if (shouldShow) {
+                            card.style.display = 'block';
+                            card.classList.remove('filtered-out');
+                        } else {
+                            card.style.display = 'none';
+                            card.classList.add('filtered-out');
+                        }
+                    });
+                }
+            } else {
+                section.style.display = 'none';
+                section.classList.add('hidden');
+            }
+        });
+        
+        // Mostra mensagem se não houver resultados
+        this.showEmptyState();
+        
+        // Animação de entrada
+        this.animateFilteredResults();
+    }
+    
+    /**
+     * Mostra estado vazio quando não há resultados
+     */
+    showEmptyState() {
+        const visibleCards = document.querySelectorAll('.achievement-card:not(.filtered-out):not([style*="display: none"])');
+        
+        let emptyState = document.querySelector('.empty-achievements-state');
+        
+        if (visibleCards.length === 0) {
+            if (!emptyState) {
+                emptyState = document.createElement('div');
+                emptyState.className = 'empty-achievements-state';
+                emptyState.innerHTML = `
+                    <div class="empty-state-content">
+                        <div class="empty-state-icon">🔍</div>
+                        <h3>Nenhuma conquista encontrada</h3>
+                        <p>Tente ajustar os filtros ou termo de busca</p>
+                        <button class="btn-secondary" onclick="achievementManager.clearFilters()">
+                            Limpar Filtros
+                        </button>
+                    </div>
+                `;
+                
+                const grid = document.querySelector('.achievements-grid');
+                if (grid) {
+                    grid.appendChild(emptyState);
+                }
+            }
+            emptyState.style.display = 'block';
+        } else {
+            if (emptyState) {
+                emptyState.style.display = 'none';
+            }
+        }
+    }
+    
+    /**
+     * Limpa todos os filtros
+     */
+    clearFilters() {
+        // Limpa busca
+        const searchInput = document.getElementById('achievementSearch');
+        if (searchInput) {
+            searchInput.value = '';
+            this.currentSearch = '';
+        }
+        
+        // Reseta filtro de categoria
+        this.filterAchievements('all');
+        
+        // Reseta filtro de status
+        const statusFilters = document.querySelectorAll('.filter-status');
+        statusFilters.forEach(btn => btn.classList.remove('active'));
+        document.querySelector('.filter-status[data-status="all"]')?.classList.add('active');
+        
+        this.applyFilters();
+    }
+    
+    /**
+     * Anima resultados filtrados
+     */
+    animateFilteredResults() {
+        const visibleSections = document.querySelectorAll('.category-section:not(.hidden)');
+        
+        visibleSections.forEach((section, index) => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                section.style.transition = 'all 0.4s ease';
+                section.style.opacity = '1';
+                section.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
     }
     
     /**
@@ -95,29 +345,30 @@ class AchievementManager {
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.classList.remove('active');
         });
-        document.querySelector(`[data-category="${category}"]`).classList.add('active');
+        document.querySelector(`[data-category="${category}"]`)?.classList.add('active');
         
-        // Mostra/esconde seções
-        const sections = document.querySelectorAll('.category-section');
-        sections.forEach(section => {
-            const sectionCategory = section.dataset.category;
-            
-            if (category === 'all' || sectionCategory === category) {
-                section.classList.remove('hidden');
-                section.style.display = 'block';
-            } else {
-                section.classList.add('hidden');
-                section.style.display = 'none';
-            }
-        });
-        
-        // Animação suave
-        setTimeout(() => {
-            const visibleSections = document.querySelectorAll('.category-section:not(.hidden)');
-            visibleSections.forEach((section, index) => {
-                section.style.animation = `fadeInUp 0.4s ease ${index * 0.1}s both`;
-            });
-        }, 50);
+        this.applyFilters();
+    }
+    
+    /**
+     * Adiciona efeito hover melhorado
+     */
+    addHoverEffect(card) {
+        if (!card.classList.contains('unlocked')) {
+            card.style.transform = 'translateY(-8px) scale(1.02)';
+            card.style.boxShadow = '0 12px 40px rgba(139, 69, 255, 0.3)';
+        } else {
+            card.style.transform = 'translateY(-5px) scale(1.01)';
+            card.style.boxShadow = '0 8px 30px rgba(34, 197, 94, 0.3)';
+        }
+    }
+    
+    /**
+     * Remove efeito hover
+     */
+    removeHoverEffect(card) {
+        card.style.transform = '';
+        card.style.boxShadow = '';
     }
     
     /**
@@ -154,19 +405,27 @@ class AchievementManager {
         if (progressBar && progressText) {
             const percentage = progressData.progressPercentage;
             
-            progressBar.style.width = `${percentage}%`;
+            // Animação da barra de progresso
+            setTimeout(() => {
+                progressBar.style.width = `${percentage}%`;
+                progressBar.style.transition = 'width 1.5s ease-out';
+            }, 100);
+            
             progressText.textContent = `${percentage}% (${progressData.currentValue}/${progressData.targetValue})`;
             
-            // Animação da barra
-            progressBar.style.transition = 'width 1s ease';
+            // Adiciona classe para progresso alto
+            if (percentage >= 80) {
+                progressBar.classList.add('high-progress');
+                card.classList.add('near-completion');
+            }
         }
     }
     
     /**
-     * Mostra progresso detalhado de uma conquista
+     * Mostra detalhes de uma conquista
      */
-    async showAchievementProgress(achievementId) {
-        console.log('[ACHIEVEMENTS] Mostrando progresso da conquista:', achievementId);
+    async showAchievementDetails(achievementId) {
+        console.log('[ACHIEVEMENTS] Mostrando detalhes da conquista:', achievementId);
         
         try {
             const response = await fetch(`/achievements/api/progress/${achievementId}`);
@@ -175,94 +434,139 @@ class AchievementManager {
             if (data.success) {
                 const achievement = data.data;
                 
-                // Cria toast de progresso
-                this.showProgressToast(achievement);
+                if (achievement.achievement.is_unlocked) {
+                    this.showUnlockedAchievementDetails(achievement);
+                } else {
+                    this.showProgressDetails(achievement);
+                }
             }
         } catch (error) {
-            console.error('[ACHIEVEMENTS] Erro ao buscar progresso:', error);
+            console.error('[ACHIEVEMENTS] Erro ao buscar detalhes:', error);
         }
     }
     
     /**
-     * Mostra toast com progresso da conquista
+     * Mostra detalhes de conquista desbloqueada
      */
-    showProgressToast(achievement) {
-        const toast = document.createElement('div');
-        toast.className = 'achievement-toast';
-        toast.innerHTML = `
-            <div class="toast-content">
-                <div class="toast-icon">${achievement.achievement.icon}</div>
-                <div class="toast-info">
-                    <div class="toast-title">${achievement.achievement.name}</div>
-                    <div class="toast-progress">
-                        <div class="toast-progress-bar">
-                            <div class="toast-progress-fill" style="width: ${achievement.progressPercentage}%"></div>
-                        </div>
-                        <span class="toast-progress-text">
-                            ${achievement.currentValue}/${achievement.targetValue} (${achievement.progressPercentage}%)
-                        </span>
-                    </div>
-                </div>
-                <button class="toast-close">&times;</button>
+    showUnlockedAchievementDetails(achievement) {
+        const modal = this.modal;
+        if (!modal) return;
+        
+        modal.querySelector('.modal-title').textContent = '🎉 Conquista Desbloqueada!';
+        modal.querySelector('.modal-achievement-icon').textContent = achievement.achievement.icon;
+        modal.querySelector('.modal-achievement-name').textContent = achievement.achievement.name;
+        modal.querySelector('.modal-achievement-description').textContent = achievement.achievement.description;
+        modal.querySelector('.xp-amount').textContent = `+${achievement.achievement.xp_reward} XP`;
+        
+        // Adiciona informações extras
+        const modalBody = modal.querySelector('.modal-body');
+        let extraInfo = modalBody.querySelector('.extra-info');
+        if (!extraInfo) {
+            extraInfo = document.createElement('div');
+            extraInfo.className = 'extra-info';
+            modalBody.appendChild(extraInfo);
+        }
+        
+        extraInfo.innerHTML = `
+            <div class="achievement-category">
+                <span class="category-badge ${achievement.achievement.category}">
+                    ${this.getCategoryName(achievement.achievement.category)}
+                </span>
+            </div>
+            <div class="unlock-date">
+                Desbloqueada em ${achievement.achievement.unlocked_at || 'Data não disponível'}
             </div>
         `;
         
-        // Adiciona CSS inline para o toast
-        toast.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: white;
-            border-radius: 15px;
-            padding: 1rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            border: 2px solid #6366f1;
-            z-index: 1001;
-            min-width: 300px;
-            animation: slideInRight 0.4s ease;
-        `;
-        
-        document.body.appendChild(toast);
-        
-        // Remove após 5 segundos
-        setTimeout(() => {
-            toast.style.animation = 'slideOutRight 0.4s ease';
-            setTimeout(() => toast.remove(), 400);
-        }, 5000);
-        
-        // Botão fechar
-        toast.querySelector('.toast-close').addEventListener('click', () => {
-            toast.style.animation = 'slideOutRight 0.4s ease';
-            setTimeout(() => toast.remove(), 400);
-        });
+        this.showModal();
     }
     
     /**
-     * Atualiza o streak do usuário
+     * Mostra progresso de conquista pendente
+     */
+    showProgressDetails(achievement) {
+        const modal = this.modal;
+        if (!modal) return;
+        
+        modal.querySelector('.modal-title').textContent = '📊 Progresso da Conquista';
+        modal.querySelector('.modal-achievement-icon').textContent = achievement.achievement.icon;
+        modal.querySelector('.modal-achievement-name').textContent = achievement.achievement.name;
+        modal.querySelector('.modal-achievement-description').textContent = achievement.achievement.description;
+        modal.querySelector('.xp-amount').textContent = `+${achievement.achievement.xp_reward} XP`;
+        
+        // Adiciona barra de progresso no modal
+        const modalBody = modal.querySelector('.modal-body');
+        let progressInfo = modalBody.querySelector('.progress-info');
+        if (!progressInfo) {
+            progressInfo = document.createElement('div');
+            progressInfo.className = 'progress-info';
+            modalBody.appendChild(progressInfo);
+        }
+        
+        progressInfo.innerHTML = `
+            <div class="modal-progress-section">
+                <div class="progress-header">
+                    <span>Progresso: ${achievement.currentValue}/${achievement.targetValue}</span>
+                    <span class="progress-percentage">${achievement.progressPercentage}%</span>
+                </div>
+                <div class="progress-bar-modal">
+                    <div class="progress-fill-modal" style="width: ${achievement.progressPercentage}%"></div>
+                </div>
+                <div class="progress-tips">
+                    ${this.getProgressTips(achievement.achievement)}
+                </div>
+            </div>
+        `;
+        
+        this.showModal();
+    }
+    
+    /**
+     * Obtém nome da categoria
+     */
+    getCategoryName(category) {
+        const categories = {
+            'beginner': 'Iniciante',
+            'progress': 'Progresso',
+            'mastery': 'Maestria',
+            'streak': 'Consistência',
+            'social': 'Social',
+            'special': 'Especiais'
+        };
+        return categories[category] || category;
+    }
+    
+    /**
+     * Obtém dicas de progresso
+     */
+    getProgressTips(achievement) {
+        const tips = {
+            'lessons_completed': '💡 Dica: Continue assistindo às aulas para desbloquear esta conquista!',
+            'quizzes_completed': '🧠 Dica: Faça mais questionários para testar seus conhecimentos!',
+            'packages_completed': '📦 Dica: Complete todos os módulos de um pacote para conquistar!',
+            'streak_days': '🔥 Dica: Estude todos os dias para manter seu streak!',
+            'total_xp': '⚡ Dica: Ganhe XP completando aulas e questionários!',
+            'perfect_quizzes': '🎯 Dica: Acerte 100% dos questionários para esta conquista!',
+            'study_hours': '⏰ Dica: Continue estudando para acumular horas de estudo!'
+        };
+        return tips[achievement.requirement_type] || '💪 Continue se dedicando aos estudos!';
+    }
+    
+    /**
+     * Atualiza streak do usuário
      */
     async updateStreak() {
-        console.log('[ACHIEVEMENTS] Atualizando streak do usuário...');
-        
         try {
-            const response = await fetch('/achievements/api/streak/update', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-            
+            const response = await fetch('/achievements/api/streak', { method: 'POST' });
             const data = await response.json();
             
             if (data.success) {
-                console.log('[ACHIEVEMENTS] Streak atualizado:', data.data);
-                
-                // Atualiza display do streak
                 this.updateStreakDisplay(data.data);
                 
                 // Verifica se há novas conquistas
                 if (data.data.newAchievements && data.data.newAchievements.length > 0) {
                     data.data.newAchievements.forEach(achievement => {
-                        this.showAchievementModal(achievement);
+                        setTimeout(() => this.showAchievementUnlocked(achievement), 1000);
                     });
                 }
             }
@@ -272,67 +576,53 @@ class AchievementManager {
     }
     
     /**
-     * Atualiza o display do streak na interface
+     * Atualiza exibição do streak
      */
     updateStreakDisplay(streakData) {
-        const streakNumber = document.querySelector('.streak-card .stat-number');
-        if (streakNumber) {
-            const streakIcon = streakNumber.querySelector('.streak-icon');
-            const currentStreak = streakData.streak;
-            
-            // Atualiza número
-            streakNumber.innerHTML = `<span class="streak-icon">🔥</span> ${currentStreak}`;
-            
-            // Animação se for um novo dia
-            if (streakData.isNewDay) {
-                streakNumber.style.animation = 'pulse 0.6s ease';
-                setTimeout(() => {
-                    streakNumber.style.animation = '';
-                }, 600);
+        const streakElements = document.querySelectorAll('.stat-number');
+        streakElements.forEach(element => {
+            const parent = element.closest('.streak-card');
+            if (parent) {
+                element.innerHTML = `<span class="streak-icon">🔥</span>${streakData.streak}`;
+                
+                // Animação de streak
+                if (streakData.isNewDay) {
+                    element.classList.add('streak-updated');
+                    setTimeout(() => element.classList.remove('streak-updated'), 2000);
+                }
             }
-        }
+        });
     }
     
     /**
-     * Verifica automaticamente por novas conquistas
+     * Inicia verificação automática de conquistas
      */
     startAutoCheck() {
-        console.log('[ACHIEVEMENTS] Iniciando verificação automática de conquistas...');
-        
         // Verifica a cada 30 segundos
         this.checkInterval = setInterval(() => {
             this.checkForNewAchievements();
         }, 30000);
         
         // Verifica imediatamente
-        setTimeout(() => {
-            this.checkForNewAchievements();
-        }, 2000);
+        setTimeout(() => this.checkForNewAchievements(), 2000);
     }
     
     /**
-     * Verifica por novas conquistas
+     * Verifica novas conquistas
      */
     async checkForNewAchievements() {
         try {
-            const response = await fetch('/achievements/api/check', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-            
+            const response = await fetch('/achievements/api/check', { method: 'POST' });
             const data = await response.json();
             
             if (data.success && data.data.newAchievements.length > 0) {
                 console.log('[ACHIEVEMENTS] Novas conquistas encontradas:', data.data.newAchievements.length);
                 
-                // Mostra cada conquista
+                // Mostra cada conquista com delay
                 data.data.newAchievements.forEach((achievement, index) => {
                     setTimeout(() => {
-                        this.showAchievementModal(achievement);
-                        this.updateAchievementCard(achievement);
-                    }, index * 1000); // Delay entre modais
+                        this.showAchievementUnlocked(achievement);
+                    }, index * 3000);
                 });
             }
         } catch (error) {
@@ -341,27 +631,54 @@ class AchievementManager {
     }
     
     /**
+     * Mostra conquista desbloqueada
+     */
+    showAchievementUnlocked(achievement) {
+        // Atualiza o card na página
+        this.updateAchievementCard(achievement);
+        
+        // Mostra modal de conquista
+        this.showAchievementModal(achievement);
+        
+        // Efeitos especiais
+        this.playAchievementSound();
+        this.showConfetti();
+        
+        // Atualiza estatísticas
+        this.updateStats();
+    }
+    
+    /**
      * Mostra modal de conquista desbloqueada
      */
     showAchievementModal(achievement) {
-        if (!this.modal) return;
+        const modal = this.modal;
+        if (!modal) return;
         
-        console.log('[ACHIEVEMENTS] Mostrando modal para conquista:', achievement.name);
+        modal.querySelector('.modal-title').textContent = '🎉 Conquista Desbloqueada!';
+        modal.querySelector('.modal-achievement-icon').textContent = achievement.icon;
+        modal.querySelector('.modal-achievement-name').textContent = achievement.name;
+        modal.querySelector('.modal-achievement-description').textContent = achievement.description;
+        modal.querySelector('.xp-amount').textContent = `+${achievement.xp_reward} XP`;
         
-        // Preenche dados do modal
-        this.modal.querySelector('.modal-achievement-icon').textContent = achievement.icon;
-        this.modal.querySelector('.modal-achievement-name').textContent = achievement.name;
-        this.modal.querySelector('.modal-achievement-description').textContent = achievement.description;
-        this.modal.querySelector('.xp-amount').textContent = `+${achievement.xp_reward} XP`;
+        this.showModal();
         
-        // Mostra modal
-        this.modal.classList.add('show');
-        
-        // Efeito sonoro (se disponível)
-        this.playAchievementSound();
-        
-        // Confetti effect
-        this.showConfetti();
+        // Auto-fecha após 5 segundos
+        setTimeout(() => {
+            if (modal.classList.contains('show')) {
+                this.hideModal();
+            }
+        }, 5000);
+    }
+    
+    /**
+     * Mostra modal
+     */
+    showModal() {
+        if (this.modal) {
+            this.modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
     }
     
     /**
@@ -370,22 +687,23 @@ class AchievementManager {
     hideModal() {
         if (this.modal) {
             this.modal.classList.remove('show');
+            document.body.style.overflow = '';
         }
     }
     
     /**
-     * Atualiza card de conquista após desbloqueio
+     * Atualiza card de conquista
      */
     updateAchievementCard(achievement) {
         const card = document.querySelector(`[data-achievement-id="${achievement.id}"]`);
         if (card) {
             card.classList.add('unlocked');
+            card.classList.add('newly-unlocked');
             
             // Atualiza badge
-            const badge = card.querySelector('.achievement-badge span');
+            const badge = card.querySelector('.achievement-badge');
             if (badge) {
-                badge.textContent = '✓';
-                badge.className = 'badge-unlocked';
+                badge.innerHTML = '<span class="badge-unlocked">✓</span>';
             }
             
             // Remove barra de progresso
@@ -396,37 +714,43 @@ class AchievementManager {
             
             // Adiciona data de desbloqueio
             const content = card.querySelector('.achievement-content');
-            const dateDiv = document.createElement('div');
-            dateDiv.className = 'achievement-unlocked-date';
-            dateDiv.textContent = `Desbloqueada em ${new Date().toLocaleDateString('pt-BR')}`;
+            if (content && !content.querySelector('.achievement-unlocked-date')) {
+                const dateElement = document.createElement('div');
+                dateElement.className = 'achievement-unlocked-date';
+                dateElement.textContent = `Desbloqueada agora mesmo!`;
+                content.appendChild(dateElement);
+            }
             
-            const reward = content.querySelector('.achievement-reward');
-            content.insertBefore(dateDiv, reward);
-            
-            // Animação de celebração
-            card.style.animation = 'celebrate 0.8s ease';
+            // Animação de desbloqueio
+            setTimeout(() => {
+                card.classList.remove('newly-unlocked');
+            }, 3000);
         }
     }
     
     /**
-     * Reproduz som de conquista
+     * Toca som de conquista
      */
     playAchievementSound() {
+        // Cria elemento de áudio temporário
+        const audio = document.createElement('audio');
+        audio.volume = 0.3;
+        
+        // Som simulado com Web Audio API (fallback)
         try {
-            // Cria um som simples usando Web Audio API
             const audioContext = new (window.AudioContext || window.webkitAudioContext)();
             const oscillator = audioContext.createOscillator();
-            const gain = audioContext.createGain();
+            const gainNode = audioContext.createGain();
             
-            oscillator.connect(gain);
-            gain.connect(audioContext.destination);
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
             
             oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
             oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // E5
             oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2); // G5
             
-            gain.gain.setValueAtTime(0.3, audioContext.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
             
             oscillator.start(audioContext.currentTime);
             oscillator.stop(audioContext.currentTime + 0.5);
@@ -436,59 +760,89 @@ class AchievementManager {
     }
     
     /**
-     * Mostra efeito de confetti
+     * Mostra efeito confetti
      */
     showConfetti() {
-        // Cria elementos de confetti
+        const confettiContainer = document.createElement('div');
+        confettiContainer.className = 'confetti-container';
+        document.body.appendChild(confettiContainer);
+        
+        // Cria partículas de confetti
         for (let i = 0; i < 50; i++) {
             const confetti = document.createElement('div');
-            confetti.style.cssText = `
-                position: fixed;
-                width: 10px;
-                height: 10px;
-                background: ${this.getRandomColor()};
-                top: -10px;
-                left: ${Math.random() * 100}%;
-                z-index: 1002;
-                border-radius: 50%;
-                animation: confettiFall ${2 + Math.random() * 3}s ease-out forwards;
-            `;
+            confetti.className = 'confetti-piece';
+            confetti.style.left = Math.random() * 100 + '%';
+            confetti.style.backgroundColor = this.getRandomColor();
+            confetti.style.animationDelay = Math.random() * 2 + 's';
+            confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
             
-            document.body.appendChild(confetti);
-            
-            // Remove após animação
-            setTimeout(() => confetti.remove(), 5000);
+            confettiContainer.appendChild(confetti);
         }
+        
+        // Remove após animação
+        setTimeout(() => {
+            confettiContainer.remove();
+        }, 5000);
     }
     
     /**
-     * Retorna cor aleatória para confetti
+     * Obtém cor aleatória para confetti
      */
     getRandomColor() {
-        const colors = ['#6366f1', '#8b5cf6', '#a855f7', '#10b981', '#f59e0b', '#ef4444'];
+        const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8'];
         return colors[Math.floor(Math.random() * colors.length)];
     }
     
     /**
-     * Mostra loading overlay
+     * Atualiza estatísticas na página
+     */
+    async updateStats() {
+        try {
+            const response = await fetch('/achievements/api/stats');
+            const data = await response.json();
+            
+            if (data.success) {
+                const stats = data.data.achievementStats;
+                
+                // Atualiza números na página
+                const unlockedElement = document.querySelector('.stat-number');
+                const percentageElement = document.querySelector('.stat-card .stat-number');
+                
+                if (unlockedElement) {
+                    unlockedElement.textContent = stats.unlocked_achievements;
+                }
+                
+                // Atualiza barra de progresso geral
+                const progressFill = document.querySelector('.progress-fill');
+                if (progressFill) {
+                    progressFill.style.width = `${stats.completion_percentage}%`;
+                }
+            }
+        } catch (error) {
+            console.error('[ACHIEVEMENTS] Erro ao atualizar estatísticas:', error);
+        }
+    }
+    
+    /**
+     * Mostra loading
      */
     showLoading() {
         if (this.loadingOverlay) {
-            this.loadingOverlay.classList.add('show');
+            this.loadingOverlay.style.display = 'flex';
         }
     }
     
     /**
-     * Esconde loading overlay
+     * Esconde loading
      */
     hideLoading() {
         if (this.loadingOverlay) {
-            this.loadingOverlay.classList.remove('show');
+            this.loadingOverlay.style.display = 'none';
         }
     }
     
     /**
-     * Limpa intervalos ao sair da página
+     * Limpa recursos
      */
     destroy() {
         if (this.checkInterval) {
@@ -497,113 +851,16 @@ class AchievementManager {
     }
 }
 
-// CSS adicional para animações
-const additionalCSS = `
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
+// Inicializa o sistema quando a página carrega
+let achievementManager;
 
-@keyframes slideInRight {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-@keyframes slideOutRight {
-    from {
-        transform: translateX(0);
-        opacity: 1;
-    }
-    to {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-}
-
-@keyframes confettiFall {
-    0% {
-        transform: translateY(-10px) rotate(0deg);
-        opacity: 1;
-    }
-    100% {
-        transform: translateY(100vh) rotate(720deg);
-        opacity: 0;
-    }
-}
-
-.achievement-toast .toast-content {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.achievement-toast .toast-icon {
-    font-size: 2rem;
-}
-
-.achievement-toast .toast-info {
-    flex: 1;
-}
-
-.achievement-toast .toast-title {
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-}
-
-.achievement-toast .toast-progress-bar {
-    height: 4px;
-    background: #e5e7eb;
-    border-radius: 4px;
-    overflow: hidden;
-    margin-bottom: 0.25rem;
-}
-
-.achievement-toast .toast-progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #6366f1, #8b5cf6);
-    transition: width 0.5s ease;
-}
-
-.achievement-toast .toast-progress-text {
-    font-size: 0.8rem;
-    color: #6b7280;
-}
-
-.achievement-toast .toast-close {
-    background: none;
-    border: none;
-    font-size: 1.2rem;
-    cursor: pointer;
-    color: #6b7280;
-    padding: 0.25rem;
-}
-`;
-
-// Adiciona CSS adicional
-const styleSheet = document.createElement('style');
-styleSheet.textContent = additionalCSS;
-document.head.appendChild(styleSheet);
-
-// Inicializa quando DOM estiver pronto
 document.addEventListener('DOMContentLoaded', () => {
-    window.achievementManager = new AchievementManager();
+    achievementManager = new AchievementManager();
 });
 
-// Limpa recursos ao sair da página
+// Limpa recursos quando a página é fechada
 window.addEventListener('beforeunload', () => {
-    if (window.achievementManager) {
-        window.achievementManager.destroy();
+    if (achievementManager) {
+        achievementManager.destroy();
     }
 }); 

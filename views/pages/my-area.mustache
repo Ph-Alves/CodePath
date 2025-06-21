@@ -1,0 +1,323 @@
+{{>partials/header}}
+
+<div class="coming-soon-container">
+    <!-- Header da Página -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-icon">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="page-info">
+                <h1 class="page-title">Minha Área</h1>
+                <p class="page-description">Personalize sua experiência no CodePath</p>
+            </div>
+        </div>
+        <div class="coming-soon-badge">
+            <i class="fas fa-clock"></i>
+            <span>Em Breve</span>
+        </div>
+    </div>
+
+    <!-- Conteúdo Principal -->
+    <div class="coming-soon-content">
+        <!-- Preview das Funcionalidades -->
+        <div class="features-preview">
+            <h2 class="preview-title">O que você poderá fazer aqui:</h2>
+            
+            <div class="features-grid">
+                <!-- Perfil Personalizado -->
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-id-card"></i>
+                    </div>
+                    <h3 class="feature-title">Perfil Personalizado</h3>
+                    <p class="feature-description">
+                        Customize seu avatar, biografia e informações pessoais para se destacar na comunidade.
+                    </p>
+                </div>
+
+                <!-- Histórico de Atividades -->
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <h3 class="feature-title">Histórico Completo</h3>
+                    <p class="feature-description">
+                        Visualize todo seu histórico de aulas, quizzes e progresso com gráficos detalhados.
+                    </p>
+                </div>
+
+                <!-- Certificados -->
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-certificate"></i>
+                    </div>
+                    <h3 class="feature-title">Certificados</h3>
+                    <p class="feature-description">
+                        Baixe certificados de conclusão de cursos e compartilhe suas conquistas.
+                    </p>
+                </div>
+
+                <!-- Metas Pessoais -->
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-target"></i>
+                    </div>
+                    <h3 class="feature-title">Metas Pessoais</h3>
+                    <p class="feature-description">
+                        Defina metas de estudo e acompanhe seu progresso com lembretes inteligentes.
+                    </p>
+                </div>
+
+                <!-- Favoritos -->
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h3 class="feature-title">Conteúdo Favorito</h3>
+                    <p class="feature-description">
+                        Salve suas aulas e recursos favoritos para acesso rápido quando precisar.
+                    </p>
+                </div>
+
+                <!-- Estatísticas -->
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <h3 class="feature-title">Estatísticas Pessoais</h3>
+                    <p class="feature-description">
+                        Analise seu desempenho com métricas detalhadas e insights personalizados.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Call to Action -->
+        <div class="cta-section">
+            <div class="cta-content">
+                <h3 class="cta-title">Enquanto isso, explore outras funcionalidades!</h3>
+                <p class="cta-description">
+                    Continue seu aprendizado e acompanhe seu progresso no dashboard.
+                </p>
+                <div class="cta-buttons">
+                    <a href="/dashboard" class="btn btn-primary">
+                        <i class="fas fa-home"></i>
+                        Ir para Dashboard
+                    </a>
+                    <a href="/progress" class="btn btn-secondary">
+                        <i class="fas fa-chart-line"></i>
+                        Ver Progresso
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Estilos para página "Em Breve" */
+.coming-soon-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 2px solid var(--gray-200);
+}
+
+.page-header-content {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.page-icon {
+    width: 60px;
+    height: 60px;
+    background: var(--gradient-primary);
+    border-radius: var(--border-radius-xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin: 0;
+}
+
+.page-description {
+    color: var(--gray-600);
+    font-size: 1.1rem;
+    margin: 0.5rem 0 0 0;
+}
+
+.coming-soon-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--gradient-accent);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--border-radius-xl);
+    font-weight: 600;
+    font-size: 0.9rem;
+    box-shadow: var(--shadow-md);
+}
+
+.coming-soon-content {
+    margin-top: 2rem;
+}
+
+.preview-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-bottom: 4rem;
+}
+
+.feature-card {
+    background: white;
+    padding: 2rem;
+    border-radius: var(--border-radius-xl);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--gray-200);
+    transition: all var(--transition-normal);
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-xl);
+    border-color: var(--primary-purple-light);
+}
+
+.feature-icon {
+    width: 50px;
+    height: 50px;
+    background: var(--gradient-secondary);
+    border-radius: var(--border-radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+}
+
+.feature-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: 1rem;
+}
+
+.feature-description {
+    color: var(--gray-600);
+    line-height: 1.6;
+}
+
+.cta-section {
+    background: var(--gradient-primary);
+    border-radius: var(--border-radius-2xl);
+    padding: 3rem;
+    text-align: center;
+    color: white;
+}
+
+.cta-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.cta-description {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin-bottom: 2rem;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--border-radius-lg);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all var(--transition-normal);
+    border: 2px solid transparent;
+}
+
+.btn-primary {
+    background: white;
+    color: var(--primary-purple);
+}
+
+.btn-primary:hover {
+    background: var(--gray-100);
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: transparent;
+    color: white;
+    border-color: white;
+}
+
+.btn-secondary:hover {
+    background: white;
+    color: var(--primary-purple);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        gap: 1.5rem;
+        text-align: center;
+    }
+    
+    .features-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .btn {
+        width: 100%;
+        max-width: 250px;
+    }
+}
+</style>
+
+{{>partials/footer}} 

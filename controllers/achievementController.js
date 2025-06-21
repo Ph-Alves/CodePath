@@ -21,7 +21,7 @@ class AchievementController {
             console.log('[ACHIEVEMENT] Conquistas encontradas:', userAchievements.length);
             
             // Busca estatísticas de conquistas
-            const achievementStats = AchievementModel.getUserAchievementStats(userId);
+            const achievementStats = await AchievementModel.getUserAchievementStats(userId);
             console.log('[ACHIEVEMENT] Estatísticas:', achievementStats);
             
             // Busca conquistas recentes

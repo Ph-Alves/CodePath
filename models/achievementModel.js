@@ -1,4 +1,4 @@
-const db = require('./database');
+const { database } = require('./database');
 
 /**
  * Modelo de Conquistas e Streak
@@ -9,7 +9,7 @@ class AchievementModel {
     /**
      * Obtém todas as conquistas disponíveis no sistema
      */
-    static getAllAchievements() {
+    static async getAllAchievements() {
         const query = `
             SELECT 
                 id,
@@ -25,13 +25,13 @@ class AchievementModel {
             ORDER BY category, requirement_value ASC
         `;
         
-        return db.prepare(query).all();
+        return await database.all(query);
     }
     
     /**
      * Obtém conquistas do usuário com status de desbloqueio
      */
-    static getUserAchievements(userId) {
+    static async getUserAchievements(userId) {
         const query = `
             SELECT 
                 a.id,
@@ -56,7 +56,7 @@ class AchievementModel {
                 a.requirement_value ASC
         `;
         
-        return db.prepare(query).all(userId);
+        return await database.all(query, [userId]);
     }
     
     /**
@@ -69,7 +69,7 @@ class AchievementModel {
         const userStats = this.getUserStats(userId);
         
         // Busca conquistas ainda não desbloqueadas
-        const lockedAchievements = db.prepare(`
+        const lockedAchievements = database.prepare(`
             SELECT a.* 
             FROM achievements a
             LEFT JOIN user_achievements ua ON a.id = ua.achievement_id AND ua.user_id = ?
@@ -136,11 +136,11 @@ class AchievementModel {
                 VALUES (?, ?, datetime('now'))
             `;
             
-            const result = db.prepare(query).run(userId, achievementId);
+            const result = database.prepare(query).run(userId, achievementId);
             
             // Adiciona XP da conquista
             if (result.changes > 0) {
-                const achievement = db.prepare('SELECT xp_reward FROM achievements WHERE id = ?').get(achievementId);
+                const achievement = database.prepare('SELECT xp_reward FROM achievements WHERE id = ?').get(achievementId);
                 if (achievement && achievement.xp_reward > 0) {
                     this.addXPToUser(userId, achievement.xp_reward);
                 }
@@ -158,7 +158,7 @@ class AchievementModel {
      */
     static getUserStats(userId) {
         // Estatísticas básicas
-        const basicStats = db.prepare(`
+        const basicStats = database.prepare(`
             SELECT 
                 u.total_xp,
                 u.current_streak,
@@ -169,14 +169,14 @@ class AchievementModel {
         `).get(userId) || {};
         
         // Aulas completadas
-        const lessonsCompleted = db.prepare(`
+        const lessonsCompleted = database.prepare(`
             SELECT COUNT(*) as count 
             FROM user_progress 
             WHERE user_id = ? AND completed_at IS NOT NULL
         `).get(userId)?.count || 0;
         
         // Quizzes completados
-        const quizzesCompleted = db.prepare(`
+        const quizzesCompleted = database.prepare(`
             SELECT COUNT(*) as count 
             FROM user_quiz_answers 
             WHERE user_id = ?
@@ -184,7 +184,7 @@ class AchievementModel {
         `).all(userId).length || 0;
         
         // Quizzes perfeitos (100% de acerto)
-        const perfectQuizzes = db.prepare(`
+        const perfectQuizzes = database.prepare(`
             SELECT COUNT(*) as count
             FROM (
                 SELECT quiz_id, 
@@ -197,7 +197,7 @@ class AchievementModel {
         `).get(userId)?.count || 0;
         
         // Pacotes completados
-        const packagesCompleted = db.prepare(`
+        const packagesCompleted = database.prepare(`
             SELECT COUNT(DISTINCT p.id) as count
             FROM packages p
             JOIN lessons l ON p.id = l.package_id
@@ -226,7 +226,7 @@ class AchievementModel {
      * Atualiza o streak do usuário
      */
     static updateUserStreak(userId) {
-        const user = db.prepare(`
+        const user = database.prepare(`
             SELECT current_streak, longest_streak, last_login_date 
             FROM users 
             WHERE id = ?
@@ -269,7 +269,7 @@ class AchievementModel {
         }
         
         // Atualiza no banco
-        db.prepare(`
+        database.prepare(`
             UPDATE users 
             SET current_streak = ?, 
                 longest_streak = ?, 
@@ -289,7 +289,7 @@ class AchievementModel {
      */
     static addXPToUser(userId, xpAmount) {
         try {
-            db.prepare(`
+            database.prepare(`
                 UPDATE users 
                 SET total_xp = total_xp + ? 
                 WHERE id = ?
@@ -321,34 +321,45 @@ class AchievementModel {
             LIMIT ?
         `;
         
-        return db.prepare(query).all(userId, limit);
+        return database.prepare(query).all(userId, limit);
     }
     
     /**
      * Obtém estatísticas de conquistas do usuário
      */
-    static getUserAchievementStats(userId) {
-        const totalAchievements = db.prepare('SELECT COUNT(*) as count FROM achievements').get().count;
-        const unlockedAchievements = db.prepare(`
-            SELECT COUNT(*) as count 
-            FROM user_achievements 
-            WHERE user_id = ?
-        `).get(userId).count;
-        
-        const xpFromAchievements = db.prepare(`
-            SELECT COALESCE(SUM(a.xp_reward), 0) as total_xp
-            FROM user_achievements ua
-            JOIN achievements a ON ua.achievement_id = a.id
-            WHERE ua.user_id = ?
-        `).get(userId).total_xp;
-        
-        return {
-            total_achievements: totalAchievements,
-            unlocked_achievements: unlockedAchievements,
-            locked_achievements: totalAchievements - unlockedAchievements,
-            completion_percentage: Math.round((unlockedAchievements / totalAchievements) * 100),
-            xp_from_achievements: xpFromAchievements
-        };
+    static async getUserAchievementStats(userId) {
+        try {
+            const totalAchievements = await database.get('SELECT COUNT(*) as count FROM achievements');
+            const unlockedAchievements = await database.get(`
+                SELECT COUNT(*) as count 
+                FROM user_achievements 
+                WHERE user_id = ?
+            `, [userId]);
+            
+            const xpFromAchievements = await database.get(`
+                SELECT COALESCE(SUM(a.xp_reward), 0) as total_xp
+                FROM user_achievements ua
+                JOIN achievements a ON ua.achievement_id = a.id
+                WHERE ua.user_id = ?
+            `, [userId]);
+            
+            return {
+                total_achievements: totalAchievements?.count || 0,
+                unlocked_achievements: unlockedAchievements?.count || 0,
+                locked_achievements: (totalAchievements?.count || 0) - (unlockedAchievements?.count || 0),
+                completion_percentage: Math.round(((unlockedAchievements?.count || 0) / (totalAchievements?.count || 1)) * 100),
+                xp_from_achievements: xpFromAchievements?.total_xp || 0
+            };
+        } catch (error) {
+            console.error('[ACHIEVEMENT] Erro ao obter estatísticas:', error);
+            return {
+                total_achievements: 0,
+                unlocked_achievements: 0,
+                locked_achievements: 0,
+                completion_percentage: 0,
+                xp_from_achievements: 0
+            };
+        }
     }
 }
 

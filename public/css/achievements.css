@@ -4,6 +4,44 @@
  */
 
 /* ========================================
+   CSS do Sistema de Conquistas - Fase 24
+   Sistema completamente funcional e interativo
+   ======================================== */
+
+/* Variáveis CSS */
+:root {
+    --primary-color: #8b45ff;
+    --primary-light: #a855f7;
+    --primary-dark: #7c3aed;
+    --success-color: #22c55e;
+    --warning-color: #f59e0b;
+    --danger-color: #ef4444;
+    --info-color: #3b82f6;
+    
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+    --text-muted: #9ca3af;
+    
+    --bg-primary: #ffffff;
+    --bg-secondary: #f9fafb;
+    --bg-card: #ffffff;
+    --bg-hover: #f3f4f6;
+    
+    --border-color: #e5e7eb;
+    --border-radius: 12px;
+    --border-radius-lg: 16px;
+    
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
+}
+
+/* ========================================
    CONTAINER PRINCIPAL
 ======================================== */
 
@@ -11,7 +49,8 @@
     max-width: 1200px;
     margin: 0 auto;
     padding: 2rem;
-    min-height: calc(100vh - 120px);
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    min-height: 100vh;
 }
 
 /* ========================================
@@ -19,12 +58,11 @@
 ======================================== */
 
 .achievements-header {
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
-    border-radius: 20px;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+    border-radius: var(--border-radius-lg);
     padding: 2.5rem;
     margin-bottom: 2rem;
     color: white;
-    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
     position: relative;
     overflow: hidden;
 }
@@ -32,12 +70,17 @@
 .achievements-header::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="trophy" patternUnits="userSpaceOnUse" width="50" height="50"><text x="25" y="25" text-anchor="middle" font-size="20" opacity="0.1">🏆</text></pattern></defs><rect width="100" height="100" fill="url(%23trophy)"/></svg>');
-    opacity: 0.1;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(180deg); }
 }
 
 .header-content {
@@ -82,22 +125,24 @@
 .header-stats {
     display: flex;
     gap: 1.5rem;
+    position: relative;
+    z-index: 1;
 }
 
 .stat-card {
     background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(10px);
-    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--border-radius);
     padding: 1.5rem;
     text-align: center;
     min-width: 120px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    transition: all 0.3s ease;
+    transition: all var(--transition-normal);
 }
 
 .stat-card:hover {
-    transform: translateY(-5px);
     background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
 }
 
 .stat-number {
@@ -107,7 +152,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
+    gap: 0.25rem;
 }
 
 .stat-label {
@@ -115,13 +160,24 @@
     opacity: 0.9;
 }
 
-.streak-card .streak-icon {
-    animation: flicker 1.5s infinite alternate;
+.streak-icon {
+    animation: flicker 2s infinite alternate;
 }
 
 @keyframes flicker {
     0% { opacity: 1; }
-    100% { opacity: 0.7; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+.streak-updated {
+    animation: pulse 1s ease-in-out;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
 }
 
 /* Barra de Progresso Geral */
@@ -134,31 +190,32 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
 }
 
 .progress-text {
-    font-size: 1rem;
+    font-size: 0.9rem;
     opacity: 0.9;
 }
 
 .progress-percentage {
-    font-size: 1.2rem;
     font-weight: 600;
+    font-size: 1.1rem;
 }
 
 .progress-bar {
-    height: 10px;
+    height: 8px;
     background: rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
+    border-radius: 4px;
     overflow: hidden;
+    position: relative;
 }
 
 .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #10b981, #34d399);
-    border-radius: 10px;
-    transition: width 1s ease;
+    background: linear-gradient(90deg, #22c55e, #16a34a);
+    border-radius: 4px;
+    transition: width 1s ease-out;
     position: relative;
 }
 
@@ -178,19 +235,93 @@
     100% { transform: translateX(100%); }
 }
 
-/* ========================================
-   CONQUISTAS RECENTES
-======================================== */
-
-.recent-achievements {
+/* Sistema de Busca */
+.search-container {
+    background: var(--bg-card);
+    border-radius: var(--border-radius-lg);
+    padding: 1.5rem;
     margin-bottom: 2rem;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+}
+
+.search-box {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.875rem 1rem 0.875rem 3rem;
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    background: var(--bg-secondary);
+    transition: all var(--transition-normal);
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background: var(--bg-primary);
+    box-shadow: 0 0 0 3px rgba(139, 69, 255, 0.1);
+}
+
+.search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+.search-filters {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.filter-status {
+    padding: 0.5rem 1rem;
+    border: 2px solid var(--border-color);
+    background: var(--bg-primary);
+    border-radius: var(--border-radius);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    color: var(--text-secondary);
+}
+
+.filter-status:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    background: rgba(139, 69, 255, 0.05);
+}
+
+.filter-status.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+/* Conquistas Recentes */
+.recent-achievements {
+    background: var(--bg-card);
+    border-radius: var(--border-radius-lg);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
 }
 
 .section-title {
     font-size: 1.5rem;
     font-weight: 600;
-    color: #1f2937;
-    margin-bottom: 1rem;
+    color: var(--text-primary);
+    margin: 0 0 1.5rem 0;
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -202,115 +333,118 @@
 
 .recent-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 1rem;
 }
 
 .recent-achievement {
-    background: white;
-    border-radius: 15px;
-    padding: 1.5rem;
     display: flex;
     align-items: center;
     gap: 1rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e5e7eb;
-    transition: all 0.3s ease;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    transition: all var(--transition-normal);
 }
 
 .recent-achievement:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    background: var(--bg-hover);
+    transform: translateX(5px);
 }
 
 .recent-achievement .achievement-icon {
-    font-size: 2.5rem;
-    animation: pulse 2s infinite;
+    font-size: 2rem;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--success-color), #16a34a);
+    border-radius: 50%;
+    color: white;
+    flex-shrink: 0;
 }
 
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
-}
-
-.achievement-info {
+.recent-achievement .achievement-info {
     flex: 1;
 }
 
-.achievement-name {
+.recent-achievement .achievement-name {
     font-weight: 600;
-    color: #1f2937;
+    color: var(--text-primary);
     margin-bottom: 0.25rem;
 }
 
-.achievement-date {
-    font-size: 0.9rem;
-    color: #6b7280;
+.recent-achievement .achievement-date {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
 }
 
-.achievement-xp {
-    background: linear-gradient(135deg, #10b981, #34d399);
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
+.recent-achievement .achievement-xp {
     font-weight: 600;
-    font-size: 0.9rem;
+    color: var(--success-color);
+    font-size: 0.875rem;
 }
 
-/* ========================================
-   FILTROS DE CATEGORIA
-======================================== */
-
+/* Filtros de Categoria */
 .category-filters {
     display: flex;
-    gap: 1rem;
+    gap: 0.75rem;
     margin-bottom: 2rem;
     flex-wrap: wrap;
+    justify-content: center;
 }
 
 .filter-btn {
-    background: white;
-    border: 2px solid #e5e7eb;
-    border-radius: 25px;
-    padding: 0.75rem 1.5rem;
-    font-weight: 500;
-    color: #6b7280;
-    cursor: pointer;
-    transition: all 0.3s ease;
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--bg-card);
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    color: var(--text-secondary);
+    box-shadow: var(--shadow-sm);
 }
 
 .filter-btn:hover {
-    border-color: #8b5cf6;
-    color: #8b5cf6;
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    background: rgba(139, 69, 255, 0.05);
     transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
 }
 
 .filter-btn.active {
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
-    border-color: #6366f1;
+    background: var(--primary-color);
+    border-color: var(--primary-color);
     color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
 }
 
 .filter-icon {
     font-size: 1.2rem;
 }
 
-/* ========================================
-   GRID DE CONQUISTAS
-======================================== */
-
+/* Grid de Conquistas */
 .achievements-grid {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 2.5rem;
 }
 
 .category-section {
-    transition: all 0.3s ease;
+    background: var(--bg-card);
+    border-radius: var(--border-radius-lg);
+    padding: 2rem;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+    transition: all var(--transition-normal);
 }
 
 .category-section.hidden {
@@ -318,19 +452,19 @@
 }
 
 .category-title {
-    font-size: 1.3rem;
+    font-size: 1.5rem;
     font-weight: 600;
-    color: #1f2937;
-    margin-bottom: 1rem;
+    color: var(--text-primary);
+    margin: 0 0 1.5rem 0;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border-color);
 }
 
 .category-icon {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
 }
 
 .achievements-row {
@@ -339,86 +473,105 @@
     gap: 1.5rem;
 }
 
-/* ========================================
-   CARDS DE CONQUISTA
-======================================== */
-
+/* Cards de Conquista */
 .achievement-card {
-    background: white;
-    border-radius: 20px;
-    padding: 2rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    border: 2px solid #e5e7eb;
-    transition: all 0.3s ease;
+    background: var(--bg-primary);
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    padding: 1.5rem;
     position: relative;
+    cursor: pointer;
+    transition: all var(--transition-normal);
     overflow: hidden;
 }
 
-.achievement-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-}
-
-.achievement-card.unlocked {
-    border-color: #10b981;
-    background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
-}
-
-.achievement-card.unlocked::before {
+.achievement-card::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #10b981, #34d399);
+    bottom: 0;
+    background: linear-gradient(135deg, transparent 0%, rgba(139, 69, 255, 0.02) 100%);
+    opacity: 0;
+    transition: opacity var(--transition-normal);
 }
 
+.achievement-card:hover::before {
+    opacity: 1;
+}
+
+.achievement-card:hover {
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-lg);
+}
+
+.achievement-card.unlocked {
+    border-color: var(--success-color);
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+}
+
+.achievement-card.unlocked::before {
+    background: linear-gradient(135deg, transparent 0%, rgba(34, 197, 94, 0.05) 100%);
+}
+
+.achievement-card.newly-unlocked {
+    animation: celebrate 2s ease-in-out;
+}
+
+@keyframes celebrate {
+    0%, 100% { transform: scale(1); }
+    25% { transform: scale(1.05) rotate(1deg); }
+    50% { transform: scale(1.1) rotate(-1deg); }
+    75% { transform: scale(1.05) rotate(1deg); }
+}
+
+.achievement-card.near-completion {
+    border-color: var(--warning-color);
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+}
+
+.achievement-card.filtered-out {
+    display: none !important;
+}
+
+/* Badge de Status */
 .achievement-badge {
     position: absolute;
     top: 1rem;
     right: 1rem;
-    width: 40px;
-    height: 40px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.2rem;
+    font-size: 0.875rem;
     font-weight: 600;
 }
 
 .badge-unlocked {
-    background: #10b981;
+    background: var(--success-color);
     color: white;
 }
 
 .badge-locked {
-    background: #f3f4f6;
-    color: #9ca3af;
+    background: var(--text-muted);
+    color: white;
 }
 
+/* Ícone da Conquista */
 .achievement-icon-large {
-    font-size: 4rem;
+    font-size: 3rem;
     text-align: center;
     margin-bottom: 1rem;
-    filter: grayscale(100%);
-    transition: filter 0.3s ease;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.achievement-card.unlocked .achievement-icon-large {
-    filter: grayscale(0%);
-    animation: celebrate 0.6s ease;
-}
-
-@keyframes celebrate {
-    0% { transform: scale(1) rotate(0deg); }
-    25% { transform: scale(1.2) rotate(-5deg); }
-    50% { transform: scale(1.3) rotate(5deg); }
-    75% { transform: scale(1.1) rotate(-2deg); }
-    100% { transform: scale(1) rotate(0deg); }
-}
-
+/* Conteúdo da Conquista */
 .achievement-content {
     text-align: center;
 }
@@ -426,153 +579,216 @@
 .achievement-title {
     font-size: 1.2rem;
     font-weight: 600;
-    color: #1f2937;
-    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+    margin: 0 0 0.5rem 0;
 }
 
 .achievement-description {
-    color: #6b7280;
-    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin: 0 0 1rem 0;
     line-height: 1.5;
 }
 
 .achievement-requirement {
-    background: #f3f4f6;
-    border-radius: 10px;
-    padding: 0.5rem 1rem;
     margin-bottom: 1rem;
-    display: inline-block;
 }
 
 .requirement-text {
-    font-size: 0.9rem;
-    color: #6b7280;
-    font-weight: 500;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    background: var(--bg-secondary);
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    display: inline-block;
 }
 
-/* Barra de Progresso Individual */
+/* Barra de Progresso */
 .achievement-progress {
     margin-bottom: 1rem;
 }
 
 .progress-bar-small {
     height: 6px;
-    background: #e5e7eb;
-    border-radius: 6px;
+    background: var(--border-color);
+    border-radius: 3px;
     overflow: hidden;
     margin-bottom: 0.5rem;
 }
 
 .progress-fill-small {
     height: 100%;
-    background: linear-gradient(90deg, #6366f1, #8b5cf6);
-    border-radius: 6px;
-    transition: width 0.8s ease;
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+    border-radius: 3px;
+    transition: width 1.5s ease-out;
+    position: relative;
+}
+
+.progress-fill-small.high-progress {
+    background: linear-gradient(90deg, var(--warning-color), #f59e0b);
+}
+
+.progress-fill-small::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+    animation: shimmer 2s infinite;
 }
 
 .progress-text-small {
     font-size: 0.8rem;
-    color: #6b7280;
-    font-weight: 500;
+    color: var(--text-muted);
+    text-align: center;
+    display: block;
 }
 
+/* Data de Desbloqueio */
 .achievement-unlocked-date {
     font-size: 0.8rem;
-    color: #10b981;
+    color: var(--success-color);
     margin-bottom: 1rem;
     font-weight: 500;
 }
 
+/* Recompensa XP */
 .achievement-reward {
-    background: linear-gradient(135deg, #fbbf24, #f59e0b);
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-weight: 600;
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: 0.5rem;
+    justify-content: center;
+    gap: 0.25rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    font-size: 0.9rem;
 }
 
 .xp-icon {
-    font-size: 1.1rem;
+    font-size: 1rem;
 }
 
-/* ========================================
-   MODAL DE CONQUISTA
-======================================== */
+/* Estado Vazio */
+.empty-achievements-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: var(--bg-card);
+    border-radius: var(--border-radius-lg);
+    border: 2px dashed var(--border-color);
+    margin: 2rem 0;
+}
 
+.empty-state-content {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.empty-state-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-achievements-state h3 {
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin: 0 0 0.5rem 0;
+}
+
+.empty-achievements-state p {
+    color: var(--text-secondary);
+    margin: 0 0 1.5rem 0;
+}
+
+.btn-secondary {
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+}
+
+.btn-secondary:hover {
+    background: var(--bg-hover);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+/* Modal de Conquista */
 .achievement-modal {
-    display: none;
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(5px);
-    z-index: 1000;
-    animation: fadeIn 0.3s ease;
-}
-
-.achievement-modal.show {
     display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--transition-normal);
+    backdrop-filter: blur(5px);
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+.achievement-modal.show {
+    opacity: 1;
+    visibility: visible;
 }
 
 .modal-content {
-    background: white;
-    border-radius: 25px;
+    background: var(--bg-card);
+    border-radius: var(--border-radius-lg);
     padding: 0;
-    max-width: 400px;
+    max-width: 500px;
     width: 90%;
-    max-height: 90vh;
-    overflow: hidden;
-    animation: slideUp 0.4s ease;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-xl);
+    transform: scale(0.9) translateY(20px);
+    transition: all var(--transition-normal);
+    border: 1px solid var(--border-color);
 }
 
-@keyframes slideUp {
-    from { transform: translateY(50px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
+.achievement-modal.show .modal-content {
+    transform: scale(1) translateY(0);
 }
 
 .modal-header {
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
     color: white;
-    padding: 2rem;
-    text-align: center;
-    position: relative;
+    padding: 1.5rem 2rem;
+    border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .modal-title {
-    margin: 0;
     font-size: 1.5rem;
     font-weight: 600;
+    margin: 0;
 }
 
 .modal-close {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
     background: none;
     border: none;
     color: white;
     font-size: 1.5rem;
     cursor: pointer;
-    width: 30px;
-    height: 30px;
+    padding: 0.25rem;
     border-radius: 50%;
+    width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.3s ease;
+    transition: background-color var(--transition-fast);
 }
 
 .modal-close:hover {
@@ -585,86 +801,156 @@
 }
 
 .modal-achievement-icon {
-    font-size: 5rem;
+    font-size: 4rem;
     margin-bottom: 1rem;
-    animation: celebrate 0.8s ease;
 }
 
 .modal-achievement-name {
-    font-size: 1.3rem;
+    font-size: 1.5rem;
     font-weight: 600;
-    color: #1f2937;
-    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+    margin: 0 0 1rem 0;
 }
 
 .modal-achievement-description {
-    color: #6b7280;
-    margin-bottom: 1.5rem;
-    line-height: 1.5;
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin: 0 0 1.5rem 0;
+    line-height: 1.6;
 }
 
 .modal-achievement-reward {
-    background: linear-gradient(135deg, #fbbf24, #f59e0b);
-    color: white;
-    padding: 1rem 2rem;
-    border-radius: 25px;
-    font-weight: 600;
-    display: inline-flex;
+    display: flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    background: rgba(139, 69, 255, 0.1);
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 1rem;
+}
+
+/* Informações extras no modal */
+.extra-info {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.achievement-category {
+    margin-bottom: 1rem;
+}
+
+.category-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: white;
+}
+
+.category-badge.beginner { background: #22c55e; }
+.category-badge.progress { background: #3b82f6; }
+.category-badge.mastery { background: #8b5cf6; }
+.category-badge.streak { background: #f59e0b; }
+.category-badge.social { background: #06b6d4; }
+.category-badge.special { background: #ef4444; }
+
+.unlock-date {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+/* Progresso no modal */
+.progress-info {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.modal-progress-section {
+    text-align: left;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.progress-bar-modal {
+    height: 8px;
+    background: var(--border-color);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+
+.progress-fill-modal {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+    border-radius: 4px;
+    transition: width 1s ease-out;
+}
+
+.progress-tips {
+    background: var(--bg-secondary);
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
 }
 
 .modal-footer {
-    padding: 0 2rem 2rem 2rem;
+    padding: 1.5rem 2rem;
+    border-top: 1px solid var(--border-color);
     text-align: center;
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    background: var(--primary-color);
     color: white;
     border: none;
-    padding: 1rem 2rem;
-    border-radius: 25px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    padding: 0.75rem 2rem;
+    border-radius: var(--border-radius);
     font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-normal);
 }
 
 .btn-primary:hover {
+    background: var(--primary-dark);
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+    box-shadow: var(--shadow-lg);
 }
 
-/* ========================================
-   LOADING OVERLAY
-======================================== */
-
+/* Loading Overlay */
 .loading-overlay {
-    display: none;
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(5px);
-    z-index: 999;
-    flex-direction: column;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
     align-items: center;
     justify-content: center;
-}
-
-.loading-overlay.show {
-    display: flex;
+    z-index: 1001;
+    backdrop-filter: blur(3px);
 }
 
 .loading-spinner {
     width: 50px;
     height: 50px;
-    border: 4px solid #e5e7eb;
-    border-top: 4px solid #6366f1;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid white;
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin-bottom: 1rem;
@@ -676,14 +962,77 @@
 }
 
 .loading-overlay p {
-    color: #6b7280;
-    font-weight: 500;
+    color: white;
+    font-size: 1.1rem;
+    text-align: center;
 }
 
-/* ========================================
-   RESPONSIVIDADE
-======================================== */
+/* Efeito Confetti */
+.confetti-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1002;
+}
 
+.confetti-piece {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    top: -10px;
+    border-radius: 50%;
+    animation: confettiFall linear forwards;
+}
+
+@keyframes confettiFall {
+    0% {
+        transform: translateY(-10px) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+    }
+}
+
+/* Animações de entrada */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+/* Responsividade */
 @media (max-width: 768px) {
     .achievements-container {
         padding: 1rem;
@@ -699,8 +1048,9 @@
     }
     
     .header-stats {
-        justify-content: center;
-        flex-wrap: wrap;
+        flex-direction: row;
+        justify-content: space-between;
+        gap: 1rem;
     }
     
     .stat-card {
@@ -712,39 +1062,126 @@
         font-size: 2rem;
     }
     
-    .achievements-row {
-        grid-template-columns: 1fr;
-    }
-    
-    .recent-grid {
-        grid-template-columns: 1fr;
+    .title-icon {
+        font-size: 2.5rem;
     }
     
     .category-filters {
-        justify-content: center;
+        justify-content: flex-start;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
     }
     
     .filter-btn {
+        flex-shrink: 0;
         padding: 0.5rem 1rem;
-        font-size: 0.9rem;
+        font-size: 0.875rem;
     }
-}
-
-@media (max-width: 480px) {
+    
+    .achievements-row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
     .achievement-card {
-        padding: 1.5rem;
+        padding: 1rem;
     }
     
     .achievement-icon-large {
-        font-size: 3rem;
+        font-size: 2.5rem;
+        height: 50px;
+    }
+    
+    .achievement-title {
+        font-size: 1.1rem;
+    }
+    
+    .search-filters {
+        justify-content: flex-start;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+    }
+    
+    .filter-status {
+        flex-shrink: 0;
     }
     
     .modal-content {
         width: 95%;
+        margin: 1rem;
     }
     
-    .modal-header,
+    .modal-header {
+        padding: 1rem 1.5rem;
+    }
+    
     .modal-body {
         padding: 1.5rem;
+    }
+    
+    .modal-footer {
+        padding: 1rem 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-stats {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .stat-card {
+        min-width: auto;
+        width: 100%;
+    }
+    
+    .page-title {
+        font-size: 1.75rem;
+    }
+    
+    .achievement-card {
+        padding: 1rem;
+    }
+    
+    .achievement-icon-large {
+        font-size: 2rem;
+        height: 40px;
+    }
+    
+    .recent-achievement {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.75rem;
+    }
+    
+    .recent-achievement .achievement-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+    }
+}
+
+/* Melhorias de acessibilidade */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Modo escuro (futuro) */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --text-primary: #f9fafb;
+        --text-secondary: #d1d5db;
+        --text-muted: #9ca3af;
+        
+        --bg-primary: #1f2937;
+        --bg-secondary: #374151;
+        --bg-card: #111827;
+        --bg-hover: #374151;
+        
+        --border-color: #374151;
     }
 } 

@@ -420,7 +420,9 @@ const pollNotifications = async (req, res) => {
         
         query += ` ORDER BY created_at DESC LIMIT 5`;
         
-        const newNotifications = await notificationModel.database.all(query, params);
+        const { getDatabase } = require('../models/database');
+        const db = getDatabase();
+        const newNotifications = await db.all(query, params);
         const unreadCount = await notificationModel.getUnreadCount(userId);
 
         res.json({

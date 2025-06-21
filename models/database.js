@@ -69,6 +69,9 @@ class Database {
    */
   async initialize() {
     try {
+      // Primeiro conectar ao banco
+      await this.connect();
+      
       // Verificar se as tabelas já existem
       const tablesExist = await this.checkTablesExist();
       
@@ -90,6 +93,12 @@ class Database {
    */
   checkTablesExist() {
     return new Promise((resolve, reject) => {
+      // Verificar se a conexão existe
+      if (!this.db) {
+        reject(new Error('Banco de dados não conectado'));
+        return;
+      }
+
       const query = `
         SELECT name FROM sqlite_master 
         WHERE type='table' AND name IN ('users', 'packages', 'career_profiles')

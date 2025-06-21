@@ -73,7 +73,7 @@ async function getUserLessonProgress(userId, lessonId) {
       SELECT 
         up.*,
         q.id as quiz_id,
-        q.question_text
+        q.title as quiz_title
       FROM user_progress up
       LEFT JOIN quizzes q ON up.quiz_id = q.id
       LEFT JOIN lessons l ON q.lesson_id = l.id
@@ -253,7 +253,7 @@ async function getQuizzesByLesson(lessonId) {
     const db = getDatabase();    const quizzes = await db.all(`
       SELECT * FROM quizzes 
       WHERE lesson_id = ?
-      ORDER BY question_number ASC
+      ORDER BY id ASC
     `, [lessonId]);
 
     return quizzes;

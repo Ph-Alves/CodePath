@@ -25,15 +25,20 @@ DELETE FROM career_profiles;
 -- ========================================
 -- INSERIR PACOTES DE TECNOLOGIA
 -- ========================================
--- Pacotes conforme design: C, Front-end, Python, Java, Back-end, C#
+-- Pacotes expandidos para Fase 21 - Sistema de Pacotes Interativo
+-- Adicionados: dificuldade, duração, rating, tags, pré-requisitos
 
-INSERT INTO packages (id, name, description, icon, current_lesson, progress_percentage) VALUES
-(1, 'Pacote C', 'Aprenda programação em C desde o básico até conceitos avançados', 'C', 'C - Operações', 45),
-(2, 'Pacote Front-end', 'HTML, CSS e JavaScript para desenvolvimento web', 'HTML/CSS', 'JavaScript Fundamentos', 72),
-(3, 'Pacote Python', 'Python para iniciantes e desenvolvimento de aplicações', 'Python', 'Python Básico', 25),
-(4, 'Pacote Java', 'Programação orientada a objetos com Java', 'Java', 'Java OOP', 40),
-(5, 'Pacote Back-end', 'Desenvolvimento backend com JavaScript/Node.js', 'JavaScript', 'APIs REST', 30),
-(6, 'Pacote C#', 'Desenvolvimento com C# e .NET Framework', 'C#', 'C# Fundamentos', 15);
+INSERT INTO packages (id, name, description, icon, current_lesson, progress_percentage, difficulty, duration_hours, rating, tags, prerequisites) VALUES
+(1, 'Pacote C', 'Aprenda programação em C desde o básico até conceitos avançados. Domine ponteiros, estruturas de dados e algoritmos fundamentais.', 'fas fa-code', 'C - Operações', 45, 'iniciante', 40, 4.8, 'programação,algoritmos,estruturas', ''),
+(2, 'Pacote Front-end', 'HTML, CSS e JavaScript para desenvolvimento web moderno. Crie interfaces responsivas e interativas.', 'fab fa-html5', 'JavaScript Fundamentos', 72, 'iniciante', 35, 4.7, 'web,frontend,javascript,css', ''),
+(3, 'Pacote Python', 'Python para iniciantes e desenvolvimento de aplicações. Data Science, Web Development e Automação.', 'fab fa-python', 'Python Básico', 25, 'iniciante', 45, 4.9, 'python,datascience,web,automação', ''),
+(4, 'Pacote Java', 'Programação orientada a objetos com Java. Desenvolva aplicações robustas e escaláveis.', 'fab fa-java', 'Java OOP', 40, 'intermediário', 50, 4.6, 'java,oop,enterprise,android', 'Pacote C'),
+(5, 'Pacote Back-end', 'Desenvolvimento backend com JavaScript/Node.js. APIs REST, bancos de dados e arquitetura.', 'fas fa-server', 'APIs REST', 30, 'intermediário', 60, 4.8, 'backend,nodejs,api,database', 'Pacote Front-end'),
+(6, 'Pacote C#', 'Desenvolvimento com C# e .NET Framework. Desktop, Web e aplicações empresariais.', 'fas fa-hashtag', 'C# Fundamentos', 15, 'intermediário', 55, 4.5, 'csharp,dotnet,desktop,web', 'Pacote Java'),
+(7, 'Pacote React', 'Biblioteca JavaScript para criação de interfaces de usuário modernas e reativas.', 'fab fa-react', 'Componentes React', 0, 'avançado', 40, 4.9, 'react,frontend,spa,hooks', 'Pacote Front-end'),
+(8, 'Pacote DevOps', 'Docker, Kubernetes, CI/CD e infraestrutura como código. Deploy e monitoramento.', 'fas fa-cogs', 'Docker Básico', 0, 'avançado', 70, 4.7, 'devops,docker,kubernetes,cicd', 'Pacote Back-end'),
+(9, 'Pacote Mobile', 'Desenvolvimento mobile com React Native. Apps para iOS e Android.', 'fas fa-mobile-alt', 'React Native Setup', 0, 'avançado', 65, 4.6, 'mobile,reactnative,ios,android', 'Pacote React'),
+(10, 'Pacote Data Science', 'Análise de dados, Machine Learning e visualização com Python e R.', 'fas fa-chart-line', 'Pandas Básico', 0, 'avançado', 80, 4.8, 'datascience,ml,pandas,visualization', 'Pacote Python');
 
 -- ========================================
 -- INSERIR PERFIS PROFISSIONAIS
@@ -95,6 +100,62 @@ INSERT INTO lessons (package_id, name, description, lesson_number, order_sequenc
 (4, 'Collections Framework', 'Estruturas de dados em Java', 3, 3),
 (4, 'Exception Handling', 'Tratamento de exceções', 4, 4),
 (4, 'Projeto Java', 'Desenvolvimento de uma aplicação', 5, 5);
+
+-- Aulas do Pacote Back-end (6 aulas)
+INSERT INTO lessons (package_id, name, description, lesson_number, order_sequence) VALUES
+(5, 'Node.js Fundamentos', 'Introdução ao Node.js e NPM', 1, 1),
+(5, 'Express.js Setup', 'Configuração do servidor Express', 2, 2),
+(5, 'APIs REST', 'Criação de APIs RESTful', 3, 3),
+(5, 'Banco de Dados', 'Integração com MongoDB/SQL', 4, 4),
+(5, 'Autenticação', 'JWT e sistemas de login', 5, 5),
+(5, 'Deploy e Produção', 'Deploy em nuvem e otimização', 6, 6);
+
+-- Aulas do Pacote C# (5 aulas)
+INSERT INTO lessons (package_id, name, description, lesson_number, order_sequence) VALUES
+(6, 'C# Fundamentos', 'Sintaxe e conceitos básicos', 1, 1),
+(6, '.NET Framework', 'Introdução ao .NET', 2, 2),
+(6, 'Windows Forms', 'Aplicações desktop', 3, 3),
+(6, 'ASP.NET Core', 'Desenvolvimento web', 4, 4),
+(6, 'Entity Framework', 'ORM e banco de dados', 5, 5);
+
+-- Aulas do Pacote React (6 aulas)
+INSERT INTO lessons (package_id, name, description, lesson_number, order_sequence) VALUES
+(7, 'React Básico', 'Introdução e JSX', 1, 1),
+(7, 'Componentes React', 'Criação de componentes', 2, 2),
+(7, 'State e Props', 'Gerenciamento de estado', 3, 3),
+(7, 'Hooks', 'useState, useEffect e hooks customizados', 4, 4),
+(7, 'Context API', 'Gerenciamento global de estado', 5, 5),
+(7, 'Projeto React', 'Aplicação completa', 6, 6);
+
+-- Aulas do Pacote DevOps (7 aulas)
+INSERT INTO lessons (package_id, name, description, lesson_number, order_sequence) VALUES
+(8, 'Docker Básico', 'Containers e imagens', 1, 1),
+(8, 'Docker Compose', 'Orquestração de containers', 2, 2),
+(8, 'Kubernetes', 'Orquestração em produção', 3, 3),
+(8, 'CI/CD Pipeline', 'Integração e deploy contínuo', 4, 4),
+(8, 'Monitoramento', 'Logs e métricas', 5, 5),
+(8, 'Infraestrutura como Código', 'Terraform e Ansible', 6, 6),
+(8, 'Segurança DevOps', 'DevSecOps e boas práticas', 7, 7);
+
+-- Aulas do Pacote Mobile (6 aulas)
+INSERT INTO lessons (package_id, name, description, lesson_number, order_sequence) VALUES
+(9, 'React Native Setup', 'Configuração do ambiente', 1, 1),
+(9, 'Componentes Nativos', 'UI components para mobile', 2, 2),
+(9, 'Navegação', 'React Navigation', 3, 3),
+(9, 'Estado e Contexto', 'Gerenciamento de estado mobile', 4, 4),
+(9, 'APIs e Networking', 'Consumo de APIs', 5, 5),
+(9, 'Publicação', 'Deploy na App Store e Play Store', 6, 6);
+
+-- Aulas do Pacote Data Science (8 aulas)
+INSERT INTO lessons (package_id, name, description, lesson_number, order_sequence) VALUES
+(10, 'Pandas Básico', 'Manipulação de dados', 1, 1),
+(10, 'NumPy', 'Computação numérica', 2, 2),
+(10, 'Matplotlib', 'Visualização de dados', 3, 3),
+(10, 'Seaborn', 'Visualizações estatísticas', 4, 4),
+(10, 'Scikit-learn', 'Machine Learning básico', 5, 5),
+(10, 'Deep Learning', 'Redes neurais com TensorFlow', 6, 6),
+(10, 'Análise Exploratória', 'EDA e insights', 7, 7),
+(10, 'Projeto Final', 'Projeto completo de Data Science', 8, 8);
 
 -- ========================================
 -- INSERIR QUESTIONÁRIOS E QUESTÕES

@@ -144,7 +144,18 @@ class CodePathApp {
             link.addEventListener('mouseleave', () => {
                 this.handleNavLinkHover(link, false);
             });
+            
+            // Adiciona ripple effect no clique
+            link.addEventListener('click', (e) => {
+                this.createRippleEffect(e, link);
+            });
         });
+        
+        // Inicializa badges dinâmicos
+        this.initializeDynamicBadges();
+        
+        // Atualiza badges periodicamente
+        this.startBadgeUpdates();
     }
     
     /**
@@ -389,26 +400,143 @@ class CodePathApp {
     setActiveNavLink() {
         const currentPath = window.location.pathname;
         
+        // Remove classe active de todos os links
         this.navLinks.forEach(link => {
-            const linkPath = new URL(link.href).pathname;
-            
-            if (linkPath === currentPath || 
-                (currentPath === '/' && linkPath === '/dashboard')) {
-                link.classList.add('active');
-            } else {
-                link.classList.remove('active');
-            }
+            link.classList.remove('active');
         });
+        
+        // Encontra e marca o link ativo
+        const activeLink = Array.from(this.navLinks).find(link => {
+            const linkPath = new URL(link.href).pathname;
+            return currentPath === linkPath || 
+                   (linkPath !== '/' && currentPath.startsWith(linkPath));
+        });
+        
+        if (activeLink) {
+            activeLink.classList.add('active');
+            
+            // Adiciona indicador visual especial para link ativo
+            this.addActiveIndicator(activeLink);
+        }
+    }
+    
+    /**
+     * Adiciona indicador visual para link ativo
+     */
+    addActiveIndicator(link) {
+        // Remove indicadores existentes
+        document.querySelectorAll('.nav-active-indicator').forEach(indicator => {
+            indicator.remove();
+        });
+        
+        // Cria novo indicador
+        const indicator = document.createElement('div');
+        indicator.className = 'nav-active-indicator';
+        indicator.style.cssText = `
+            position: absolute;
+            left: -4px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 60%;
+            background: white;
+            border-radius: 0 2px 2px 0;
+            animation: slideIn 0.3s ease-out;
+        `;
+        
+        link.style.position = 'relative';
+        link.appendChild(indicator);
     }
     
     /**
      * Manipula hover nos links de navegação
      */
     handleNavLinkHover(link, isHover) {
-        if (isHover && !link.classList.contains('active')) {
-            link.style.transform = 'translateX(4px)';
-        } else if (!isHover && !link.classList.contains('active')) {
-            link.style.transform = '';
+        const icon = link.querySelector('.nav-icon');
+        const badge = link.querySelector('.nav-badge');
+        
+        if (isHover) {
+            // Adiciona classe de hover
+            link.classList.add('nav-link-hover');
+            
+            // Anima ícone
+            if (icon) {
+                icon.style.transform = 'scale(1.1) rotate(5deg)';
+            }
+            
+            // Anima badge
+            if (badge && !badge.classList.contains('pulse')) {
+                badge.style.transform = 'scale(1.1)';
+            }
+            
+            // Adiciona tooltip se não existir
+            this.showTooltip(link);
+            
+        } else {
+            // Remove classe de hover
+            link.classList.remove('nav-link-hover');
+            
+            // Restaura ícone
+            if (icon) {
+                icon.style.transform = '';
+            }
+            
+            // Restaura badge
+            if (badge && !badge.classList.contains('pulse')) {
+                badge.style.transform = '';
+            }
+            
+            // Remove tooltip
+            this.hideTooltip();
+        }
+    }
+    
+    /**
+     * Mostra tooltip com informações do link
+     */
+    showTooltip(link) {
+        const title = link.getAttribute('title');
+        if (!title) return;
+        
+        let tooltip = document.getElementById('nav-tooltip');
+        if (!tooltip) {
+            tooltip = document.createElement('div');
+            tooltip.id = 'nav-tooltip';
+            tooltip.style.cssText = `
+                position: fixed;
+                background: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 8px 12px;
+                border-radius: 6px;
+                font-size: 12px;
+                z-index: 10000;
+                pointer-events: none;
+                opacity: 0;
+                transition: opacity 0.2s ease;
+            `;
+            document.body.appendChild(tooltip);
+        }
+        
+        tooltip.textContent = title;
+        
+        const rect = link.getBoundingClientRect();
+        tooltip.style.left = `${rect.right + 10}px`;
+        tooltip.style.top = `${rect.top + rect.height / 2 - tooltip.offsetHeight / 2}px`;
+        tooltip.style.opacity = '1';
+    }
+    
+    /**
+     * Esconde tooltip
+     */
+    hideTooltip() {
+        const tooltip = document.getElementById('nav-tooltip');
+        if (tooltip) {
+            tooltip.style.opacity = '0';
+            setTimeout(() => {
+                if (tooltip.parentNode) {
+                    tooltip.parentNode.removeChild(tooltip);
+                }
+            }, 200);
         }
     }
     
@@ -595,6 +723,187 @@ class CodePathApp {
                 }
             }, 300);
         }, duration);
+    }
+    
+    /**
+     * Inicializa badges dinâmicos do menu lateral
+     */
+    initializeDynamicBadges() {
+        // Simula dados dinâmicos para badges
+        this.badgeData = {
+            pendingTasks: 0,
+            recentProgress: 0,
+            newAchievements: 0,
+            unreadMessages: 0,
+            securityAlerts: 0
+        };
+        
+        // Carrega dados iniciais dos badges
+        this.loadBadgeData();
+    }
+    
+    /**
+     * Carrega dados dos badges do servidor
+     */
+    async loadBadgeData() {
+        try {
+            // Simula chamada para API de badges
+            // Em uma implementação real, isso seria uma chamada fetch
+            const mockData = await this.simulateBadgeAPI();
+            
+            this.badgeData = {
+                ...this.badgeData,
+                ...mockData
+            };
+            
+            this.updateAllBadges();
+        } catch (error) {
+            console.warn('Erro ao carregar dados dos badges:', error);
+        }
+    }
+    
+    /**
+     * Simula API de badges (substituir por fetch real no futuro)
+     */
+    async simulateBadgeAPI() {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                // Dados simulados baseados em atividade do usuário
+                const currentHour = new Date().getHours();
+                const isActiveTime = currentHour >= 9 && currentHour <= 22;
+                
+                resolve({
+                    pendingTasks: Math.random() < 0.3 ? Math.floor(Math.random() * 5) + 1 : 0,
+                    recentProgress: isActiveTime && Math.random() < 0.4 ? Math.floor(Math.random() * 50) + 10 : 0,
+                    newAchievements: Math.random() < 0.1 ? Math.floor(Math.random() * 3) + 1 : 0,
+                    unreadMessages: Math.random() < 0.2 ? Math.floor(Math.random() * 8) + 1 : 0,
+                    securityAlerts: Math.random() < 0.05 ? Math.floor(Math.random() * 2) + 1 : 0
+                });
+            }, 500);
+        });
+    }
+    
+    /**
+     * Atualiza todos os badges do menu lateral
+     */
+    updateAllBadges() {
+        // Dashboard - Tarefas pendentes
+        this.updateBadge('dashboard', 'pendingTasks', this.badgeData.pendingTasks, 'pulse');
+        
+        // Progresso - Progresso recente
+        this.updateBadge('progress', 'recentProgress', this.badgeData.recentProgress, 'success');
+        
+        // Conquistas - Novas conquistas
+        this.updateBadge('achievements', 'newAchievements', this.badgeData.newAchievements, 'achievement-badge');
+        
+        // Chat - Mensagens não lidas
+        this.updateBadge('chat', 'unreadMessages', this.badgeData.unreadMessages, 'message-badge pulse');
+        
+        // Segurança - Alertas de segurança
+        this.updateBadge('security', 'securityAlerts', this.badgeData.securityAlerts, 'alert-badge pulse');
+    }
+    
+    /**
+     * Atualiza um badge específico
+     */
+    updateBadge(section, dataKey, value, badgeClasses = '') {
+        const navLink = document.querySelector(`a[href*="/${section}"]`);
+        if (!navLink) return;
+        
+        let badge = navLink.querySelector('.nav-badge');
+        
+        if (value > 0) {
+            if (!badge) {
+                badge = document.createElement('span');
+                badge.className = `nav-badge ${badgeClasses}`;
+                navLink.appendChild(badge);
+            } else {
+                badge.className = `nav-badge ${badgeClasses}`;
+            }
+            
+            // Formata o valor do badge
+            let displayValue = value;
+            if (dataKey === 'recentProgress') {
+                displayValue = `+${value}`;
+            } else if (value > 99) {
+                displayValue = '99+';
+            }
+            
+            badge.textContent = displayValue;
+            badge.style.display = 'inline-block';
+            
+            // Adiciona animação de entrada
+            badge.style.animation = 'none';
+            setTimeout(() => {
+                badge.style.animation = badgeClasses.includes('pulse') ? 'pulse 2s infinite' : '';
+            }, 100);
+            
+        } else if (badge) {
+            // Remove badge se valor for 0
+            badge.style.animation = 'fadeOut 0.3s ease-out';
+            setTimeout(() => {
+                if (badge.parentNode) {
+                    badge.parentNode.removeChild(badge);
+                }
+            }, 300);
+        }
+    }
+    
+    /**
+     * Inicia atualizações periódicas dos badges
+     */
+    startBadgeUpdates() {
+        // Atualiza badges a cada 30 segundos
+        this.badgeUpdateInterval = setInterval(() => {
+            this.loadBadgeData();
+        }, 30000);
+        
+        // Para atualizações quando a aba perde foco
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                if (this.badgeUpdateInterval) {
+                    clearInterval(this.badgeUpdateInterval);
+                }
+            } else {
+                this.startBadgeUpdates();
+                this.loadBadgeData(); // Atualiza imediatamente ao voltar
+            }
+        });
+    }
+    
+    /**
+     * Cria efeito ripple no clique dos links
+     */
+    createRippleEffect(event, element) {
+        const ripple = document.createElement('span');
+        const rect = element.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        const x = event.clientX - rect.left - size / 2;
+        const y = event.clientY - rect.top - size / 2;
+        
+        ripple.style.cssText = `
+            position: absolute;
+            width: ${size}px;
+            height: ${size}px;
+            left: ${x}px;
+            top: ${y}px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple 0.6s ease-out;
+            pointer-events: none;
+            z-index: 1;
+        `;
+        
+        element.style.position = 'relative';
+        element.style.overflow = 'hidden';
+        element.appendChild(ripple);
+        
+        setTimeout(() => {
+            if (ripple.parentNode) {
+                ripple.parentNode.removeChild(ripple);
+            }
+        }, 600);
     }
 }
 

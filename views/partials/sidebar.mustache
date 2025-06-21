@@ -16,15 +16,20 @@
         <ul class="nav-list">
             <!-- Dashboard -->
             <li class="nav-item">
-                <a href="/dashboard" class="nav-link {{#isDashboard}}active{{/isDashboard}}" title="Dashboard">
+                <a href="/dashboard" class="nav-link {{#isDashboard}}active{{/isDashboard}}" title="Dashboard Principal">
                     <i class="fas fa-home nav-icon"></i>
                     <span class="nav-text">Dashboard</span>
+                    {{#user}}
+                    {{#pendingTasks}}
+                    <span class="nav-badge pulse">{{pendingTasks}}</span>
+                    {{/pendingTasks}}
+                    {{/user}}
                 </a>
             </li>
             
             <!-- Carreiras -->
             <li class="nav-item">
-                <a href="/careers" class="nav-link {{#isCareers}}active{{/isCareers}}" title="Carreiras">
+                <a href="/careers" class="nav-link {{#isCareers}}active{{/isCareers}}" title="Explorar Carreiras">
                     <i class="fas fa-road nav-icon"></i>
                     <span class="nav-text">Carreiras</span>
                 </a>
@@ -32,9 +37,10 @@
             
             <!-- Minha Área -->
             <li class="nav-item">
-                <a href="/my-area" class="nav-link {{#isMyArea}}active{{/isMyArea}}" title="Minha Área">
+                <a href="/my-area" class="nav-link {{#isMyArea}}active{{/isMyArea}}" title="Minha Área Pessoal">
                     <i class="fas fa-user nav-icon"></i>
                     <span class="nav-text">Minha Área</span>
+                    <span class="nav-badge coming-soon">Em Breve</span>
                 </a>
             </li>
             
@@ -43,20 +49,43 @@
                 <a href="/progress" class="nav-link {{#isProgress}}active{{/isProgress}}" title="Meu Progresso">
                     <i class="fas fa-chart-line nav-icon"></i>
                     <span class="nav-text">Meu Progresso</span>
+                    {{#user}}
+                    {{#recentProgress}}
+                    <span class="nav-badge success">+{{recentProgress}}</span>
+                    {{/recentProgress}}
+                    {{/user}}
                 </a>
             </li>
             
             <!-- Conquistas -->
             <li class="nav-item">
-                <a href="/achievements" class="nav-link {{#isAchievements}}active{{/isAchievements}}" title="Conquistas">
+                <a href="/achievements" class="nav-link {{#isAchievements}}active{{/isAchievements}}" title="Minhas Conquistas">
                     <i class="fas fa-trophy nav-icon"></i>
                     <span class="nav-text">Conquistas</span>
+                    {{#user}}
+                    {{#newAchievements}}
+                    <span class="nav-badge achievement-badge">{{newAchievements}}</span>
+                    {{/newAchievements}}
+                    {{/user}}
+                </a>
+            </li>
+            
+            <!-- Chat -->
+            <li class="nav-item">
+                <a href="/chat" class="nav-link {{#isChat}}active{{/isChat}}" title="Comunidade e Chat">
+                    <i class="fas fa-comments nav-icon"></i>
+                    <span class="nav-text">Comunidade</span>
+                    {{#user}}
+                    {{#unreadMessages}}
+                    <span class="nav-badge message-badge pulse">{{unreadMessages}}</span>
+                    {{/unreadMessages}}
+                    {{/user}}
                 </a>
             </li>
             
             <!-- Analytics -->
             <li class="nav-item">
-                <a href="/analytics" class="nav-link {{#isAnalytics}}active{{/isAnalytics}}" title="Analytics">
+                <a href="/analytics" class="nav-link {{#isAnalytics}}active{{/isAnalytics}}" title="Analytics e Relatórios">
                     <i class="fas fa-chart-bar nav-icon"></i>
                     <span class="nav-text">Analytics</span>
                 </a>
@@ -67,6 +96,7 @@
                 <a href="/settings" class="nav-link {{#isSettings}}active{{/isSettings}}" title="Configurações">
                     <i class="fas fa-cog nav-icon"></i>
                     <span class="nav-text">Configurações</span>
+                    <span class="nav-badge coming-soon">Em Breve</span>
                 </a>
             </li>
             
@@ -74,16 +104,33 @@
             {{#user}}
             {{#isAdmin}}
             <li class="nav-item admin-only">
-                <a href="/security/dashboard" class="nav-link {{#isSecurity}}active{{/isSecurity}}" title="Segurança">
+                <a href="/security/dashboard" class="nav-link {{#isSecurity}}active{{/isSecurity}}" title="Dashboard de Segurança">
                     <i class="fas fa-shield-alt nav-icon"></i>
                     <span class="nav-text">Segurança</span>
                     <span class="admin-badge">ADMIN</span>
+                    {{#securityAlerts}}
+                    <span class="nav-badge alert-badge pulse">{{securityAlerts}}</span>
+                    {{/securityAlerts}}
                 </a>
             </li>
             {{/isAdmin}}
             {{/user}}
         </ul>
     </nav>
+    
+    <!-- Informações de Status -->
+    <div class="sidebar-status">
+        {{#user}}
+        <div class="status-item">
+            <i class="fas fa-wifi status-icon online"></i>
+            <span class="status-text">Online</span>
+        </div>
+        <div class="status-item">
+            <i class="fas fa-clock status-icon"></i>
+            <span class="status-text">Streak: {{streak}} dias</span>
+        </div>
+        {{/user}}
+    </div>
     
     <!-- Footer da Sidebar -->
     <div class="sidebar-footer">
@@ -92,17 +139,21 @@
         <div class="user-info">
             <div class="user-avatar">
                 <i class="fas fa-user-circle"></i>
+                <div class="user-status-dot online"></div>
             </div>
             <div class="user-details">
                 <span class="user-name">{{name}}</span>
-                <span class="user-level">Nível {{level}}</span>
+                <span class="user-level">Nível {{level}} • {{xp}} XP</span>
+                <div class="user-progress-bar">
+                    <div class="progress-fill" style="width: {{xpProgress}}%"></div>
+                </div>
             </div>
         </div>
         {{/user}}
         
         <!-- Botão de Logout -->
         <form action="/logout" method="POST" class="logout-form">
-            <button type="submit" class="logout-btn" title="Sair">
+            <button type="submit" class="logout-btn" title="Sair do Sistema">
                 <i class="fas fa-sign-out-alt"></i>
                 <span class="logout-text">Sair</span>
             </button>

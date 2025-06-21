@@ -9,6 +9,140 @@ const contentModel = require('../models/contentModel');
 const progressModel = require('../models/progressModel');
 
 /**
+ * Conteúdo das aulas - Dados estáticos para demonstração
+ * Em produção, isso viria do banco de dados
+ */
+const LESSON_CONTENT = {
+  // Aula 1: C - Introdução
+  1: {
+    videoUrl: null, // Não há vídeo real, apenas conteúdo textual
+    content: `
+      <div class="lesson-content-wrapper">
+        <h2>Bem-vindo ao Mundo da Programação em C!</h2>
+        
+        <div class="intro-section">
+          <p>A linguagem C é uma das linguagens de programação mais importantes e influentes da história da computação. Criada por Dennis Ritchie entre 1969 e 1973, ela serve como base para muitas outras linguagens modernas.</p>
+          
+          <div class="highlight-box">
+            <h3>🎯 O que você vai aprender nesta aula:</h3>
+            <ul>
+              <li>O que é a linguagem C e sua importância</li>
+              <li>Como escrever seu primeiro programa</li>
+              <li>Estrutura básica de um programa C</li>
+              <li>Como compilar e executar código C</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="code-section">
+          <h3>Seu Primeiro Programa em C</h3>
+          <p>Vamos começar com o clássico "Hello, World!" - um programa simples que exibe uma mensagem na tela:</p>
+          
+          <div class="code-block">
+            <div class="code-header">
+              <span class="language">C</span>
+              <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+            </div>
+            <pre><code class="language-c">
+#include &lt;stdio.h&gt;
+
+int main() {
+    // Esta linha imprime "Hello, World!" na tela
+    printf("Hello, World!\\n");
+    
+    // Retorna 0 para indicar que o programa terminou com sucesso
+    return 0;
+}
+            </code></pre>
+          </div>
+          
+          <div class="explanation">
+            <h4>📝 Explicação linha por linha:</h4>
+            <ul>
+              <li><strong>#include &lt;stdio.h&gt;</strong> - Inclui a biblioteca padrão de entrada/saída</li>
+              <li><strong>int main()</strong> - Função principal onde o programa começa a executar</li>
+              <li><strong>printf()</strong> - Função que imprime texto na tela</li>
+              <li><strong>\\n</strong> - Caractere de nova linha (quebra de linha)</li>
+              <li><strong>return 0;</strong> - Indica que o programa terminou sem erros</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="practice-section">
+          <h3>🚀 Exercício Prático</h3>
+          <p>Agora é sua vez! Tente modificar o programa para exibir seu nome:</p>
+          
+          <div class="exercise-box">
+            <h4>Desafio:</h4>
+            <p>Modifique o programa para que ele exiba: "Olá, [SEU NOME]! Bem-vindo ao C!"</p>
+            
+            <div class="code-block">
+              <div class="code-header">
+                <span class="language">Sua solução</span>
+              </div>
+              <textarea class="code-editor" placeholder="Digite seu código aqui...">
+#include &lt;stdio.h&gt;
+
+int main() {
+    // Escreva seu código aqui
+    
+    return 0;
+}
+              </textarea>
+            </div>
+            
+            <button class="btn-primary test-code">🧪 Testar Código</button>
+            <div class="test-result" style="display: none;"></div>
+          </div>
+        </div>
+
+        <div class="concepts-section">
+          <h3>💡 Conceitos Importantes</h3>
+          
+          <div class="concept-grid">
+            <div class="concept-card">
+              <h4>🔧 Compilação</h4>
+              <p>C é uma linguagem compilada. Isso significa que você precisa transformar seu código em um arquivo executável antes de rodá-lo.</p>
+            </div>
+            
+            <div class="concept-card">
+              <h4>📚 Bibliotecas</h4>
+              <p>As bibliotecas como stdio.h contêm funções prontas que você pode usar, como printf() e scanf().</p>
+            </div>
+            
+            <div class="concept-card">
+              <h4>🏗️ Estrutura</h4>
+              <p>Todo programa C precisa ter uma função main() - é por ela que a execução sempre começa.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="next-steps">
+          <h3>🎯 Próximos Passos</h3>
+          <p>Na próxima aula, vamos aprender sobre <strong>variáveis</strong> - como armazenar e manipular dados em C!</p>
+          
+          <div class="progress-indicators">
+            <div class="completed">✅ Conceitos básicos</div>
+            <div class="completed">✅ Primeiro programa</div>
+            <div class="next">📍 Próximo: Variáveis</div>
+          </div>
+        </div>
+      </div>
+    `,
+    exercises: [
+      {
+        id: 1,
+        title: "Hello World Personalizado",
+        description: "Modifique o programa para exibir uma mensagem personalizada",
+        template: `#include <stdio.h>\n\nint main() {\n    // Seu código aqui\n    \n    return 0;\n}`,
+        solution: `#include <stdio.h>\n\nint main() {\n    printf("Olá, João! Bem-vindo ao C!\\n");\n    return 0;\n}`,
+        hint: "Use printf() para exibir a mensagem. Não esqueça do \\n no final!"
+      }
+    ]
+  }
+};
+
+/**
  * Exibe a lista de aulas de um pacote específico
  * @param {Object} req - Request object
  * @param {Object} res - Response object
@@ -80,16 +214,21 @@ async function showLesson(req, res) {
     const lessonId = parseInt(req.params.lessonId);
     const userId = req.session.user.id;
 
+    console.log(`[LESSON DEBUG] Iniciando carregamento da aula ${lessonId} para usuário ${userId}`);
+
     // Buscar dados da aula
     const lesson = await contentModel.getLessonById(lessonId);
     
     if (!lesson) {
+      console.log(`[LESSON DEBUG] Aula ${lessonId} não encontrada`);
       req.session.flash = {
         type: 'error',
         message: 'Aula não encontrada.'
       };
       return res.redirect('/careers');
     }
+
+    console.log(`[LESSON DEBUG] Aula encontrada: ${lesson.name}`);
 
     // Buscar progresso do usuário na aula
     const userProgress = await contentModel.getUserLessonProgress(userId, lessonId);
@@ -104,25 +243,55 @@ async function showLesson(req, res) {
     // Buscar estatísticas do pacote
     const progressStats = await contentModel.getPackageProgressStats(userId, lesson.package_id);
 
-    // Renderizar página da aula
-    res.render('pages/lesson-view', {
+    // Adicionar conteúdo da aula se disponível
+    const lessonContent = LESSON_CONTENT[lessonId] || null;
+    
+    // Debug: log do conteúdo da aula
+    console.log(`[LESSON DEBUG] Lesson ID: ${lessonId}`);
+    console.log(`[LESSON DEBUG] Lesson Content exists: ${!!lessonContent}`);
+    if (lessonContent) {
+      console.log(`[LESSON DEBUG] Content keys: ${Object.keys(lessonContent)}`);
+      console.log(`[LESSON DEBUG] Content preview: ${lessonContent.content ? lessonContent.content.substring(0, 100) : 'No content'}`);
+    }
+
+    // Preparar dados para o template
+    const templateData = {
       title: `${lesson.name} - ${lesson.package_name}`,
-      additionalCSS: 'content',
+      additionalCSS: ['content', 'lesson-viewer'],
+      additionalJS: 'lesson-viewer',
       user: req.session.user,
       lesson: lesson,
+      lessonContent: lessonContent,
       userProgress: userProgress,
       nextLesson: nextLesson,
       previousLesson: previousLesson,
       quizzes: quizzes,
       progressStats: progressStats,
-      flash: req.session.flash || null
+      flash: req.session.flash || null,
+      // Adicionar dados de debug
+      debugInfo: {
+        lessonId: lessonId,
+        hasContent: !!lessonContent,
+        timestamp: new Date().toISOString()
+      }
+    };
+
+    console.log(`[LESSON DEBUG] Template data prepared:`, {
+      title: templateData.title,
+      hasLesson: !!templateData.lesson,
+      hasContent: !!templateData.lessonContent,
+      hasProgressStats: !!templateData.progressStats
     });
+
+    // Renderizar página da aula
+    res.render('pages/lesson-view', templateData);
 
     // Limpar flash message
     delete req.session.flash;
 
   } catch (error) {
     console.error('Erro ao exibir aula:', error);
+    console.error('Stack trace:', error.stack);
     req.session.flash = {
       type: 'error',
       message: 'Erro interno do servidor. Tente novamente.'

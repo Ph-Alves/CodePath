@@ -148,6 +148,7 @@ body {
     flex-direction: column;
     z-index: 1000;
     transition: transform var(--transition-normal);
+    box-shadow: var(--shadow-xl);
 }
 
 /* Header da Sidebar */
@@ -169,6 +170,7 @@ body {
     width: 40px;
     height: 40px;
     border-radius: var(--border-radius);
+    box-shadow: var(--shadow-md);
 }
 
 .logo-text {
@@ -185,21 +187,25 @@ body {
     cursor: pointer;
     padding: var(--spacing-2);
     border-radius: var(--border-radius);
-    transition: background-color var(--transition-fast);
+    transition: all var(--transition-fast);
 }
 
 .sidebar-toggle:hover {
     background-color: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
 }
 
 /* Navegação da Sidebar */
 .sidebar-nav {
     flex: 1;
     padding: var(--spacing-4) 0;
+    overflow-y: auto;
 }
 
 .nav-list {
     list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
 .nav-item {
@@ -213,32 +219,154 @@ body {
     padding: var(--spacing-3) var(--spacing-4);
     color: rgba(255, 255, 255, 0.8);
     text-decoration: none;
-    border-radius: var(--border-radius);
-    transition: all var(--transition-fast);
+    border-radius: var(--border-radius-lg);
+    transition: all var(--transition-normal);
+    position: relative;
     font-weight: 500;
 }
 
 .nav-link:hover {
     background-color: rgba(255, 255, 255, 0.1);
     color: var(--white);
-    transform: translateX(4px);
+    transform: translateX(8px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .nav-link.active {
-    background-color: rgba(255, 255, 255, 0.15);
+    background-color: rgba(255, 255, 255, 0.2);
     color: var(--white);
-    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.nav-link.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 60%;
+    background: var(--white);
+    border-radius: 0 2px 2px 0;
 }
 
 .nav-icon {
     font-size: var(--font-size-lg);
     width: 20px;
     text-align: center;
+    transition: transform var(--transition-fast);
+}
+
+.nav-link:hover .nav-icon {
+    transform: scale(1.1);
+}
+
+.nav-text {
+    flex: 1;
+    font-size: var(--font-size-base);
+}
+
+/* Badges do Menu Lateral */
+.nav-badge {
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--border-radius-xl);
+    min-width: 20px;
+    text-align: center;
+    line-height: 1;
+}
+
+/* Badge padrão */
+.nav-badge {
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--white);
+}
+
+/* Badge de sucesso (progresso) */
+.nav-badge.success {
+    background: var(--success);
+    color: var(--white);
+}
+
+/* Badge de conquista */
+.nav-badge.achievement-badge {
+    background: linear-gradient(45deg, #FFD700, #FFA500);
+    color: var(--gray-900);
+    font-weight: 700;
+}
+
+/* Badge de mensagem */
+.nav-badge.message-badge {
+    background: var(--info);
+    color: var(--white);
+}
+
+/* Badge de alerta */
+.nav-badge.alert-badge {
+    background: var(--error);
+    color: var(--white);
+}
+
+/* Badge "Em Breve" */
+.nav-badge.coming-soon {
+    background: rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.65rem;
+    padding: 0.2rem 0.4rem;
+}
+
+/* Animação de pulso para badges importantes */
+.nav-badge.pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Informações de Status */
+.sidebar-status {
+    padding: var(--spacing-4);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-2) 0;
+    font-size: var(--font-size-sm);
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.status-icon {
+    font-size: var(--font-size-sm);
+}
+
+.status-icon.online {
+    color: var(--success);
+}
+
+.status-text {
+    font-size: var(--font-size-sm);
 }
 
 /* Footer da Sidebar */
 .sidebar-footer {
-    padding: var(--spacing-4);
+    padding: var(--spacing-4) var(--spacing-6);
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -247,55 +375,188 @@ body {
     align-items: center;
     gap: var(--spacing-3);
     margin-bottom: var(--spacing-4);
-    padding: var(--spacing-3);
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: var(--border-radius);
+}
+
+.user-avatar {
+    position: relative;
+    font-size: 2rem;
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .user-avatar i {
-    font-size: var(--font-size-2xl);
-    color: var(--white);
+    font-size: 2rem;
+}
+
+.user-status-dot {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--white);
+}
+
+.user-status-dot.online {
+    background: var(--success);
 }
 
 .user-details {
-    display: flex;
-    flex-direction: column;
+    flex: 1;
 }
 
 .user-name {
+    display: block;
     font-weight: 600;
     color: var(--white);
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-base);
+    margin-bottom: 0.25rem;
 }
 
 .user-level {
-    font-size: var(--font-size-xs);
-    color: rgba(255, 255, 255, 0.7);
+    display: block;
+    font-size: var(--font-size-sm);
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 0.5rem;
+}
+
+.user-progress-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: var(--border-radius-xl);
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--success), #4ADE80);
+    border-radius: var(--border-radius-xl);
+    transition: width var(--transition-slow);
 }
 
 .logout-form {
-    width: 100%;
+    margin: 0;
 }
 
 .logout-btn {
-    width: 100%;
     display: flex;
     align-items: center;
-    gap: var(--spacing-3);
+    gap: var(--spacing-2);
+    width: 100%;
     padding: var(--spacing-3);
-    background: none;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: var(--border-radius-lg);
     color: rgba(255, 255, 255, 0.8);
-    border-radius: var(--border-radius);
-    cursor: pointer;
-    transition: all var(--transition-fast);
     font-size: var(--font-size-sm);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-normal);
 }
 
 .logout-btn:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.2);
     color: var(--white);
-    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+.logout-text {
+    flex: 1;
+    text-align: left;
+}
+
+/* Admin Badge */
+.admin-badge {
+    background: linear-gradient(45deg, #FF6B6B, #FF8E53);
+    color: var(--white);
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.2rem 0.4rem;
+    border-radius: var(--border-radius);
+    margin-left: auto;
+}
+
+.nav-item.admin-only .nav-link {
+    border: 1px solid rgba(255, 107, 107, 0.3);
+}
+
+.nav-item.admin-only .nav-link:hover {
+    border-color: rgba(255, 107, 107, 0.5);
+    background: rgba(255, 107, 107, 0.1);
+}
+
+.nav-item.admin-only .nav-link.active {
+    border-color: rgba(255, 107, 107, 0.7);
+    background: rgba(255, 107, 107, 0.2);
+}
+
+/* Responsividade da Sidebar */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+        width: 100%;
+        max-width: 320px;
+    }
+    
+    .sidebar.open {
+        transform: translateX(0);
+    }
+    
+    .main-content {
+        margin-left: 0;
+    }
+    
+    .nav-link:hover {
+        transform: none;
+    }
+}
+
+/* Overlay para mobile */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--transition-normal);
+}
+
+.sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Estados de loading para badges */
+.nav-badge.loading {
+    background: rgba(255, 255, 255, 0.1);
+    color: transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.nav-badge.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: 100%;
+    }
 }
 
 /* ===================================
@@ -881,3 +1142,285 @@ li:not([class]) {
     background: rgba(239, 68, 68, 0.15);
     border-left-color: #DC2626;
 }
+
+/* Animações adicionais para menu lateral */
+@keyframes slideIn {
+    from {
+        transform: translateY(-50%) translateX(-10px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(-50%) translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+}
+
+@keyframes ripple {
+    to {
+        transform: scale(2);
+        opacity: 0;
+    }
+}
+
+@keyframes bounceIn {
+    0% {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    70% {
+        transform: scale(0.9);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Melhorias visuais adicionais */
+.nav-link-hover {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    transform: translateX(12px) !important;
+}
+
+.nav-badge {
+    animation: bounceIn 0.5s ease-out;
+}
+
+/* Estados de foco para acessibilidade */
+.nav-link:focus {
+    outline: 2px solid rgba(255, 255, 255, 0.5);
+    outline-offset: 2px;
+}
+
+.logout-btn:focus {
+    outline: 2px solid rgba(255, 255, 255, 0.5);
+    outline-offset: 2px;
+}
+
+/* Melhorias para mobile */
+@media (max-width: 768px) {
+    .nav-badge {
+        font-size: 0.65rem;
+        padding: 0.2rem 0.4rem;
+    }
+    
+    .nav-link {
+        padding: var(--spacing-4);
+    }
+    
+    .nav-text {
+        font-size: var(--font-size-lg);
+    }
+}
+
+/* =======================================
+   FALLBACK PARA ÍCONES
+   ======================================= */
+
+/* Garantir que os ícones Font Awesome sejam exibidos */
+.fa, .fas, .far, .fab, .fal, .fad, .fat, .fass {
+    font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands", "Font Awesome 6 Pro", sans-serif !important;
+    font-weight: 900;
+    font-style: normal;
+    font-variant: normal;
+    text-rendering: auto;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.fab {
+    font-weight: 400;
+}
+
+.far {
+    font-weight: 400;
+}
+
+/* Fallbacks para ícones específicos caso o Font Awesome não carregue */
+.fa-play-circle::before,
+.fas.fa-play-circle::before {
+    content: "▶";
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+}
+
+.fa-certificate::before,
+.fas.fa-certificate::before {
+    content: "🏆";
+    font-family: Arial, sans-serif;
+}
+
+.fa-code::before,
+.fas.fa-code::before {
+    content: "</>";
+    font-family: monospace;
+    font-weight: bold;
+}
+
+.fa-question-circle::before,
+.fas.fa-question-circle::before {
+    content: "?";
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    width: 1em;
+    height: 1em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fa-calendar-week::before,
+.fas.fa-calendar-week::before,
+.fa-calendar-alt::before,
+.fas.fa-calendar-alt::before,
+.fa-calendar::before,
+.fas.fa-calendar::before {
+    content: "📅";
+    font-family: Arial, sans-serif;
+}
+
+.fa-filter::before,
+.fas.fa-filter::before {
+    content: "⚙";
+    font-family: Arial, sans-serif;
+}
+
+.fa-th-large::before,
+.fas.fa-th-large::before {
+    content: "⊞";
+    font-family: Arial, sans-serif;
+}
+
+.fa-play::before,
+.fas.fa-play::before {
+    content: "▶";
+    font-family: Arial, sans-serif;
+}
+
+.fa-chart-line::before,
+.fas.fa-chart-line::before {
+    content: "📊";
+    font-family: Arial, sans-serif;
+}
+
+.fa-book::before,
+.fas.fa-book::before {
+    content: "📚";
+    font-family: Arial, sans-serif;
+}
+
+.fa-trophy::before,
+.fas.fa-trophy::before {
+    content: "🏆";
+    font-family: Arial, sans-serif;
+}
+
+.fa-users::before,
+.fas.fa-users::before {
+    content: "👥";
+    font-family: Arial, sans-serif;
+}
+
+.fa-times::before,
+.fas.fa-times::before {
+    content: "✕";
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+}
+
+.fa-spinner::before,
+.fas.fa-spinner::before {
+    content: "⟳";
+    font-family: Arial, sans-serif;
+}
+
+.fa-spinner.fa-spin {
+    animation: fa-spin 1s infinite linear;
+}
+
+@keyframes fa-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.fa-clock::before,
+.fas.fa-clock::before {
+    content: "🕐";
+    font-family: Arial, sans-serif;
+}
+
+.fa-check-circle::before,
+.fas.fa-check-circle::before {
+    content: "✓";
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    color: #10B981;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    width: 1em;
+    height: 1em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fa-circle::before,
+.far.fa-circle::before {
+    content: "○";
+    font-family: Arial, sans-serif;
+    font-weight: normal;
+}
+
+.fa-arrow-left::before,
+.fas.fa-arrow-left::before {
+    content: "←";
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+}
+
+.fa-book-open::before,
+.fas.fa-book-open::before {
+    content: "📖";
+    font-family: Arial, sans-serif;
+}
+
+.fa-info-circle::before,
+.fas.fa-info-circle::before {
+    content: "ℹ";
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    width: 1em;
+    height: 1em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Garantir visibilidade dos ícones */
+i[class*="fa-"] {
+    display: inline-block;
+    min-width: 1em;
+    text-align: center;
+}
+
+/* Forçar carregamento do Font Awesome */
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css');

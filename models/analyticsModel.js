@@ -1,4 +1,4 @@
-const db = require('./database');
+const { database } = require('./database');
 
 /**
  * Modelo de Analytics - Sistema de Análise Avançada
@@ -12,7 +12,7 @@ class AnalyticsModel {
      */
     static async getPlatformStats() {
         try {
-            const stats = await db.get(`
+            const stats = await database.get(`
                 SELECT 
                     (SELECT COUNT(*) FROM users WHERE active = 1) as total_users,
                     (SELECT COUNT(*) FROM packages) as total_packages,
@@ -48,18 +48,18 @@ class AnalyticsModel {
     static async getUserAnalytics(userId) {
         try {
             // Estatísticas básicas do usuário
-            const userStats = await db.get(`
+            const userStats = await database.get(`
                 SELECT 
-                    u.username,
+                    u.name as username,
                     u.email,
-                    u.xp_points,
+                    u.total_xp as xp_points,
                     u.level,
                     u.created_at,
                     u.last_login,
                     (SELECT COUNT(*) FROM user_progress WHERE user_id = ? AND completed_at IS NOT NULL) as lessons_completed,
-                    (SELECT COUNT(*) FROM user_quiz_attempts WHERE user_id = ?) as quizzes_attempted,
+                    (SELECT COUNT(*) FROM user_quiz_answers WHERE user_id = ?) as quizzes_attempted,
                     (SELECT COUNT(*) FROM user_achievements WHERE user_id = ?) as achievements_earned,
-                    (SELECT AVG(score) FROM user_quiz_attempts WHERE user_id = ?) as avg_quiz_score
+                    (SELECT AVG(score) FROM user_quiz_answers WHERE user_id = ?) as avg_quiz_score
                 FROM users u
                 WHERE u.id = ?
             `, [userId, userId, userId, userId, userId]);
@@ -69,7 +69,7 @@ class AnalyticsModel {
             }
 
             // Progresso por pacote
-            const packageProgress = await db.all(`
+            const packageProgress = await database.all(`
                 SELECT 
                     p.id,
                     p.name,
@@ -87,7 +87,7 @@ class AnalyticsModel {
             `, [userId]);
 
             // Atividade recente (últimos 30 dias)
-            const recentActivity = await db.all(`
+            const recentActivity = await database.all(`
                 SELECT 
                     DATE(completed_at) as date,
                     COUNT(*) as lessons_completed
@@ -137,7 +137,7 @@ class AnalyticsModel {
             const dateFilter = periodMap[period] || '-30 days';
 
             // Progresso no período
-            const progressData = await db.all(`
+            const progressData = await database.all(`
                 SELECT 
                     DATE(up.completed_at) as date,
                     COUNT(*) as lessons_completed,
@@ -153,14 +153,14 @@ class AnalyticsModel {
             `, [userId, dateFilter]);
 
             // Desempenho em quizzes
-            const quizPerformance = await db.all(`
+            const quizPerformance = await database.all(`
                 SELECT 
                     q.title,
                     uqa.score,
                     uqa.completed_at,
                     uqa.time_taken,
                     p.name as package_name
-                FROM user_quiz_attempts uqa
+                FROM user_quiz_answers uqa
                 JOIN quizzes q ON uqa.quiz_id = q.id
                 JOIN lessons l ON q.lesson_id = l.id
                 JOIN packages p ON l.package_id = p.id
@@ -170,7 +170,7 @@ class AnalyticsModel {
             `, [userId, dateFilter]);
 
             // Conquistas obtidas
-            const achievements = await db.all(`
+            const achievements = await database.all(`
                 SELECT 
                     a.name,
                     a.description,
@@ -226,13 +226,12 @@ class AnalyticsModel {
                     query = `
                         SELECT 
                             u.id,
-                            u.username,
-                            u.xp_points as value,
+                            u.name as username,
+                            u.total_xp as value,
                             u.level,
                             'XP' as metric_type
                         FROM users u
-                        WHERE u.active = 1
-                        ORDER BY u.xp_points DESC
+                        ORDER BY u.total_xp DESC
                         LIMIT ?
                     `;
                     break;
@@ -275,7 +274,7 @@ class AnalyticsModel {
                     throw new Error('Métrica de ranking inválida');
             }
 
-            return await db.all(query, [limit]);
+            return await database.all(query, [limit]);
         } catch (error) {
             console.error('Erro ao obter ranking:', error);
             throw error;
@@ -292,7 +291,7 @@ class AnalyticsModel {
             const dateFilter = period === 'week' ? '-7 days' : '-30 days';
 
             // Usuários ativos
-            const activeUsers = await db.get(`
+            const activeUsers = await database.get(`
                 SELECT 
                     COUNT(DISTINCT user_id) as active_users
                 FROM user_progress
@@ -300,7 +299,7 @@ class AnalyticsModel {
             `, [dateFilter]);
 
             // Taxa de retenção
-            const retentionRate = await db.get(`
+            const retentionRate = await database.get(`
                 SELECT 
                     COUNT(DISTINCT u1.user_id) * 100.0 / COUNT(DISTINCT u2.user_id) as retention_rate
                 FROM (
@@ -317,7 +316,7 @@ class AnalyticsModel {
             `);
 
             // Tempo médio de sessão
-            const avgSessionTime = await db.get(`
+            const avgSessionTime = await database.get(`
                 SELECT 
                     AVG(
                         CASE 
@@ -325,12 +324,12 @@ class AnalyticsModel {
                             ELSE 300 -- 5 minutos padrão
                         END
                     ) as avg_session_time
-                FROM user_quiz_attempts
+                FROM user_quiz_answers
                 WHERE completed_at >= datetime('now', ?)
             `, [dateFilter]);
 
             // Conteúdo mais popular
-            const popularContent = await db.all(`
+            const popularContent = await database.all(`
                 SELECT 
                     l.name,
                     p.name as package_name,
@@ -385,7 +384,7 @@ class AnalyticsModel {
      */
     static async calculateStudyTime(userId) {
         try {
-            const result = await db.get(`
+            const result = await database.get(`
                 SELECT 
                     COUNT(DISTINCT DATE(completed_at)) as study_days,
                     COUNT(*) as total_sessions,
@@ -396,7 +395,7 @@ class AnalyticsModel {
                         END
                     ) as avg_session_duration
                 FROM user_progress up
-                LEFT JOIN user_quiz_attempts uqa ON up.user_id = uqa.user_id
+                LEFT JOIN user_quiz_answers uqa ON up.user_id = uqa.user_id
                 WHERE up.user_id = ? AND up.completed_at IS NOT NULL
             `, [userId]);
 
@@ -419,7 +418,7 @@ class AnalyticsModel {
      */
     static async calculateCurrentStreak(userId) {
         try {
-            const activities = await db.all(`
+            const activities = await database.all(`
                 SELECT DISTINCT DATE(completed_at) as activity_date
                 FROM user_progress
                 WHERE user_id = ? AND completed_at IS NOT NULL
@@ -458,14 +457,14 @@ class AnalyticsModel {
      */
     static async calculatePerformanceMetrics(userId) {
         try {
-            const metrics = await db.get(`
+            const metrics = await database.get(`
                 SELECT 
                     AVG(score) as avg_quiz_score,
                     COUNT(CASE WHEN score >= 80 THEN 1 END) * 100.0 / COUNT(*) as high_score_rate,
                     MIN(score) as lowest_score,
                     MAX(score) as highest_score,
                     AVG(time_taken) as avg_completion_time
-                FROM user_quiz_attempts
+                FROM user_quiz_answers
                 WHERE user_id = ?
             `, [userId]);
 
@@ -498,7 +497,7 @@ class AnalyticsModel {
      */
     static async analyzeConsistency(userId, dateFilter) {
         try {
-            const dailyActivity = await db.all(`
+            const dailyActivity = await database.all(`
                 SELECT 
                     DATE(completed_at) as date,
                     COUNT(*) as activities
@@ -560,14 +559,14 @@ class AnalyticsModel {
             const recommendations = [];
             
             // Analisar progresso do usuário
-            const userProgress = await db.get(`
+            const userProgress = await database.get(`
                 SELECT 
                     COUNT(CASE WHEN up.completed_at IS NOT NULL THEN 1 END) as completed_lessons,
                     COUNT(l.id) as total_lessons,
                     AVG(CASE WHEN uqa.score IS NOT NULL THEN uqa.score ELSE 0 END) as avg_score
                 FROM lessons l
                 LEFT JOIN user_progress up ON l.id = up.lesson_id AND up.user_id = ?
-                LEFT JOIN user_quiz_attempts uqa ON up.user_id = uqa.user_id
+                LEFT JOIN user_quiz_answers uqa ON up.user_id = uqa.user_id
             `, [userId]);
 
             const completionRate = userProgress.total_lessons > 0 
@@ -654,9 +653,9 @@ class AnalyticsModel {
      */
     static async calculatePerformanceTrend(userId) {
         try {
-            const recentScores = await db.all(`
+            const recentScores = await database.all(`
                 SELECT score, completed_at
-                FROM user_quiz_attempts
+                FROM user_quiz_answers
                 WHERE user_id = ?
                 ORDER BY completed_at DESC
                 LIMIT 10

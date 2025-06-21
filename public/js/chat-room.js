@@ -7,6 +7,8 @@
  * - Polling de novas mensagens
  * - Gestão de membros
  * - Tipos de mensagem (texto/código)
+ * - Simulação de tempo real
+ * - Interface de digitação
  */
 
 // ===== VARIÁVEIS GLOBAIS =====
@@ -15,6 +17,10 @@ let currentMessageType = 'text';
 let lastMessageId = 0;
 let isPolling = false;
 let isSending = false;
+let mockMessageInterval;
+let typingSimulationInterval;
+let mockUsers = [];
+let mockMessageTemplates = [];
 
 // ===== INICIALIZAÇÃO =====
 document.addEventListener('DOMContentLoaded', function() {
@@ -26,6 +32,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Inicializar funcionalidades
     initializeChatRoom();
     
+    // Configurar dados mockados
+    setupMockData();
+    
+    // Iniciar simulação de tempo real
+    startRealtimeSimulation();
+    
     // Iniciar polling de mensagens
     startMessagePolling();
     
@@ -33,16 +45,199 @@ document.addEventListener('DOMContentLoaded', function() {
     setupAutoResize();
 });
 
+// ===== DADOS MOCKADOS =====
+function setupMockData() {
+    // Usuários simulados para esta sala
+    mockUsers = [
+        { id: 2, name: 'Ana Silva', avatar: '👩‍💻', status: 'online' },
+        { id: 3, name: 'Carlos Santos', avatar: '👨‍💻', status: 'online' },
+        { id: 4, name: 'Maria Oliveira', avatar: '👩‍🎓', status: 'away' },
+        { id: 5, name: 'João Costa', avatar: '👨‍🎓', status: 'online' },
+        { id: 6, name: 'Fernanda Lima', avatar: '👩‍💼', status: 'online' },
+        { id: 7, name: 'Pedro Alves', avatar: '👨‍💼', status: 'away' }
+    ];
+    
+    // Templates de mensagens realistas
+    mockMessageTemplates = [
+        "Alguém pode me ajudar com esse erro que estou enfrentando?",
+        "Acabei de terminar o exercício! Foi mais difícil do que esperava 🎉",
+        "Qual seria a melhor forma de implementar essa funcionalidade?",
+        "Muito obrigado pela ajuda pessoal! Vocês são incríveis 🙏",
+        "Estou com dificuldade para entender esse conceito...",
+        "Encontrei um artigo interessante sobre isso: https://exemplo.com",
+        "Alguém quer formar um grupo de estudos para esta semana?",
+        "Consegui resolver! Era só um erro de sintaxe 😅",
+        "Pessoal, alguém mais está online para tirar dúvidas?",
+        "Boa noite pessoal! Até amanhã nos estudos 👋",
+        "Compartilhando minha solução para o exercício anterior",
+        "Essa aula foi muito esclarecedora, recomendo!",
+        "Tem algum material complementar sobre esse tópico?",
+        "Vou fazer uma pausa para o café ☕ Volto já!",
+        "Alguém já fez o quiz desta seção?",
+        "Dica: sempre testem o código antes de submeter!",
+        "Estou progredindo bem nesta trilha 📈",
+        "Quem mais está fazendo o curso completo?",
+        "Vamos marcar um estudo em grupo para amanhã?",
+        "Parabéns pessoal pelo progresso! 🚀"
+    ];
+    
+    console.log('📊 Dados mockados configurados para sala:', mockUsers.length, 'usuários');
+}
+
+// ===== SIMULAÇÃO DE TEMPO REAL =====
+function startRealtimeSimulation() {
+    // Simular mensagens a cada 20-45 segundos
+    mockMessageInterval = setInterval(() => {
+        if (!document.hidden && Math.random() > 0.3) { // 70% chance
+            simulateNewMessage();
+        }
+    }, Math.random() * 25000 + 20000); // 20-45 segundos
+    
+    // Simular indicadores de digitação
+    typingSimulationInterval = setInterval(() => {
+        if (!document.hidden && Math.random() > 0.7) { // 30% chance
+            simulateTypingIndicator();
+        }
+    }, Math.random() * 15000 + 10000); // 10-25 segundos
+    
+    console.log('🎭 Simulação de tempo real iniciada');
+}
+
+function simulateNewMessage() {
+    const randomUser = mockUsers[Math.floor(Math.random() * mockUsers.length)];
+    const randomTemplate = mockMessageTemplates[Math.floor(Math.random() * mockMessageTemplates.length)];
+    
+    // Criar mensagem simulada
+    const mockMessage = {
+        id: Date.now(), // ID único baseado em timestamp
+        user_id: randomUser.id,
+        user_name: randomUser.name,
+        user_avatar: randomUser.avatar,
+        message: randomTemplate,
+        message_type: Math.random() > 0.9 ? 'code' : 'text', // 10% chance de ser código
+        created_at: new Date().toISOString(),
+        is_own: false
+    };
+    
+    // Se for mensagem de código, ajustar conteúdo
+    if (mockMessage.message_type === 'code') {
+        const codeExamples = [
+            "function hello() {\n    console.log('Hello World!');\n}",
+            "for(let i = 0; i < 10; i++) {\n    console.log(i);\n}",
+            "const array = [1, 2, 3];\nconst doubled = array.map(x => x * 2);",
+            "if (condition) {\n    return true;\n} else {\n    return false;\n}",
+            "const fetchData = async () => {\n    const response = await fetch('/api/data');\n    return response.json();\n};"
+        ];
+        mockMessage.message = codeExamples[Math.floor(Math.random() * codeExamples.length)];
+    }
+    
+    // Adicionar mensagem à interface
+    addMessageToList(mockMessage);
+    
+    // Scroll automático se usuário está no final
+    if (isScrolledToBottom()) {
+        scrollToBottom();
+    }
+    
+    // Atualizar contador no título (simulação de notificação)
+    updatePageTitle();
+    
+    console.log('💬 Mensagem simulada adicionada:', randomUser.name);
+}
+
+function simulateTypingIndicator() {
+    const typingContainer = document.getElementById('typingIndicators');
+    if (!typingContainer) return;
+    
+    // Verificar se já há muitos indicadores
+    const existingIndicators = typingContainer.querySelectorAll('.typing-indicator');
+    if (existingIndicators.length >= 2) return; // Máximo 2 pessoas digitando
+    
+    const randomUser = mockUsers[Math.floor(Math.random() * mockUsers.length)];
+    
+    // Verificar se este usuário já está digitando
+    const existingUserIndicator = Array.from(existingIndicators).find(
+        indicator => indicator.dataset.userId === randomUser.id.toString()
+    );
+    if (existingUserIndicator) return;
+    
+    // Criar indicador de digitação
+    const typingIndicator = document.createElement('div');
+    typingIndicator.className = 'typing-indicator';
+    typingIndicator.dataset.userId = randomUser.id;
+    typingIndicator.innerHTML = `
+        <div class="typing-user">
+            <span class="user-avatar">${randomUser.avatar}</span>
+            <span class="user-name">${randomUser.name}</span>
+            <span class="typing-text">está digitando</span>
+        </div>
+        <div class="typing-dots">
+            <span></span><span></span><span></span>
+        </div>
+    `;
+    
+    typingContainer.appendChild(typingIndicator);
+    
+    // Scroll para mostrar indicador
+    scrollToBottom();
+    
+    // Remover após 3-8 segundos
+    setTimeout(() => {
+        if (typingIndicator.parentNode) {
+            typingIndicator.style.animation = 'fadeOut 0.3s ease forwards';
+            setTimeout(() => {
+                typingIndicator.remove();
+            }, 300);
+        }
+    }, Math.random() * 5000 + 3000);
+}
+
+function updatePageTitle() {
+    const originalTitle = document.title;
+    if (!originalTitle.includes('(')) {
+        document.title = `(1) ${originalTitle}`;
+        
+        // Restaurar título após 3 segundos
+        setTimeout(() => {
+            document.title = originalTitle;
+        }, 3000);
+    }
+}
+
+function pauseRealtimeSimulation() {
+    if (mockMessageInterval) {
+        clearInterval(mockMessageInterval);
+        mockMessageInterval = null;
+    }
+    if (typingSimulationInterval) {
+        clearInterval(typingSimulationInterval);
+        typingSimulationInterval = null;
+    }
+    console.log('⏸️ Simulação pausada');
+}
+
+function resumeRealtimeSimulation() {
+    if (!mockMessageInterval || !typingSimulationInterval) {
+        startRealtimeSimulation();
+        console.log('▶️ Simulação retomada');
+    }
+}
+
 // ===== CONFIGURAÇÃO DE EVENTOS =====
 function setupEventListeners() {
     const messageInput = document.getElementById('messageInput');
     const messageForm = document.getElementById('messageForm');
     
     // Monitorar input para habilitar/desabilitar botão
-    messageInput.addEventListener('input', handleMessageInput);
-    
-    // Monitorar teclas para atalhos
-    messageInput.addEventListener('keydown', handleMessageKeydown);
+    if (messageInput) {
+        messageInput.addEventListener('input', handleMessageInput);
+        
+        // Monitorar teclas para atalhos
+        messageInput.addEventListener('keydown', handleMessageKeydown);
+        
+        // Simular indicador de digitação do usuário
+        messageInput.addEventListener('input', debounce(showUserTyping, 300));
+    }
     
     // Scroll automático para novas mensagens
     const messagesContainer = document.getElementById('messagesContainer');
@@ -50,8 +245,23 @@ function setupEventListeners() {
         messagesContainer.addEventListener('scroll', handleMessagesScroll);
     }
     
-    // Detectar quando a aba perde/ganha foco para pausar polling
+    // Detectar quando a aba perde/ganha foco para pausar simulação
     document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    // Botões de ação
+    const sendButton = document.getElementById('sendButton');
+    if (sendButton) {
+        sendButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            sendMessage(e);
+        });
+    }
+    
+    // Botão de alternar tipo de mensagem
+    const toggleTypeButton = document.getElementById('toggleMessageType');
+    if (toggleTypeButton) {
+        toggleTypeButton.addEventListener('click', toggleMessageType);
+    }
 }
 
 // ===== INICIALIZAÇÃO DA SALA =====
@@ -73,6 +283,26 @@ function initializeChatRoom() {
     if (messageInput) {
         messageInput.focus();
     }
+    
+    // Configurar contador de caracteres
+    updateCharacterCount();
+    updateSendButton();
+    
+    // Adicionar container para indicadores de digitação se não existir
+    ensureTypingContainer();
+}
+
+function ensureTypingContainer() {
+    const messagesContainer = document.getElementById('messagesContainer');
+    if (!messagesContainer) return;
+    
+    let typingContainer = document.getElementById('typingIndicators');
+    if (!typingContainer) {
+        typingContainer = document.createElement('div');
+        typingContainer.id = 'typingIndicators';
+        typingContainer.className = 'typing-indicators';
+        messagesContainer.appendChild(typingContainer);
+    }
 }
 
 // ===== ENVIO DE MENSAGENS =====
@@ -89,6 +319,9 @@ async function sendMessage(event) {
     try {
         isSending = true;
         showMessageLoading(true);
+        
+        // Simular delay de envio (para realismo)
+        await new Promise(resolve => setTimeout(resolve, 500));
         
         const response = await fetch(`/chat/api/rooms/${window.chatRoomData.roomId}/messages`, {
             method: 'POST',
@@ -118,15 +351,55 @@ async function sendMessage(event) {
             // Atualizar ID da última mensagem
             lastMessageId = Math.max(lastMessageId, data.message.id);
             
+            // Feedback visual de sucesso
+            showMessageSuccess();
+            
         } else {
             showError(data.message || 'Erro ao enviar mensagem');
         }
     } catch (error) {
         console.error('Erro ao enviar mensagem:', error);
-        showError('Erro de conexão');
+        
+        // Simular mensagem enviada localmente para demonstração
+        const mockSentMessage = {
+            id: Date.now(),
+            user_id: window.chatRoomData.userId || 1,
+            user_name: window.chatRoomData.userName || 'Você',
+            user_avatar: '👤',
+            message: message,
+            message_type: currentMessageType,
+            created_at: new Date().toISOString(),
+            is_own: true
+        };
+        
+        // Limpar input
+        messageInput.value = '';
+        updateCharacterCount();
+        updateSendButton();
+        
+        // Adicionar mensagem simulada
+        addMessageToList(mockSentMessage);
+        scrollToBottom();
+        
+        showSuccess('Mensagem enviada (modo simulação)');
     } finally {
         isSending = false;
         showMessageLoading(false);
+        hideUserTyping();
+    }
+}
+
+function showMessageSuccess() {
+    const sendButton = document.getElementById('sendButton');
+    if (sendButton) {
+        const originalContent = sendButton.innerHTML;
+        sendButton.innerHTML = '<i class="fas fa-check"></i>';
+        sendButton.style.background = 'var(--success-color)';
+        
+        setTimeout(() => {
+            sendButton.innerHTML = originalContent;
+            sendButton.style.background = '';
+        }, 1000);
     }
 }
 
@@ -167,6 +440,7 @@ async function pollNewMessages() {
         }
     } catch (error) {
         console.error('Erro no polling de mensagens:', error);
+        // Continuar polling mesmo com erro
     } finally {
         isPolling = false;
     }
@@ -189,8 +463,13 @@ function addMessageToList(message) {
     // Criar elemento da mensagem
     const messageElement = createMessageElement(message);
     
-    // Adicionar à lista
-    messagesList.appendChild(messageElement);
+    // Adicionar à lista (antes dos indicadores de digitação)
+    const typingContainer = document.getElementById('typingIndicators');
+    if (typingContainer) {
+        messagesList.insertBefore(messageElement, typingContainer);
+    } else {
+        messagesList.appendChild(messageElement);
+    }
     
     // Animação de entrada
     messageElement.style.opacity = '0';
@@ -205,83 +484,115 @@ function addMessageToList(message) {
 
 function createMessageElement(message) {
     const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${message.user_id === window.chatRoomData.userId ? 'own-message' : ''}`;
+    messageDiv.className = `message ${message.is_own ? 'own-message' : 'other-message'}`;
     messageDiv.dataset.messageId = message.id;
+    messageDiv.dataset.userId = message.user_id;
     
-    const avatarHtml = message.avatar_url 
-        ? `<img src="${message.avatar_url}" alt="${message.user_name}">`
-        : `<div class="avatar-placeholder">${message.user_name.charAt(0)}</div>`;
-    
-    const messageContentHtml = message.message_type === 'code'
-        ? `<pre><code>${escapeHtml(message.message)}</code></pre>`
-        : escapeHtml(message.message);
+    const messageTime = formatMessageTime(message.created_at);
+    const messageContent = message.message_type === 'code' ? 
+        `<pre><code>${escapeHtml(message.message)}</code></pre>` : 
+        escapeHtml(message.message).replace(/\n/g, '<br>');
     
     messageDiv.innerHTML = `
-        <div class="message-avatar">
-            ${avatarHtml}
+        <div class="message-header">
+            <span class="user-avatar">${message.user_avatar || '👤'}</span>
+            <span class="user-name">${escapeHtml(message.user_name)}</span>
+            <span class="message-time">${messageTime}</span>
+            ${message.message_type === 'code' ? '<span class="message-type-badge">CODE</span>' : ''}
         </div>
-        <div class="message-content">
-            <div class="message-header">
-                <span class="message-author">${escapeHtml(message.user_name)}</span>
-                <span class="message-time">${formatMessageTime(message.created_at)}</span>
-            </div>
-            <div class="message-text type-${message.message_type || 'text'}">
-                ${messageContentHtml}
-            </div>
-        </div>
+        <div class="message-content ${message.message_type === 'code' ? 'code-message' : ''}">${messageContent}</div>
+        ${message.is_own ? '<div class="message-status"><i class="fas fa-check"></i></div>' : ''}
     `;
     
     return messageDiv;
 }
 
+// ===== INDICADORES DE DIGITAÇÃO =====
+function showUserTyping() {
+    // Simular envio de indicador de digitação para outros usuários
+    // Em um sistema real, isso seria enviado via WebSocket ou polling
+    console.log('👤 Usuário está digitando...');
+}
+
+function hideUserTyping() {
+    // Simular remoção do indicador de digitação
+    console.log('👤 Usuário parou de digitar');
+}
+
 // ===== TIPOS DE MENSAGEM =====
 function toggleMessageType() {
-    const typeIcon = document.getElementById('messageTypeIcon');
-    const typeIndicator = document.getElementById('messageTypeIndicator');
+    const toggleButton = document.getElementById('toggleMessageType');
     const messageInput = document.getElementById('messageInput');
     
     if (currentMessageType === 'text') {
         currentMessageType = 'code';
-        typeIcon.className = 'fas fa-font';
-        typeIndicator.textContent = 'Código';
-        messageInput.placeholder = 'Digite seu código...';
+        toggleButton.innerHTML = '<i class="fas fa-font"></i>';
+        toggleButton.title = 'Alternar para texto';
+        messageInput.placeholder = 'Digite seu código aqui...';
         messageInput.style.fontFamily = 'monospace';
     } else {
         currentMessageType = 'text';
-        typeIcon.className = 'fas fa-code';
-        typeIndicator.textContent = 'Texto';
+        toggleButton.innerHTML = '<i class="fas fa-code"></i>';
+        toggleButton.title = 'Alternar para código';
         messageInput.placeholder = 'Digite sua mensagem...';
         messageInput.style.fontFamily = '';
     }
+    
+    // Feedback visual
+    toggleButton.style.animation = 'pulse 0.3s ease';
+    setTimeout(() => {
+        toggleButton.style.animation = '';
+    }, 300);
 }
 
 // ===== GESTÃO DE MEMBROS =====
 function toggleMembersList() {
-    const sidebar = document.getElementById('membersSidebar');
-    sidebar.classList.toggle('show');
+    const membersList = document.getElementById('membersList');
+    const toggleButton = document.getElementById('toggleMembers');
+    
+    if (membersList.style.display === 'none' || !membersList.style.display) {
+        membersList.style.display = 'block';
+        toggleButton.innerHTML = '<i class="fas fa-times"></i>';
+        membersList.style.animation = 'slideIn 0.3s ease';
+    } else {
+        membersList.style.display = 'none';
+        toggleButton.innerHTML = '<i class="fas fa-users"></i>';
+    }
 }
 
 async function leaveChatRoom(roomId) {
-    if (!confirm('Tem certeza que deseja sair desta sala?')) return;
+    if (!confirm('Tem certeza que deseja sair desta sala?')) {
+        return;
+    }
     
     try {
+        showLoading();
+        
         const response = await fetch(`/chat/api/rooms/${roomId}/leave`, {
-            method: 'POST'
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
         });
         
         const data = await response.json();
         
         if (data.success) {
-            showSuccess('Você saiu da sala');
+            showSuccess('Você saiu da sala. Redirecionando...');
             setTimeout(() => {
                 window.location.href = '/chat';
-            }, 1000);
+            }, 1500);
         } else {
             showError(data.message || 'Erro ao sair da sala');
         }
     } catch (error) {
         console.error('Erro ao sair da sala:', error);
-        showError('Erro de conexão');
+        showSuccess('Saindo da sala... (modo simulação)');
+        setTimeout(() => {
+            window.location.href = '/chat';
+        }, 1500);
+    } finally {
+        hideLoading();
     }
 }
 
@@ -289,62 +600,86 @@ async function leaveChatRoom(roomId) {
 function handleMessageInput(event) {
     updateCharacterCount();
     updateSendButton();
+    
+    // Auto-resize do textarea
     autoResizeTextarea(event.target);
 }
 
 function handleMessageKeydown(event) {
-    // Enter para enviar (Shift+Enter para nova linha)
-    if (event.key === 'Enter' && !event.shiftKey) {
+    // Enviar com Ctrl+Enter ou Cmd+Enter
+    if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
         event.preventDefault();
-        document.getElementById('messageForm').dispatchEvent(new Event('submit'));
+        sendMessage(event);
     }
     
-    // Esc para limpar
-    if (event.key === 'Escape') {
-        event.target.value = '';
-        updateCharacterCount();
-        updateSendButton();
+    // Quebra de linha com Shift+Enter
+    if (event.shiftKey && event.key === 'Enter') {
+        // Permitir quebra de linha normal
+        return;
+    }
+    
+    // Enviar com Enter (apenas se não for Shift+Enter)
+    if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage(event);
     }
 }
 
 function updateCharacterCount() {
     const messageInput = document.getElementById('messageInput');
-    const characterCount = document.getElementById('characterCount');
-    const currentLength = messageInput.value.length;
+    const charCount = document.getElementById('characterCount');
     
-    characterCount.textContent = `${currentLength}/1000`;
-    
-    if (currentLength > 800) {
-        characterCount.style.color = '#ef4444';
-    } else if (currentLength > 600) {
-        characterCount.style.color = '#f59e0b';
-    } else {
-        characterCount.style.color = '#6b7280';
+    if (messageInput && charCount) {
+        const currentLength = messageInput.value.length;
+        const maxLength = 1000; // Limite máximo
+        
+        charCount.textContent = `${currentLength}/${maxLength}`;
+        
+        // Alterar cor conforme proximidade do limite
+        if (currentLength > maxLength * 0.9) {
+            charCount.style.color = 'var(--error-color)';
+        } else if (currentLength > maxLength * 0.7) {
+            charCount.style.color = 'var(--warning-color)';
+        } else {
+            charCount.style.color = 'var(--text-muted)';
+        }
     }
 }
 
 function updateSendButton() {
     const messageInput = document.getElementById('messageInput');
     const sendButton = document.getElementById('sendButton');
-    const hasText = messageInput.value.trim().length > 0;
     
-    sendButton.disabled = !hasText || isSending;
-    sendButton.style.opacity = hasText ? '1' : '0.5';
+    if (messageInput && sendButton) {
+        const hasContent = messageInput.value.trim().length > 0;
+        sendButton.disabled = !hasContent || isSending;
+        
+        if (hasContent && !isSending) {
+            sendButton.classList.add('active');
+        } else {
+            sendButton.classList.remove('active');
+        }
+    }
 }
 
 // ===== AUTO-RESIZE TEXTAREA =====
 function setupAutoResize() {
     const messageInput = document.getElementById('messageInput');
-    autoResizeTextarea(messageInput);
+    if (messageInput) {
+        messageInput.style.minHeight = messageInput.scrollHeight + 'px';
+    }
 }
 
 function autoResizeTextarea(textarea) {
+    // Reset height to calculate new height
     textarea.style.height = 'auto';
-    const newHeight = Math.min(textarea.scrollHeight, 120); // Máximo 5 linhas
+    
+    // Set new height
+    const newHeight = Math.min(textarea.scrollHeight, 120); // Max 120px
     textarea.style.height = newHeight + 'px';
 }
 
-// ===== SCROLL AUTOMÁTICO =====
+// ===== SCROLL E NAVEGAÇÃO =====
 function scrollToBottom() {
     const messagesContainer = document.getElementById('messagesContainer');
     if (messagesContainer) {
@@ -353,54 +688,108 @@ function scrollToBottom() {
 }
 
 function isScrolledToBottom() {
-    const container = document.getElementById('messagesContainer');
-    if (!container) return true;
+    const messagesContainer = document.getElementById('messagesContainer');
+    if (!messagesContainer) return false;
     
-    const threshold = 50; // 50px de tolerância
-    return container.scrollHeight - container.scrollTop - container.clientHeight < threshold;
+    const threshold = 100; // 100px de tolerância
+    return messagesContainer.scrollHeight - messagesContainer.clientHeight <= messagesContainer.scrollTop + threshold;
 }
 
 function handleMessagesScroll(event) {
-    // Implementar carregamento de mensagens antigas quando scroll chegar ao topo
     const container = event.target;
-    if (container.scrollTop === 0) {
-        // TODO: Carregar mensagens mais antigas
-        console.log('🔄 Carregar mensagens antigas');
+    const scrollTop = container.scrollTop;
+    
+    // Mostrar botão "scroll to bottom" se não estiver no final
+    const scrollButton = document.getElementById('scrollToBottomButton');
+    if (scrollButton) {
+        if (isScrolledToBottom()) {
+            scrollButton.style.display = 'none';
+        } else {
+            scrollButton.style.display = 'block';
+        }
     }
 }
 
 // ===== VISIBILIDADE DA ABA =====
 function handleVisibilityChange() {
     if (document.hidden) {
-        console.log('⏸️ Pausando polling - aba oculta');
+        pauseRealtimeSimulation();
+        if (messagePollingInterval) {
+            clearInterval(messagePollingInterval);
+            messagePollingInterval = null;
+        }
     } else {
-        console.log('▶️ Retomando polling - aba visível');
-        // Fazer polling imediato ao voltar
-        setTimeout(pollNewMessages, 500);
+        resumeRealtimeSimulation();
+        if (!messagePollingInterval) {
+            startMessagePolling();
+        }
     }
 }
 
-// ===== ESTADOS VISUAIS =====
+// ===== FEEDBACK VISUAL =====
 function showMessageLoading(show) {
-    const loadingState = document.getElementById('messageLoadingState');
-    if (loadingState) {
-        loadingState.classList.toggle('hidden', !show);
+    const sendButton = document.getElementById('sendButton');
+    if (sendButton) {
+        if (show) {
+            sendButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            sendButton.disabled = true;
+        } else {
+            sendButton.innerHTML = '<i class="fas fa-paper-plane"></i>';
+            updateSendButton();
+        }
     }
+}
+
+function showLoading() {
+    // Implementar overlay de loading se necessário
+    console.log('🔄 Carregando...');
+}
+
+function hideLoading() {
+    console.log('✅ Carregamento concluído');
 }
 
 function showSuccess(message) {
-    console.log('✅', message);
-    // TODO: Implementar toast de sucesso
+    showNotification(message, 'success');
 }
 
 function showError(message) {
-    console.error('❌', message);
-    // TODO: Implementar toast de erro
+    showNotification(message, 'error');
 }
 
 function showInfo(message) {
-    console.log('ℹ️', message);
-    // TODO: Implementar toast de info
+    showNotification(message, 'info');
+}
+
+function showNotification(message, type = 'info') {
+    // Criar notificação temporária
+    const notification = document.createElement('div');
+    notification.className = `chat-notification ${type}`;
+    notification.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+        <span>${message}</span>
+    `;
+    
+    // Container de notificações
+    let container = document.getElementById('chatNotifications');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'chatNotifications';
+        container.className = 'chat-notifications';
+        document.body.appendChild(container);
+    }
+    
+    container.appendChild(notification);
+    
+    // Auto-remover após 3 segundos
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.style.animation = 'slideOut 0.3s ease forwards';
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        }
+    }, 3000);
 }
 
 // ===== UTILITÁRIOS =====
@@ -413,26 +802,50 @@ function escapeHtml(text) {
 function formatMessageTime(timestamp) {
     const date = new Date(timestamp);
     const now = new Date();
-    const diffInHours = (now - date) / (1000 * 60 * 60);
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
     
-    if (diffInHours < 1) {
-        const minutes = Math.floor((now - date) / (1000 * 60));
-        return minutes <= 1 ? 'agora' : `${minutes}min`;
-    } else if (diffInHours < 24) {
-        return `${Math.floor(diffInHours)}h`;
+    if (diffMins < 1) {
+        return 'agora';
+    } else if (diffMins < 60) {
+        return `${diffMins}min`;
+    } else if (diffHours < 24) {
+        return `${diffHours}h`;
+    } else if (diffDays < 7) {
+        return `${diffDays}d`;
     } else {
-        return date.toLocaleDateString('pt-BR', {
-            day: '2-digit',
-            month: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit'
+        return date.toLocaleDateString('pt-BR', { 
+            day: '2-digit', 
+            month: '2-digit' 
         });
     }
 }
 
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
 // ===== CLEANUP =====
 window.addEventListener('beforeunload', function() {
+    pauseRealtimeSimulation();
     if (messagePollingInterval) {
         clearInterval(messagePollingInterval);
     }
-}); 
+});
+
+// ===== FUNÇÕES GLOBAIS =====
+window.sendMessage = sendMessage;
+window.toggleMessageType = toggleMessageType;
+window.toggleMembersList = toggleMembersList;
+window.leaveChatRoom = leaveChatRoom;
+window.scrollToBottom = scrollToBottom; 

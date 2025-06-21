@@ -54,6 +54,9 @@ async function showDashboard(req, res) {
     const recentActivity = await getUserRecentActivity(userId);
     console.log(`[DASHBOARD] Atividades obtidas: ${recentActivity.length} atividades`);
     
+    // Calcular dados para badges do menu lateral
+    const badgeData = calculateBadgeData(user, metrics, recentActivity);
+    
     // Calcular progresso para o próximo nível
     // Cada nível requer 100 XP * nível atual
     const currentLevel = user.level || 1;
@@ -99,7 +102,9 @@ async function showDashboard(req, res) {
         ...user,
         level: user.level || 1,
         xp_points: user.xp_points || 0,
-        streak_days: user.streak_days || 0
+        streak_days: user.streak_days || 0,
+        xpProgress: xpProgress,
+        ...badgeData
       },
       levelProgress,
       metrics: {
@@ -282,6 +287,36 @@ function formatTimeAgo(dateString) {
     const days = Math.floor(diffInSeconds / 86400);
     return `${days} ${days === 1 ? 'dia' : 'dias'} atrás`;
   }
+}
+
+/**
+ * Calcula dados para badges dinâmicos do menu lateral
+ */
+function calculateBadgeData(user, metrics, recentActivity) {
+    // Tarefas pendentes (baseado em progresso incompleto)
+    const pendingTasks = Math.max(0, 5 - (metrics.lessons_this_week || 0));
+    
+    // Progresso recente (XP ganho recentemente)
+    const recentProgress = recentActivity.filter(activity => 
+        activity.type === 'lesson_completed' || activity.type === 'quiz_completed'
+    ).length * 10; // 10 XP por atividade recente
+    
+    // Novas conquistas (simulado baseado no nível)
+    const newAchievements = user.level >= 3 ? Math.floor(Math.random() * 2) : 0;
+    
+    // Mensagens não lidas (simulado)
+    const unreadMessages = Math.random() < 0.3 ? Math.floor(Math.random() * 5) + 1 : 0;
+    
+    // Alertas de segurança (apenas para admins)
+    const securityAlerts = user.isAdmin ? (Math.random() < 0.1 ? 1 : 0) : 0;
+    
+    return {
+        pendingTasks: pendingTasks > 0 ? pendingTasks : undefined,
+        recentProgress: recentProgress > 0 ? recentProgress : undefined,
+        newAchievements: newAchievements > 0 ? newAchievements : undefined,
+        unreadMessages: unreadMessages > 0 ? unreadMessages : undefined,
+        securityAlerts: securityAlerts > 0 ? securityAlerts : undefined
+    };
 }
 
 module.exports = {

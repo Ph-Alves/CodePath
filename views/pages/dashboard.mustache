@@ -17,8 +17,11 @@
     <!-- Fontes -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Ícones -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Ícones Font Awesome - Versão Atualizada -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" crossorigin="anonymous">
+    
+    <!-- Chart.js para Fase 23 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="{{bodyClass}}">
     <div class="app-container">
@@ -69,11 +72,27 @@
                     </div>
                 </div>
                 
-                <!-- Metrics Cards -->
+                <!-- Filtros de Período - FASE 23 -->
+                <div class="period-filters">
+                    <button class="period-btn active" data-period="week">
+                        <i class="fas fa-calendar-week"></i>
+                        Esta Semana
+                    </button>
+                    <button class="period-btn" data-period="month">
+                        <i class="fas fa-calendar-alt"></i>
+                        Este Mês
+                    </button>
+                    <button class="period-btn" data-period="year">
+                        <i class="fas fa-calendar"></i>
+                        Este Ano
+                    </button>
+                </div>
+
+                <!-- Metrics Cards - EXPANDIDO FASE 23 -->
                 <div class="metrics-section">
                     <h2 class="section-title">Suas Estatísticas</h2>
                     <div class="metrics-grid">
-                        <div class="metric-card">
+                        <div class="metric-card" data-metric="lessons">
                             <div class="metric-icon">
                                 <i class="fas fa-play-circle"></i>
                             </div>
@@ -84,7 +103,7 @@
                             </div>
                         </div>
                         
-                        <div class="metric-card">
+                        <div class="metric-card" data-metric="courses">
                             <div class="metric-icon">
                                 <i class="fas fa-certificate"></i>
                             </div>
@@ -95,7 +114,7 @@
                             </div>
                         </div>
                         
-                        <div class="metric-card">
+                        <div class="metric-card" data-metric="challenges">
                             <div class="metric-icon">
                                 <i class="fas fa-code"></i>
                             </div>
@@ -106,7 +125,7 @@
                             </div>
                         </div>
                         
-                        <div class="metric-card">
+                        <div class="metric-card" data-metric="quizzes">
                             <div class="metric-icon">
                                 <i class="fas fa-question-circle"></i>
                             </div>
@@ -118,22 +137,138 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Gráficos Interativos - NOVO FASE 23 -->
+                <div class="charts-section">
+                    <h2 class="section-title">Análise Visual</h2>
+                    <div class="charts-grid">
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3 class="chart-title">Progresso Geral</h3>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="progressChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3 class="chart-title">Atividade Semanal</h3>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="activityChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3 class="chart-title">Performance XP</h3>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="performanceChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 
-                <!-- Continue Studying Section -->
-                <div class="continue-section">
-                    <h2 class="section-title">Continue Estudando</h2>
+                <!-- Packages Section - Fase 21: Sistema de Pacotes Interativo -->
+                <div class="packages-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Pacotes de Tecnologia</h2>
+                        <div class="section-controls">
+                            <button class="btn btn-outline" id="toggleFilters">
+                                <i class="fas fa-filter"></i>
+                                Filtros
+                            </button>
+                            <button class="btn btn-outline" id="toggleView">
+                                <i class="fas fa-th-large"></i>
+                                Grade
+                            </button>
+                        </div>
+                    </div>
                     
-                    {{#currentPackages}}
-                    <div class="continue-grid">
+                    <!-- Filtros Avançados -->
+                    <div class="filters-panel" id="filtersPanel" style="display: none;">
+                        <div class="filters-grid">
+                            <div class="filter-group">
+                                <label for="difficultyFilter">Dificuldade:</label>
+                                <select id="difficultyFilter" class="filter-select">
+                                    <option value="">Todas</option>
+                                    <option value="iniciante">Iniciante</option>
+                                    <option value="intermediário">Intermediário</option>
+                                    <option value="avançado">Avançado</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label for="durationFilter">Duração:</label>
+                                <select id="durationFilter" class="filter-select">
+                                    <option value="">Todas</option>
+                                    <option value="short">Até 20h</option>
+                                    <option value="medium">20h - 50h</option>
+                                    <option value="long">Mais de 50h</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label for="searchFilter">Buscar:</label>
+                                <input type="text" id="searchFilter" class="filter-input" placeholder="Digite para buscar...">
+                            </div>
+                            
+                            <div class="filter-group">
+                                <button class="btn btn-primary" id="applyFilters">
+                                    <i class="fas fa-search"></i>
+                                    Aplicar
+                                </button>
+                                <button class="btn btn-secondary" id="clearFilters">
+                                    <i class="fas fa-times"></i>
+                                    Limpar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Loading State -->
+                    <div class="loading-packages" id="loadingPackages" style="display: none;">
+                        <div class="loading-spinner">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </div>
+                        <p>Carregando pacotes...</p>
+                    </div>
+                    
+                    <!-- Empty State -->
+                    <div class="empty-packages" id="emptyPackages" style="display: none;">
+                        <div class="empty-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <h3>Nenhum pacote encontrado</h3>
+                        <p>Tente ajustar os filtros ou limpar a busca</p>
+                        <button class="btn btn-primary" onclick="clearAllFilters()">
+                            <i class="fas fa-refresh"></i>
+                            Mostrar Todos
+                        </button>
+                    </div>
+                    
+                    <!-- Packages Grid -->
+                    <div class="packages-grid" id="packagesGrid">
+                        <!-- Os pacotes serão carregados dinamicamente via JavaScript -->
+                    </div>
+                </div>
+                
+                <!-- Current Packages Progress -->
+                {{#currentPackages}}
+                <div class="current-packages">
+                    <h2 class="section-title">Pacotes em Progresso</h2>
+                    <div class="packages-progress-grid">
                         {{#packages}}
-                        <div class="package-card">
+                        <div class="package-progress-card" data-package-id="{{id}}">
                             <div class="package-header">
                                 <div class="package-icon">
                                     <i class="{{icon}}"></i>
                                 </div>
                                 <div class="package-info">
-                                    <h3 class="package-name">{{name}}</h3>
-                                    <p class="package-lesson">{{currentLesson}}</p>
+                                    <h3 class="package-title">{{name}}</h3>
+                                    <p class="package-current">{{currentLesson}}</p>
                                 </div>
                             </div>
                             
@@ -145,34 +280,20 @@
                             </div>
                             
                             <div class="package-actions">
-                                <a href="/content/package/{{id}}/lessons" class="btn btn-primary">
+                                <button class="btn btn-primary btn-sm" onclick="continuePackage({{id}})">
                                     <i class="fas fa-play"></i>
                                     Continuar
-                                </a>
-                                <button class="btn btn-secondary" onclick="showProgressModal('{{id}}')">
+                                </button>
+                                <button class="btn btn-outline btn-sm" onclick="showProgressModal({{id}})">
                                     <i class="fas fa-chart-line"></i>
-                                    Ver Progresso
+                                    Progresso
                                 </button>
                             </div>
                         </div>
                         {{/packages}}
                     </div>
-                    {{/currentPackages}}
-                    
-                    {{^currentPackages}}
-                    <div class="empty-state">
-                        <div class="empty-icon">
-                            <i class="fas fa-book-open"></i>
-                        </div>
-                        <h3>Comece sua jornada!</h3>
-                        <p>Escolha um pacote de tecnologia para começar a estudar.</p>
-                        <a href="/careers" class="btn btn-primary">
-                            <i class="fas fa-road"></i>
-                            Explorar Carreiras
-                        </a>
-                    </div>
-                    {{/currentPackages}}
                 </div>
+                {{/currentPackages}}
                 
                 <!-- Recent Activity -->
                 <div class="activity-section">
@@ -206,49 +327,69 @@
                     {{/recentActivity}}
                 </div>
                 
-                <!-- Quick Actions -->
+                <!-- Quick Actions - EXPANDIDO FASE 23 -->
                 <div class="quick-actions">
                     <h2 class="section-title">Ações Rápidas</h2>
                     <div class="actions-grid">
-                        <a href="/careers" class="action-card">
+                        <div class="action-card quick-action" data-action="continue-lesson">
                             <div class="action-icon">
-                                <i class="fas fa-road"></i>
+                                <i class="fas fa-play"></i>
                             </div>
                             <div class="action-content">
-                                <h3>Explorar Carreiras</h3>
-                                <p>Descubra novos caminhos na tecnologia</p>
+                                <h3>Continuar Aula</h3>
+                                <p>Retome de onde parou</p>
                             </div>
-                        </a>
+                        </div>
                         
-                        <a href="/profile" class="action-card">
+                        <div class="action-card quick-action" data-action="take-quiz">
                             <div class="action-icon">
-                                <i class="fas fa-user"></i>
+                                <i class="fas fa-question-circle"></i>
                             </div>
                             <div class="action-content">
-                                <h3>Meu Perfil</h3>
-                                <p>Gerencie suas informações pessoais</p>
+                                <h3>Fazer Quiz</h3>
+                                <p>Teste seus conhecimentos</p>
                             </div>
-                        </a>
+                        </div>
                         
-                        <a href="/performance" class="action-card">
+                        <div class="action-card quick-action" data-action="view-progress">
                             <div class="action-icon">
                                 <i class="fas fa-chart-line"></i>
                             </div>
                             <div class="action-content">
-                                <h3>Desempenho</h3>
-                                <p>Veja estatísticas detalhadas</p>
+                                <h3>Ver Progresso</h3>
+                                <p>Acompanhe seu desempenho</p>
                             </div>
-                        </a>
+                        </div>
                         
-                        <a href="/settings" class="action-card">
+                        <div class="action-card quick-action" data-action="browse-courses">
                             <div class="action-icon">
-                                <i class="fas fa-cog"></i>
+                                <i class="fas fa-book"></i>
                             </div>
                             <div class="action-content">
-                                <h3>Configurações</h3>
-                                <p>Personalize sua experiência</p>
+                                <h3>Explorar Cursos</h3>
+                                <p>Descubra novos conteúdos</p>
                             </div>
-                        </a>
+                        </div>
+                        
+                        <div class="action-card quick-action" data-action="view-achievements">
+                            <div class="action-icon">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                            <div class="action-content">
+                                <h3>Conquistas</h3>
+                                <p>Veja suas medalhas</p>
+                            </div>
+                        </div>
+                        
+                        <div class="action-card quick-action" data-action="join-community">
+                            <div class="action-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="action-content">
+                                <h3>Comunidade</h3>
+                                <p>Conecte-se com outros</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </main>
@@ -260,6 +401,31 @@
     
     <!-- Overlay para mobile -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    
+    <!-- Package Preview Modal -->
+    <div id="packageModal" class="modal" style="display: none;">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3 id="modalTitle">Preview do Pacote</h3>
+                <button class="modal-close" onclick="closePackageModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Conteúdo será carregado dinamicamente -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closePackageModal()">
+                    <i class="fas fa-times"></i>
+                    Fechar
+                </button>
+                <button class="btn btn-primary" id="modalActionBtn">
+                    <i class="fas fa-play"></i>
+                    Começar Pacote
+                </button>
+            </div>
+        </div>
+    </div>
     
     <!-- Progress Modal -->
     <div id="progressModal" class="modal" style="display: none;">

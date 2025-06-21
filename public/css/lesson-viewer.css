@@ -924,4 +924,446 @@
     top: 1rem;
     max-width: none;
   }
+}
+
+/* ========================================
+   CONTEÚDO INTERATIVO DA AULA - FASE 26
+   ======================================== */
+
+.lesson-interactive-content {
+    background: var(--lesson-card-bg);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    margin: 2rem 0;
+    box-shadow: var(--lesson-shadow);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    min-height: 400px;
+    position: relative;
+}
+
+/* Debug: garantir que o conteúdo seja visível */
+.lesson-interactive-content * {
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.lesson-content-wrapper h2 {
+    color: var(--text-primary);
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Seção de Introdução */
+.intro-section {
+    margin-bottom: 3rem;
+}
+
+.intro-section p {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+.highlight-box {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+    border: 2px solid rgba(102, 126, 234, 0.2);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+}
+
+.highlight-box h3 {
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.highlight-box ul {
+    list-style: none;
+    padding: 0;
+}
+
+.highlight-box li {
+    padding: 0.5rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.highlight-box li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: var(--success-color);
+    font-weight: bold;
+}
+
+/* Seção de Código */
+.code-section {
+    margin: 3rem 0;
+}
+
+.code-section h3 {
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.code-section p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.code-block {
+    background: #1e1e1e;
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.code-header {
+    background: #2d2d2d;
+    padding: 0.75rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #3d3d3d;
+}
+
+.code-header .language {
+    color: #61dafb;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.copy-btn {
+    background: rgba(97, 218, 251, 0.1);
+    border: 1px solid rgba(97, 218, 251, 0.3);
+    color: #61dafb;
+    padding: 0.25rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.copy-btn:hover {
+    background: rgba(97, 218, 251, 0.2);
+    transform: translateY(-1px);
+}
+
+.code-block pre {
+    margin: 0;
+    padding: 1.5rem;
+    overflow-x: auto;
+    background: transparent;
+}
+
+.code-block code {
+    color: #f8f8f2;
+    font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+/* Explicação do Código */
+.explanation {
+    background: #f8fafc;
+    border-left: 4px solid var(--primary-color);
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    border-radius: 0 8px 8px 0;
+}
+
+.explanation h4 {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.explanation ul {
+    list-style: none;
+    padding: 0;
+}
+
+.explanation li {
+    padding: 0.5rem 0;
+    color: var(--text-primary);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.explanation li:last-child {
+    border-bottom: none;
+}
+
+.explanation strong {
+    color: var(--primary-color);
+    font-family: 'Fira Code', monospace;
+    font-size: 0.9rem;
+    background: rgba(102, 126, 234, 0.1);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+}
+
+/* Seção de Prática */
+.practice-section {
+    margin: 3rem 0;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(5, 150, 105, 0.05));
+    border: 2px solid rgba(16, 185, 129, 0.2);
+    border-radius: 12px;
+    padding: 2rem;
+}
+
+.practice-section h3 {
+    color: var(--success-color);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.exercise-box {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.exercise-box h4 {
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.exercise-box p {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+}
+
+.code-editor {
+    width: 100%;
+    min-height: 150px;
+    background: #1e1e1e;
+    color: #f8f8f2;
+    border: 2px solid #3d3d3d;
+    border-radius: 8px;
+    padding: 1rem;
+    font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    resize: vertical;
+    transition: border-color 0.2s ease;
+}
+
+.code-editor:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.test-code {
+    background: var(--success-color);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 1rem;
+    transition: all 0.2s ease;
+}
+
+.test-code:hover {
+    background: #059669;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.test-result {
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.test-result.success {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: var(--success-color);
+}
+
+.test-result.error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #dc2626;
+}
+
+/* Seção de Conceitos */
+.concepts-section {
+    margin: 3rem 0;
+}
+
+.concepts-section h3 {
+    color: var(--text-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+
+.concept-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.concept-card {
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.concept-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+}
+
+.concept-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.concept-card h4 {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.concept-card p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Próximos Passos */
+.next-steps {
+    margin: 3rem 0;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.05), rgba(99, 102, 241, 0.05));
+    border: 2px solid rgba(139, 92, 246, 0.2);
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+}
+
+.next-steps h3 {
+    color: var(--primary-color);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.next-steps p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+}
+
+.progress-indicators {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.progress-indicators div {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.progress-indicators .completed {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success-color);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.progress-indicators .next {
+    background: rgba(139, 92, 246, 0.1);
+    color: var(--primary-color);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+/* ========================================
+   RESPONSIVIDADE PARA CONTEÚDO INTERATIVO
+   ======================================== */
+
+@media (max-width: 768px) {
+    .lesson-interactive-content {
+        padding: 1rem;
+        margin: 1rem 0;
+    }
+    
+    .lesson-content-wrapper h2 {
+        font-size: 1.5rem;
+    }
+    
+    .code-block pre {
+        padding: 1rem;
+        font-size: 0.8rem;
+    }
+    
+    .concept-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .progress-indicators {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .code-editor {
+        font-size: 0.8rem;
+        min-height: 120px;
+    }
+}
+
+@media (max-width: 480px) {
+    .highlight-box,
+    .practice-section,
+    .next-steps {
+        padding: 1rem;
+    }
+    
+    .exercise-box {
+        padding: 1rem;
+    }
+    
+    .concept-card {
+        padding: 1rem;
+    }
 } 

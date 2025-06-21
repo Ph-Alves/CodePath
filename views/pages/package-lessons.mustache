@@ -1,6 +1,4 @@
-{{>layouts/main}}
 
-{{#contentBody}}
 <!-- CSS específico para aulas do pacote -->
 <link rel="stylesheet" href="/css/package-lessons.css">
 
@@ -67,11 +65,11 @@
           
           <div class="lesson-meta">
             <span class="lesson-duration">
-              <i class="icon-clock" aria-hidden="true"></i>
+              <i class="fas fa-clock" aria-hidden="true"></i>
               ~15 min
             </span>
             <span class="lesson-type">
-              <i class="icon-video" aria-hidden="true"></i>
+              <i class="fas fa-play-circle" aria-hidden="true"></i>
               Aula Prática
             </span>
           </div>
@@ -79,7 +77,7 @@
         
         <div class="lesson-actions">
           <a href="/content/lesson/{{id}}" class="btn btn-primary">
-            <i class="icon-play" aria-hidden="true"></i>
+            <i class="fas fa-play" aria-hidden="true"></i>
             {{#isCompleted}}Revisar Aula{{/isCompleted}}
             {{^isCompleted}}Assistir Aula{{/isCompleted}}
           </a>
@@ -88,11 +86,11 @@
         <!-- Status da Aula -->
         <div class="lesson-status {{#isCompleted}}completed{{/isCompleted}}">
           {{#isCompleted}}
-          <i class="icon-check-circle lesson-status-icon completed" aria-hidden="true"></i>
+          <i class="fas fa-check-circle lesson-status-icon completed" aria-hidden="true"></i>
           <span class="status-text">Concluída</span>
           {{/isCompleted}}
           {{^isCompleted}}
-          <i class="icon-circle lesson-status-icon pending" aria-hidden="true"></i>
+          <i class="far fa-circle lesson-status-icon pending" aria-hidden="true"></i>
           <span class="status-text">Pendente</span>
           {{/isCompleted}}
         </div>
@@ -101,7 +99,7 @@
       
       {{^lessons}}
       <div class="empty-state">
-        <i class="icon-book-open empty-icon" aria-hidden="true"></i>
+        <i class="fas fa-book-open empty-icon" aria-hidden="true"></i>
         <h3>Nenhuma aula disponível</h3>
         <p>Este pacote ainda não possui aulas cadastradas.</p>
         <a href="/careers" class="btn btn-outline">Voltar para Carreiras</a>
@@ -112,14 +110,14 @@
     <!-- Ações do Pacote -->
     <div class="package-actions">
       <a href="/careers" class="btn btn-outline">
-        <i class="icon-arrow-left" aria-hidden="true"></i>
+        <i class="fas fa-arrow-left" aria-hidden="true"></i>
         Voltar para Carreiras
       </a>
       
       {{#lessons}}
       {{#lessons.0}}
       <a href="/content/lesson/{{lessons.0.id}}" class="btn btn-primary">
-        <i class="icon-play" aria-hidden="true"></i>
+        <i class="fas fa-play" aria-hidden="true"></i>
         {{#progressStats.watchedLessons}}Continuar Estudando{{/progressStats.watchedLessons}}
         {{^progressStats.watchedLessons}}Começar Agora{{/progressStats.watchedLessons}}
       </a>
@@ -132,12 +130,12 @@
 <!-- Flash Messages -->
 {{#flash}}
 <div class="flash-message flash-{{type}}" role="alert">
-  <i class="flash-icon icon-{{type}}" aria-hidden="true"></i>
+  <i class="flash-icon fas fa-info-circle" aria-hidden="true"></i>
   <span class="flash-text">{{message}}</span>
   <button class="flash-close" aria-label="Fechar mensagem">
-    <i class="icon-x" aria-hidden="true"></i>
+    <i class="fas fa-times" aria-hidden="true"></i>
   </button>
 </div>
 {{/flash}}
 
-{{/contentBody}} 
+ 
