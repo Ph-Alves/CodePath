@@ -243,7 +243,7 @@ class LessonViewer {
             <i class="fas fa-check"></i> Marcar como Concluída
           </button>
           <button class="btn btn-secondary" onclick="lessonViewer.closeModal()">
-            Continuar Estudando
+            <i class="fas fa-times"></i> Fechar
           </button>
         </div>
       </div>

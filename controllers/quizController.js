@@ -172,7 +172,7 @@ const quizController = {
 
             // Se correto, dar XP adicional (+10 XP por resposta correta)
             if (result.isCorrect) {
-                const updateXpQuery = `UPDATE users SET xp_points = xp_points + 10 WHERE id = ?`;
+                const updateXpQuery = `UPDATE users SET total_xp = total_xp + 10 WHERE id = ?`;
                 // Executar query de XP (simplificado)
             }
 

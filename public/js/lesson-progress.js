@@ -124,15 +124,11 @@ class LessonProgressManager {
             this.updateProgressBar(data.progress_stats.progress_percentage);
         }
 
-        // Sugerir próxima aula
-        if (data.nextLesson) {
-            this.showNextLessonSuggestion(data.nextLesson);
-        }
-
         // Atualizar métricas do usuário no header
         this.updateUserMetrics(data);
 
         // Disparar evento customizado para o sistema de navegação
+        // O sistema de navegação irá lidar com a sugestão de próxima aula
         const lessonCompletedEvent = new CustomEvent('lessonCompleted', {
             detail: {
                 lessonId: this.getCurrentLessonId(),
@@ -287,48 +283,6 @@ class LessonProgressManager {
         setTimeout(() => {
             levelUpModal.classList.add('show');
         }, 100);
-    }
-
-    /**
-     * Mostrar sugestão de próxima aula
-     * @param {Object} nextLesson - Dados da próxima aula
-     */
-    showNextLessonSuggestion(nextLesson) {
-        const suggestion = document.createElement('div');
-        suggestion.className = 'next-lesson-suggestion';
-        suggestion.innerHTML = `
-            <div class="suggestion-content">
-                <h3>Próxima Aula</h3>
-                <p>${nextLesson.name}</p>
-                <div class="suggestion-actions">
-                    <a href="${nextLesson.url}" class="btn btn-primary">
-                        Continuar Estudando
-                    </a>
-                    <button class="btn btn-outline" onclick="this.parentElement.parentElement.parentElement.remove()">
-                        Depois
-                    </button>
-                </div>
-            </div>
-        `;
-
-        document.body.appendChild(suggestion);
-
-        // Animar entrada
-        setTimeout(() => {
-            suggestion.classList.add('show');
-        }, 100);
-
-        // Auto-remover após 10 segundos
-        setTimeout(() => {
-            if (suggestion.parentElement) {
-                suggestion.classList.remove('show');
-                setTimeout(() => {
-                    if (suggestion.parentElement) {
-                        document.body.removeChild(suggestion);
-                    }
-                }, 300);
-            }
-        }, 10000);
     }
 
     /**

@@ -2,9 +2,12 @@
  * Progress Model - Gerenciamento avançado de progresso e métricas
  * Responsável por todas as operações relacionadas ao acompanhamento
  * detalhado de progresso, estatísticas e análises de desempenho
+ * 
+ * Fase 24 - Otimizado com sistema de cache avançado
  */
 
 const { database } = require('./database');
+const { cacheQuery } = require('../middleware/cache');
 
 const progressModel = {
     
@@ -13,15 +16,17 @@ const progressModel = {
      * @param {number} userId - ID do usuário
      * @returns {Object} Estatísticas gerais de progresso
      */
-    getUserOverallStats: (userId) => {
-        return new Promise((resolve, reject) => {
+    getUserOverallStats: async (userId) => {
+        const cacheKey = `user_overall_stats_${userId}`;
+        
+        return await cacheQuery(cacheKey, async () => {
             const query = `
                 SELECT 
                     u.id,
                     u.name,
                     u.email,
                     u.level,
-                    u.total_xp as xp_points,
+                    u.total_xp,
                     u.created_at as registration_date,
                     COUNT(DISTINCT up.package_id) as total_packages_started,
                     COUNT(DISTINCT CASE WHEN up.status = 'completed' THEN up.package_id END) as packages_completed,
@@ -45,10 +50,8 @@ const progressModel = {
                 GROUP BY u.id
             `;
             
-            database.get(query, [userId])
-                .then(resolve)
-                .catch(reject);
-        });
+            return await database.get(query, [userId]);
+        }, 300); // Cache por 5 minutos
     },
 
     /**
@@ -258,7 +261,7 @@ const progressModel = {
                         COALESCE(AVG(up.progress_percentage), 0) as user_avg_progress,
                         COALESCE(SUM(up.lessons_watched), 0) as user_lessons,
                         COALESCE(SUM(up.quizzes_completed), 0) as user_quizzes,
-                        u.xp_points as user_xp
+                        u.total_xp as user_xp
                     FROM users u
                     LEFT JOIN user_progress up ON u.id = up.user_id
                     WHERE u.id = ?
@@ -270,7 +273,7 @@ const progressModel = {
                         AVG(avg_progress) as avg_progress,
                         AVG(total_lessons) as avg_lessons,
                         AVG(total_quizzes) as avg_quizzes,
-                        AVG(xp_points) as avg_xp
+                        AVG(total_xp) as avg_xp
                     FROM (
                         SELECT 
                             u.id,
@@ -278,7 +281,7 @@ const progressModel = {
                             COALESCE(AVG(up.progress_percentage), 0) as avg_progress,
                             COALESCE(SUM(up.lessons_watched), 0) as total_lessons,
                             COALESCE(SUM(up.quizzes_completed), 0) as total_quizzes,
-                            u.xp_points
+                            u.total_xp
                         FROM users u
                         LEFT JOIN user_progress up ON u.id = up.user_id
                         GROUP BY u.id
@@ -322,7 +325,7 @@ const progressModel = {
                     COUNT(DISTINCT up.package_id) as current_packages,
                     COALESCE(SUM(up.lessons_watched), 0) as current_lessons,
                     COALESCE(SUM(up.quizzes_completed), 0) as current_quizzes,
-                    u.xp_points as current_xp,
+                    u.total_xp as current_xp,
                     u.level as current_level
                 FROM users u
                 LEFT JOIN user_progress up ON u.id = up.user_id
@@ -575,21 +578,21 @@ const progressModel = {
         return new Promise(async (resolve, reject) => {
             try {
                 // Buscar XP atual do usuário
-                const userQuery = `SELECT xp_points, level FROM users WHERE id = ?`;
+                const userQuery = `SELECT total_xp, level FROM users WHERE id = ?`;
                 const user = await database.get(userQuery, [userId]);
 
                 if (!user) {
                     return reject(new Error('Usuário não encontrado'));
                 }
 
-                const newXP = user.xp_points + xpAmount;
+                const newXP = user.total_xp + xpAmount;
                 const newLevel = Math.floor(newXP / 1000) + 1; // Cada 1000 XP = 1 nível
                 const leveledUp = newLevel > user.level;
 
                 // Atualizar XP e nível do usuário
                 const updateQuery = `
                     UPDATE users 
-                    SET xp_points = ?, level = ?, updated_at = datetime('now')
+                    SET total_xp = ?, level = ?, updated_at = datetime('now')
                     WHERE id = ?
                 `;
                 await database.run(updateQuery, [newXP, newLevel, userId]);

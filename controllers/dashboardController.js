@@ -62,7 +62,7 @@ async function showDashboard(req, res) {
     const currentLevel = user.level || 1;
     const xpForCurrentLevel = (currentLevel - 1) * 100;
     const xpForNextLevel = currentLevel * 100;
-    const xpProgress = user.xp_points - xpForCurrentLevel;
+            const xpProgress = user.total_xp - xpForCurrentLevel;
     const levelProgress = Math.min(Math.round((xpProgress / (xpForNextLevel - xpForCurrentLevel)) * 100), 100);
     
     // Preparar dados dos pacotes em progresso
@@ -101,7 +101,7 @@ async function showDashboard(req, res) {
       user: {
         ...user,
         level: user.level || 1,
-        xp_points: user.xp_points || 0,
+                    total_xp: user.total_xp || 0,
         streak_days: user.streak_days || 0,
         xpProgress: xpProgress,
         ...badgeData

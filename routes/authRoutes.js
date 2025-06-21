@@ -46,11 +46,11 @@ router.get('/login', requireGuest, showLogin);
  */
 router.post('/login', 
   requireGuest, 
-  rateLimiter({
-    limit: 10,
-    windowMinutes: 5,
-    message: 'Muitas tentativas de login. Tente novamente em 5 minutos.'
-  }),
+  // rateLimiter({
+  //   limit: 10,
+  //   windowMinutes: 5,
+  //   message: 'Muitas tentativas de login. Tente novamente em 5 minutos.'
+  // }),
   validateForm({
     email: {
       required: true,
@@ -87,11 +87,11 @@ router.get('/register', requireGuest, showRegister);
  */
 router.post('/register', 
   requireGuest, 
-  rateLimiter({
-    limit: 3,
-    windowMinutes: 60,
-    message: 'Muitas tentativas de registro. Tente novamente em 1 hora.'
-  }),
+  // rateLimiter({
+  //   limit: 3,
+  //   windowMinutes: 60,
+  //   message: 'Muitas tentativas de registro. Tente novamente em 1 hora.'
+  // }),
   validateForm({
     name: {
       required: true,
@@ -151,35 +151,7 @@ router.get('/login', (req, res) => {
     });
 });
 
-// Rota temporária para Minha Área
-router.get('/my-area', requireAuth, async (req, res) => {
-    try {
-        // Buscar dados do usuário para a página
-        const user = req.session.user;
-        const userData = await userModel.getUserById(user.id);
-        
-        // Calcular progresso XP para próximo nível
-        const xpForNextLevel = userData.level * 1000;
-        const xpProgress = Math.round((userData.total_xp / xpForNextLevel) * 100);
-        
-        res.render('pages/my-area', {
-            title: 'Minha Área - CodePath',
-            user: {
-                ...userData,
-                xpProgress: xpProgress
-            },
-            isMyArea: true,
-            comingSoon: true
-        });
-    } catch (error) {
-        console.error('Erro ao carregar Minha Área:', error);
-        res.status(500).render('pages/error', {
-            title: 'Erro - CodePath',
-            error: 'Erro interno do servidor',
-            user: req.session.user
-        });
-    }
-});
+// Rota /my-area removida - agora está em userRoutes.js
 
 // Rota temporária para Configurações
 router.get('/settings', requireAuth, async (req, res) => {

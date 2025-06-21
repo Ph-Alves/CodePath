@@ -451,7 +451,7 @@ class AnalyticsDashboard {
         // Atualizar XP
         const xpElement = document.querySelector('.metric-icon.xp + .metric-info .metric-value');
         if (xpElement && data.user) {
-            xpElement.textContent = data.user.xp_points;
+            xpElement.textContent = data.user.total_xp;
         }
 
         // Atualizar aulas concluídas

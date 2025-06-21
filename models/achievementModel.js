@@ -154,37 +154,34 @@ class AchievementModel {
     }
     
     /**
-     * Obtém estatísticas do usuário para verificação de conquistas
+     * Obtém estatísticas do usuário para verificar conquistas
      */
     static getUserStats(userId) {
-        // Estatísticas básicas
-        const basicStats = database.prepare(`
-            SELECT 
-                u.total_xp,
-                u.current_streak,
-                u.longest_streak,
-                u.last_login_date
+        // Estatísticas básicas do usuário
+        const basicStats = database.get(`
+            SELECT total_xp, current_streak, longest_streak, last_login_date 
             FROM users u 
             WHERE u.id = ?
-        `).get(userId) || {};
+        `, [userId]) || {};
         
         // Aulas completadas
-        const lessonsCompleted = database.prepare(`
+        const lessonsResult = database.get(`
             SELECT COUNT(*) as count 
             FROM user_progress 
             WHERE user_id = ? AND completed_at IS NOT NULL
-        `).get(userId)?.count || 0;
+        `, [userId]);
+        const lessonsCompleted = lessonsResult?.count || 0;
         
         // Quizzes completados
-        const quizzesCompleted = database.prepare(`
-            SELECT COUNT(*) as count 
+        const quizzesResult = database.all(`
+            SELECT DISTINCT quiz_id
             FROM user_quiz_answers 
             WHERE user_id = ?
-            GROUP BY quiz_id
-        `).all(userId).length || 0;
+        `, [userId]);
+        const quizzesCompleted = quizzesResult?.length || 0;
         
         // Quizzes perfeitos (100% de acerto)
-        const perfectQuizzes = database.prepare(`
+        const perfectQuizzesResult = database.get(`
             SELECT COUNT(*) as count
             FROM (
                 SELECT quiz_id, 
@@ -194,17 +191,19 @@ class AchievementModel {
                 GROUP BY quiz_id
                 HAVING avg_score = 1.0
             )
-        `).get(userId)?.count || 0;
+        `, [userId]);
+        const perfectQuizzes = perfectQuizzesResult?.count || 0;
         
         // Pacotes completados
-        const packagesCompleted = database.prepare(`
+        const packagesResult = database.get(`
             SELECT COUNT(DISTINCT p.id) as count
             FROM packages p
             JOIN lessons l ON p.id = l.package_id
             LEFT JOIN user_progress up ON l.id = up.lesson_id AND up.user_id = ?
             GROUP BY p.id
             HAVING COUNT(l.id) = COUNT(up.lesson_id)
-        `).get(userId)?.count || 0;
+        `, [userId]);
+        const packagesCompleted = packagesResult?.count || 0;
         
         // Horas de estudo (estimativa baseada em aulas assistidas)
         const studyHours = Math.floor(lessonsCompleted * 0.5); // 30 min por aula
@@ -226,11 +225,11 @@ class AchievementModel {
      * Atualiza o streak do usuário
      */
     static updateUserStreak(userId) {
-        const user = database.prepare(`
+        const user = database.get(`
             SELECT current_streak, longest_streak, last_login_date 
             FROM users 
             WHERE id = ?
-        `).get(userId);
+        `, [userId]);
         
         if (!user) return false;
         
@@ -269,13 +268,13 @@ class AchievementModel {
         }
         
         // Atualiza no banco
-        database.prepare(`
+        database.run(`
             UPDATE users 
             SET current_streak = ?, 
                 longest_streak = ?, 
                 last_login_date = datetime('now')
             WHERE id = ?
-        `).run(newStreak, newLongestStreak, userId);
+        `, [newStreak, newLongestStreak, userId]);
         
         return { 
             streak: newStreak, 
@@ -289,11 +288,11 @@ class AchievementModel {
      */
     static addXPToUser(userId, xpAmount) {
         try {
-            database.prepare(`
+            database.run(`
                 UPDATE users 
                 SET total_xp = total_xp + ? 
                 WHERE id = ?
-            `).run(xpAmount, userId);
+            `, [xpAmount, userId]);
             
             return true;
         } catch (error) {
@@ -321,7 +320,7 @@ class AchievementModel {
             LIMIT ?
         `;
         
-        return database.prepare(query).all(userId, limit);
+        return database.all(query, [userId, limit]);
     }
     
     /**

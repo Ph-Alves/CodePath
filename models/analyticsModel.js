@@ -19,7 +19,7 @@ class AnalyticsModel {
                     (SELECT COUNT(*) FROM lessons) as total_lessons,
                     (SELECT COUNT(*) FROM quizzes) as total_quizzes,
                     (SELECT COUNT(*) FROM user_progress WHERE completed_at IS NOT NULL) as total_completions,
-                    (SELECT AVG(xp_points) FROM users WHERE active = 1) as avg_xp,
+                    (SELECT AVG(total_xp) FROM users WHERE active = 1) as avg_xp,
                     (SELECT COUNT(*) FROM achievements) as total_achievements,
                     (SELECT COUNT(*) FROM user_achievements) as total_earned_achievements
             `);
@@ -55,7 +55,7 @@ class AnalyticsModel {
                     u.total_xp as xp_points,
                     u.level,
                     u.created_at,
-                    u.last_login,
+                    u.last_login_date,
                     (SELECT COUNT(*) FROM user_progress WHERE user_id = ? AND completed_at IS NOT NULL) as lessons_completed,
                     (SELECT COUNT(*) FROM user_quiz_answers WHERE user_id = ?) as quizzes_attempted,
                     (SELECT COUNT(*) FROM user_achievements WHERE user_id = ?) as achievements_earned,

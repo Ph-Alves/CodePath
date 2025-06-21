@@ -28,9 +28,9 @@ const progressController = {
                     id: 'xp_goal',
                     title: 'Alcançar Próximo Nível',
                     description: 'Continue estudando para subir de nível',
-                    current: overallStats.xp_points || 0,
+                    current: overallStats.total_xp || 0,
                     target: (overallStats.level || 1) * 100,
-                    progress: Math.round(((overallStats.xp_points || 0) / ((overallStats.level || 1) * 100)) * 100),
+                    progress: Math.round(((overallStats.total_xp || 0) / ((overallStats.level || 1) * 100)) * 100),
                     type: 'xp',
                     icon: 'fas fa-star'
                 }

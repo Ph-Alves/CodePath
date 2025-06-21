@@ -1305,10 +1305,6 @@ class DashboardManager {
                 </div>
                 
                 <div class="progress-actions">
-                    <button class="btn btn-primary" onclick="continuePackage('${this.currentPackageId}')">
-                        <i class="fas fa-play"></i>
-                        Continuar Estudando
-                    </button>
                     <button class="btn btn-secondary" onclick="viewPackageDetails('${this.currentPackageId}')">
                         <i class="fas fa-info-circle"></i>
                         Ver Detalhes

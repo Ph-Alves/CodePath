@@ -28,6 +28,16 @@ const {
   rateLimiter 
 } = require('./middleware/security');
 
+// Importação do sistema de cache
+const { 
+  cacheMiddleware, 
+  invalidateCacheMiddleware, 
+  setupCacheCleanup 
+} = require('./middleware/cache');
+
+// Importação do sistema de compressão
+const compression = require('compression');
+
 // Importação das rotas
 const authRoutes = require('./routes/authRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
@@ -40,6 +50,7 @@ const xpRoutes = require('./routes/xpRoutes');
 const achievementRoutes = require('./routes/achievementRoutes');
 const securityRoutes = require('./routes/securityRoutes');
 const chatRoutes = require('./routes/chatRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 // Inicialização da aplicação Express
 const app = express();
@@ -59,6 +70,20 @@ app.set('views', path.join(__dirname, 'views'));
 // ========================================
 // MIDDLEWARES GLOBAIS
 // ========================================
+
+// Compressão gzip/deflate (deve ser um dos primeiros)
+app.use(compression({
+  filter: (req, res) => {
+    // Não comprimir se houver header específico
+    if (req.headers['x-no-compression']) {
+      return false;
+    }
+    // Usar compressão padrão do compression
+    return compression.filter(req, res);
+  },
+  level: 6, // Nível de compressão balanceado
+  threshold: 1024 // Só comprimir arquivos > 1KB
+}));
 
 // Middleware de headers de segurança (deve ser o primeiro)
 app.use(securityHeaders);
@@ -80,8 +105,22 @@ app.use(express.json());
 // Middleware de sanitização de dados
 app.use(sanitizeInput);
 
-// Configuração de arquivos estáticos
-app.use(express.static(path.join(__dirname, 'public')));
+// Configuração de arquivos estáticos com cache otimizado
+app.use(express.static(path.join(__dirname, 'public'), {
+  maxAge: '1d', // Cache por 1 dia
+  etag: true,
+  lastModified: true,
+  setHeaders: (res, filePath) => {
+    // Cache mais longo para assets que não mudam frequentemente
+    if (filePath.endsWith('.css') || filePath.endsWith('.js')) {
+      res.setHeader('Cache-Control', 'public, max-age=86400'); // 1 dia
+    } else if (filePath.endsWith('.png') || filePath.endsWith('.jpg') || filePath.endsWith('.jpeg') || filePath.endsWith('.gif')) {
+      res.setHeader('Cache-Control', 'public, max-age=604800'); // 1 semana
+    } else {
+      res.setHeader('Cache-Control', 'public, max-age=3600'); // 1 hora para outros arquivos
+    }
+  }
+}));
 
 // Rota de teste muito simples (antes de tudo)
 app.get('/debug-test', (req, res) => {
@@ -186,6 +225,17 @@ app.use(addUserToViews);
 // CONFIGURAÇÃO DAS ROTAS
 // ========================================
 
+// Rota principal - redireciona baseado na autenticação (deve vir ANTES das outras)
+app.get('/', async (req, res) => {
+  // Se usuário está logado, redirecionar para dashboard
+  if (req.session.user) {
+    return res.redirect('/dashboard');
+  }
+  
+  // Se não está logado, redirecionar para login
+  res.redirect('/login');
+});
+
 // Usar as rotas de autenticação
 app.use('/', authRoutes);
 
@@ -200,16 +250,18 @@ app.use('/content', contentRoutes);
 
 // Usar as rotas de questionários
 app.use('/', quizRoutes);
-app.use('/', progressRoutes);
+
+// Usar as rotas de progresso com cache
+app.use('/', cacheMiddleware('progress', (req) => `progress_${req.session?.user?.id}_${req.path}`, 120), progressRoutes);
 
 // Usar as rotas de notificações
 app.use('/notifications', notificationRoutes);
 
-// Usar as rotas de XP e gamificação
-app.use('/xp', xpRoutes);
+// Usar as rotas de XP e gamificação com invalidação de cache
+app.use('/xp', invalidateCacheMiddleware('user', (req) => `user_${req.session?.user?.id}`), xpRoutes);
 
-// Usar as rotas de conquistas
-app.use('/achievements', achievementRoutes);
+// Usar as rotas de conquistas com cache
+app.use('/achievements', cacheMiddleware('user', (req) => `achievements_${req.session?.user?.id}`, 300), achievementRoutes);
 
 // Usar as rotas de segurança
 app.use('/security', securityRoutes);
@@ -217,24 +269,16 @@ app.use('/security', securityRoutes);
 // Usar as rotas de chat e comunidade
 app.use('/chat', chatRoutes);
 
-// Usar as rotas de analytics
+// Usar as rotas do usuário (Minha Área)
+app.use('/', userRoutes);
+
+// Usar as rotas de analytics com cache
 const analyticsRoutes = require('./routes/analyticsRoutes');
-app.use('/analytics', analyticsRoutes);
+app.use('/analytics', cacheMiddleware('static', (req) => `analytics_${req.path}`, 600), analyticsRoutes);
 
 // ========================================
-// ROTA PRINCIPAL TEMPORÁRIA
+// ROTAS DE TESTE
 // ========================================
-
-// Rota principal - redireciona baseado na autenticação
-app.get('/', async (req, res) => {
-  // Se usuário está logado, redirecionar para dashboard
-  if (req.session.user) {
-    return res.redirect('/dashboard');
-  }
-  
-  // Se não está logado, redirecionar para login
-  res.redirect('/login');
-});
 
 // Rota temporária para testar o servidor e banco
 app.get('/test', async (req, res) => {
@@ -523,6 +567,10 @@ async function startServer() {
     // Configurar a instância global do banco
     setDatabaseInstance(database);
     console.log('🎉 Banco de dados pronto para uso!');
+    
+    // Inicializar sistema de limpeza de cache
+    setupCacheCleanup();
+    console.log('🗄️ Sistema de cache inicializado');
     
     // Iniciar servidor
     app.listen(PORT, () => {

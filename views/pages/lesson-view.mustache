@@ -5,13 +5,6 @@
 <link rel="stylesheet" href="/css/lesson-progress.css">
 <link rel="stylesheet" href="/css/lesson-navigation.css">
 
-<!-- DEBUG: Seção sempre visível para identificar problemas -->
-<div style="background: #10b981; color: white; padding: 1rem; margin: 1rem; border-radius: 8px; font-weight: bold; text-align: center; position: relative; z-index: 9999;">
-  ✅ SUCCESS: Template carregado com sucesso!
-  <br>Timestamp: {{#debugInfo}}{{timestamp}}{{/debugInfo}}
-  <br>Lesson ID: {{lesson.id}} | Nome: {{lesson.name}}
-</div>
-
 <main class="lesson-viewer">
   <div class="container">
     <!-- Breadcrumb -->
@@ -109,28 +102,6 @@
       <!-- Conteúdo Padrão da Aula -->
       <div class="lesson-text-content">
         <h2>Conteúdo da Aula</h2>
-        
-        <!-- CONTEÚDO DE DEBUG - SEMPRE VISÍVEL -->
-        <div style="background: #f0f9ff; border: 2px solid #0ea5e9; padding: 2rem; margin: 2rem 0; border-radius: 12px;">
-          <h3 style="color: #0ea5e9; margin-bottom: 1rem;">🔍 Debug: Esta seção deve estar sempre visível</h3>
-          <p style="color: #1e293b; font-size: 1.1rem; margin-bottom: 1rem;">
-            Se você está vendo esta mensagem, significa que:
-          </p>
-          <ul style="color: #1e293b; padding-left: 1.5rem;">
-            <li>✅ A página está carregando corretamente</li>
-            <li>✅ O CSS está sendo aplicado</li>
-            <li>✅ O template Mustache está funcionando</li>
-            <li>❌ O conteúdo interativo específico não foi carregado</li>
-          </ul>
-          <p style="color: #dc2626; font-weight: 600; margin-top: 1rem;">
-            Aula ID: {{lesson.id}} | Nome: {{lesson.name}}
-          </p>
-          {{#debugInfo}}
-          <p style="color: #059669; font-weight: 600; margin-top: 1rem;">
-            Debug Info: Lesson {{debugInfo.lessonId}} | Has Content: {{debugInfo.hasContent}} | Time: {{debugInfo.timestamp}}
-          </p>
-          {{/debugInfo}}
-        </div>
         
         <!-- CONTEÚDO EDUCACIONAL ESTRUTURADO -->
         <div class="content-sections">
@@ -378,11 +349,6 @@ function copyCode(button) {
     }, 2000);
   });
 }
-
-// Log de debug
-console.log('✅ Lesson view template carregado com sucesso!');
-console.log('Lesson ID:', '{{lesson.id}}');
-console.log('Lesson Name:', '{{lesson.name}}');
 </script>
 
 <!-- JavaScript para sistema de progresso avançado -->

@@ -276,7 +276,7 @@ const quizModel = {
                     // Atualizar XP do usuário (+100 XP por questionário completo)
                     const updateXpQuery = `
                         UPDATE users 
-                        SET xp_points = xp_points + 100
+                        SET total_xp = total_xp + 100
                         WHERE id = ?
                     `;
                     

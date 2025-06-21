@@ -132,7 +132,7 @@ async function markLessonAsWatched(userId, lessonId, packageId) {
     // Atualizar XP do usuário
     await db.run(`
       UPDATE users 
-      SET xp_points = xp_points + 50
+                  SET total_xp = total_xp + 50
       WHERE id = ?
     `, [userId]);
 
