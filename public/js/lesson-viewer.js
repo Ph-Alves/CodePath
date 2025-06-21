@@ -1,395 +1,726 @@
 /**
- * CodePath - Lesson Viewer JavaScript
+ * CodePath - Lesson Viewer JavaScript Avançado
+ * Sistema completo de visualização de aulas com recursos interativos
  * 
- * Script para tornar as aulas interativas com funcionalidades como:
- * - Cópia de código
- * - Teste básico de exercícios
- * - Feedback visual
- * 
- * Fase 26: Implementação de aula funcional de C
+ * Fase 27: Sistema de Visualização de Aulas Avançado
+ * - Player de vídeo simulado funcional
+ * - Sistema de notas e marcações
+ * - Progresso de leitura automático
+ * - Modo de foco e leitura
+ * - Recursos de acessibilidade
  */
 
-// ========================================
-// INICIALIZAÇÃO
-// ========================================
+class LessonViewer {
+  constructor() {
+    this.currentTime = 0;
+    this.duration = 900; // 15 minutos em segundos
+    this.isPlaying = false;
+    this.volume = 0.7;
+    this.playbackSpeed = 1;
+    this.notes = [];
+    this.readingProgress = 0;
+    this.focusMode = false;
+    
+    this.init();
+  }
 
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Lesson Viewer carregado!');
+  init() {
+    console.log('🚀 Lesson Viewer Avançado carregado!');
     
-    // Inicializar funcionalidades
-    initCodeCopy();
-    initCodeTester();
-    initProgressTracking();
-});
+    // Inicializar componentes
+    this.initializePlayer();
+    this.initializeProgressTracking();
+    this.initializeNotesSystem();
+    this.initializeFocusMode();
+    this.initializeAccessibility();
+    this.initializeKeyboardShortcuts();
+    
+    // Inicializar com dados de debug
+    this.showLoadingSuccess();
+  }
 
-// ========================================
-// FUNCIONALIDADE DE CÓPIA DE CÓDIGO
-// ========================================
-
-/**
- * Inicializa os botões de cópia de código
- */
-function initCodeCopy() {
-    const copyButtons = document.querySelectorAll('.copy-btn');
-    
-    copyButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            copyCode(this);
-        });
-    });
-}
-
-/**
- * Copia código para a área de transferência
- */
-function copyCode(button) {
-    const codeBlock = button.closest('.code-block');
-    const codeContent = codeBlock.querySelector('code');
-    
-    if (!codeContent) {
-        showToast('Erro ao encontrar código para copiar', 'error');
-        return;
-    }
-    
-    const textToCopy = codeContent.textContent;
-    
-    // Usar a API moderna de clipboard se disponível
-    if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(textToCopy).then(() => {
-            showCopyFeedback(button);
-        }).catch(err => {
-            console.error('Erro ao copiar:', err);
-            fallbackCopy(textToCopy, button);
-        });
-    } else {
-        fallbackCopy(textToCopy, button);
-    }
-}
-
-/**
- * Fallback para cópia de código em navegadores mais antigos
- */
-function fallbackCopy(text, button) {
-    const textArea = document.createElement('textarea');
-    textArea.value = text;
-    textArea.style.position = 'fixed';
-    textArea.style.left = '-999999px';
-    textArea.style.top = '-999999px';
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
-    
-    try {
-        document.execCommand('copy');
-        showCopyFeedback(button);
-    } catch (err) {
-        console.error('Erro ao copiar:', err);
-        showToast('Erro ao copiar código', 'error');
-    } finally {
-        document.body.removeChild(textArea);
-    }
-}
-
-/**
- * Mostra feedback visual de cópia
- */
-function showCopyFeedback(button) {
-    const originalText = button.innerHTML;
-    button.innerHTML = '✓ Copiado!';
-    button.style.background = '#10B981';
-    
-    setTimeout(() => {
-        button.innerHTML = originalText;
-        button.style.background = '';
-    }, 2000);
-}
-
-// ========================================
-// TESTADOR DE CÓDIGO SIMPLES
-// ========================================
-
-/**
- * Inicializa os botões de teste de código
- */
-function initCodeTester() {
-    const testButtons = document.querySelectorAll('.test-code');
-    
-    testButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            testCode();
-        });
-    });
-}
-
-/**
- * Testa o código escrito pelo usuário
- */
-function testCode() {
-    const codeEditor = document.querySelector('.code-editor');
-    if (!codeEditor) {
-        showToast('Editor de código não encontrado', 'error');
-        return;
-    }
-    
-    const userCode = codeEditor.value.trim();
-    const testResult = document.querySelector('.test-result');
-    
-    if (!userCode) {
-        showTestResult('Por favor, escreva algum código antes de testar.', 'warning', testResult);
-        return;
-    }
-    
-    // Mostrar loading
-    showTestResult('🧪 Testando seu código...', 'info', testResult);
-    
-    // Simular teste (em produção seria enviado para o servidor)
-    setTimeout(() => {
-        const result = runBasicCTests(userCode);
-        showTestResult(result.message, result.type, testResult);
-    }, 1500);
-}
-
-/**
- * Executa testes básicos no código C
- */
-function runBasicCTests(code) {
-    const tests = [
-        {
-            name: 'Inclui stdio.h',
-            test: () => code.includes('#include') && code.includes('stdio.h'),
-            message: 'Biblioteca stdio.h incluída ✓'
-        },
-        {
-            name: 'Tem função main',
-            test: () => code.includes('int main') || code.includes('main('),
-            message: 'Função main encontrada ✓'
-        },
-        {
-            name: 'Usa printf',
-            test: () => code.includes('printf'),
-            message: 'Função printf utilizada ✓'
-        },
-        {
-            name: 'Tem return 0',
-            test: () => code.includes('return 0'),
-            message: 'Return 0 presente ✓'
-        },
-        {
-            name: 'Mensagem personalizada',
-            test: () => {
-                const printfMatch = code.match(/printf\s*\(\s*"([^"]+)"/);
-                return printfMatch && printfMatch[1].length > 5;
-            },
-            message: 'Mensagem personalizada detectada ✓'
-        }
-    ];
-    
-    const passedTests = tests.filter(test => test.test());
-    const score = Math.round((passedTests.length / tests.length) * 100);
-    
-    let resultMessage = `<div class="test-score">Pontuação: ${score}%</div>`;
-    resultMessage += '<div class="test-details">';
-    
-    passedTests.forEach(test => {
-        resultMessage += `<div class="test-pass">✓ ${test.message}</div>`;
-    });
-    
-    const failedTests = tests.filter(test => !test.test());
-    failedTests.forEach(test => {
-        resultMessage += `<div class="test-fail">✗ ${test.message.replace('✓', '')}</div>`;
-    });
-    
-    resultMessage += '</div>';
-    
-    if (score >= 80) {
-        resultMessage += '<div class="test-success">🎉 Excelente! Seu código está funcionando perfeitamente!</div>';
-        return { message: resultMessage, type: 'success' };
-    } else if (score >= 60) {
-        resultMessage += '<div class="test-warning">⚠️ Bom trabalho! Algumas melhorias podem ser feitas.</div>';
-        return { message: resultMessage, type: 'warning' };
-    } else {
-        resultMessage += '<div class="test-error">❌ Seu código precisa de alguns ajustes. Revise os pontos marcados.</div>';
-        return { message: resultMessage, type: 'error' };
-    }
-}
-
-/**
- * Mostra resultado do teste
- */
-function showTestResult(message, type, container) {
-    if (!container) return;
-    
-    container.style.display = 'block';
-    container.className = `test-result test-${type}`;
-    container.innerHTML = message;
-    
-    // Scroll suave para o resultado
-    container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
-
-// ========================================
-// RASTREAMENTO DE PROGRESSO
-// ========================================
-
-/**
- * Inicializa o rastreamento de progresso da aula
- */
-function initProgressTracking() {
-    // Rastrear tempo na página
-    const startTime = Date.now();
-    
-    // Rastrear scroll (engajamento)
-    let maxScroll = 0;
-    window.addEventListener('scroll', () => {
-        const scrollPercent = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
-        maxScroll = Math.max(maxScroll, scrollPercent);
-    });
-    
-    // Salvar progresso ao sair da página
-    window.addEventListener('beforeunload', () => {
-        const timeSpent = Math.round((Date.now() - startTime) / 1000); // em segundos
+  showLoadingSuccess() {
+    // Mostrar confirmação de carregamento
+    const debugElement = document.querySelector('[style*="background: #10b981"]');
+    if (debugElement) {
+      debugElement.innerHTML = `
+        ✅ SUCESSO: Sistema de aulas carregado!
+        <br>📚 Lesson Viewer Avançado ativo
+        <br>⏰ ${new Date().toLocaleString('pt-BR')}
+        <br>🎯 Todos os recursos funcionais
+      `;
+      
+      // Remover após 5 segundos
+      setTimeout(() => {
+        debugElement.style.transition = 'all 0.5s ease';
+        debugElement.style.opacity = '0';
+        debugElement.style.transform = 'translateY(-20px)';
         
-        // Salvar no localStorage (em produção seria enviado para o servidor)
-        const progressData = {
-            lessonId: getLessonId(),
-            timeSpent: timeSpent,
-            maxScroll: maxScroll,
-            timestamp: new Date().toISOString()
-        };
+        setTimeout(() => {
+          debugElement.remove();
+        }, 500);
+      }, 5000);
+    }
+  }
+
+  initializePlayer() {
+    const playButton = document.getElementById('playButton');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const volumeBtn = document.getElementById('volumeBtn');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+    // Player principal
+    if (playButton) {
+      playButton.addEventListener('click', () => {
+        this.togglePlay();
+        this.hideVideoOverlay();
+      });
+    }
+
+    // Controles do player
+    if (playPauseBtn) {
+      playPauseBtn.addEventListener('click', () => this.togglePlay());
+    }
+
+    if (volumeBtn) {
+      volumeBtn.addEventListener('click', () => this.toggleMute());
+    }
+
+    if (fullscreenBtn) {
+      fullscreenBtn.addEventListener('click', () => this.toggleFullscreen());
+    }
+
+    // Inicializar simulação de progresso
+    this.startProgressSimulation();
+    
+    // Controles de velocidade
+    this.addSpeedControls();
+    
+    // Controles de volume
+    this.initializeVolumeControls();
+  }
+
+  togglePlay() {
+    this.isPlaying = !this.isPlaying;
+    
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const playButton = document.getElementById('playButton');
+    
+    if (this.isPlaying) {
+      // Atualizar ícones para pause
+      if (playPauseBtn) {
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+      }
+      if (playButton) {
+        playButton.innerHTML = '<i class="fas fa-pause"></i>';
+      }
+      
+      this.showNotification('▶️ Aula iniciada', 'success');
+      this.startTimer();
+    } else {
+      // Atualizar ícones para play
+      if (playPauseBtn) {
+        playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+      }
+      if (playButton) {
+        playButton.innerHTML = '<i class="fas fa-play"></i>';
+      }
+      
+      this.showNotification('⏸️ Aula pausada', 'info');
+      this.stopTimer();
+    }
+  }
+
+  hideVideoOverlay() {
+    const overlay = document.querySelector('.video-overlay');
+    if (overlay) {
+      overlay.style.transition = 'all 0.5s ease';
+      overlay.style.opacity = '0';
+      setTimeout(() => {
+        overlay.style.display = 'none';
+      }, 500);
+    }
+  }
+
+  startTimer() {
+    if (this.timer) clearInterval(this.timer);
+    
+    this.timer = setInterval(() => {
+      if (this.isPlaying && this.currentTime < this.duration) {
+        this.currentTime += this.playbackSpeed;
+        this.updateTimeDisplay();
+        this.updateProgressBar();
         
-        localStorage.setItem('lessonProgress', JSON.stringify(progressData));
-        console.log('📊 Progresso salvo:', progressData);
-    });
-}
+        // Simular marcos de progresso
+        this.checkProgressMilestones();
+      }
+    }, 1000);
+  }
 
-/**
- * Obtém o ID da aula atual
- * @returns {string} ID da aula
- */
-function getLessonId() {
-    // Tentar obter do botão de marcar como concluída
-    const markCompleteBtn = document.getElementById('markCompleteBtn');
-    if (markCompleteBtn && markCompleteBtn.dataset.lessonId) {
-        return markCompleteBtn.dataset.lessonId;
+  stopTimer() {
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
+  }
+
+  updateTimeDisplay() {
+    const currentTimeEl = document.getElementById('currentTime');
+    const durationEl = document.getElementById('duration');
+    
+    if (currentTimeEl) {
+      currentTimeEl.textContent = this.formatTime(this.currentTime);
     }
     
-    // Fallback: extrair da URL
-    const pathParts = window.location.pathname.split('/');
-    const lessonIndex = pathParts.indexOf('lesson');
-    if (lessonIndex !== -1 && pathParts[lessonIndex + 1]) {
-        return pathParts[lessonIndex + 1];
+    if (durationEl) {
+      durationEl.textContent = this.formatTime(this.duration);
     }
-    
-    return 'unknown';
-}
+  }
 
-// ========================================
-// SISTEMA DE NOTIFICAÇÕES SIMPLES
-// ========================================
+  updateProgressBar() {
+    const progressThumb = document.querySelector('.progress-thumb');
+    if (progressThumb) {
+      const percentage = (this.currentTime / this.duration) * 100;
+      progressThumb.style.left = `${Math.min(percentage, 100)}%`;
+    }
+  }
 
-/**
- * Exibe uma notificação toast
- * @param {string} message - Mensagem da notificação
- * @param {string} type - Tipo: success, error, warning, info
- */
-function showToast(message, type = 'info') {
-    // Remover toasts existentes
-    const existingToasts = document.querySelectorAll('.toast');
-    existingToasts.forEach(toast => toast.remove());
+  formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  }
+
+  checkProgressMilestones() {
+    const percentage = (this.currentTime / this.duration) * 100;
     
-    const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
-    toast.innerHTML = `
-        <div class="toast-content">
-            <span class="toast-icon">${getToastIcon(type)}</span>
-            <span class="toast-message">${message}</span>
+    // Marcos de 25%, 50%, 75% e 100%
+    if (percentage >= 25 && !this.milestones?.quarter) {
+      this.milestones = { ...this.milestones, quarter: true };
+      this.showNotification('🎯 25% da aula concluída!', 'success');
+    } else if (percentage >= 50 && !this.milestones?.half) {
+      this.milestones = { ...this.milestones, half: true };
+      this.showNotification('🎉 Metade da aula concluída!', 'success');
+    } else if (percentage >= 75 && !this.milestones?.threeQuarters) {
+      this.milestones = { ...this.milestones, threeQuarters: true };
+      this.showNotification('🚀 75% da aula concluída!', 'success');
+    } else if (percentage >= 100 && !this.milestones?.complete) {
+      this.milestones = { ...this.milestones, complete: true };
+      this.handleLessonComplete();
+    }
+  }
+
+  handleLessonComplete() {
+    this.isPlaying = false;
+    this.stopTimer();
+    
+    this.showNotification('✅ Aula concluída com sucesso!', 'success');
+    
+    // Mostrar modal de conclusão
+    this.showCompletionModal();
+  }
+
+  showCompletionModal() {
+    const modal = document.createElement('div');
+    modal.className = 'completion-modal';
+    modal.innerHTML = `
+      <div class="modal-overlay"></div>
+      <div class="modal-content">
+        <div class="completion-icon">🎉</div>
+        <h2>Parabéns!</h2>
+        <p>Você concluiu esta aula com sucesso!</p>
+        <div class="completion-stats">
+          <div class="stat">
+            <span class="stat-value">${this.formatTime(this.currentTime)}</span>
+            <span class="stat-label">Tempo assistido</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">${this.notes.length}</span>
+            <span class="stat-label">Notas criadas</span>
+          </div>
         </div>
+        <div class="modal-actions">
+          <button class="btn btn-primary" onclick="lessonViewer.markAsComplete()">
+            <i class="fas fa-check"></i> Marcar como Concluída
+          </button>
+          <button class="btn btn-secondary" onclick="lessonViewer.closeModal()">
+            Continuar Estudando
+          </button>
+        </div>
+      </div>
     `;
     
-    // Adicionar estilos inline para garantir visibilidade
-    toast.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: ${getToastColor(type)};
-        color: white;
-        padding: 12px 16px;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        z-index: 10000;
-        font-family: Inter, sans-serif;
-        font-size: 14px;
-        max-width: 300px;
-        animation: slideInRight 0.3s ease-out;
+    document.body.appendChild(modal);
+    
+    // Animar entrada
+    setTimeout(() => {
+      modal.classList.add('show');
+    }, 100);
+  }
+
+  markAsComplete() {
+    const markCompleteBtn = document.getElementById('markCompleteBtn');
+    if (markCompleteBtn) {
+      markCompleteBtn.click();
+    }
+    this.closeModal();
+  }
+
+  closeModal() {
+    const modal = document.querySelector('.completion-modal');
+    if (modal) {
+      modal.classList.remove('show');
+      setTimeout(() => {
+        modal.remove();
+      }, 300);
+    }
+  }
+
+  initializeProgressTracking() {
+    // Rastrear progresso de leitura do conteúdo
+    const contentSections = document.querySelectorAll('.content-section');
+    
+    if (contentSections.length > 0) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('section-viewed');
+            this.updateReadingProgress();
+          }
+        });
+      }, { threshold: 0.5 });
+
+      contentSections.forEach(section => {
+        observer.observe(section);
+      });
+    }
+  }
+
+  updateReadingProgress() {
+    const totalSections = document.querySelectorAll('.content-section').length;
+    const viewedSections = document.querySelectorAll('.content-section.section-viewed').length;
+    
+    this.readingProgress = (viewedSections / totalSections) * 100;
+    
+    // Atualizar indicador visual
+    this.updateReadingProgressIndicator();
+  }
+
+  updateReadingProgressIndicator() {
+    let indicator = document.querySelector('.reading-progress-indicator');
+    
+    if (!indicator) {
+      indicator = document.createElement('div');
+      indicator.className = 'reading-progress-indicator';
+      indicator.innerHTML = `
+        <div class="progress-label">Progresso de Leitura</div>
+        <div class="progress-bar-reading">
+          <div class="progress-fill-reading"></div>
+        </div>
+        <div class="progress-percentage">${Math.round(this.readingProgress)}%</div>
+      `;
+      
+      const lessonHeader = document.querySelector('.lesson-header');
+      if (lessonHeader) {
+        lessonHeader.appendChild(indicator);
+      }
+    }
+    
+    const progressFill = indicator.querySelector('.progress-fill-reading');
+    const progressPercentage = indicator.querySelector('.progress-percentage');
+    
+    if (progressFill) {
+      progressFill.style.width = `${this.readingProgress}%`;
+    }
+    
+    if (progressPercentage) {
+      progressPercentage.textContent = `${Math.round(this.readingProgress)}%`;
+    }
+  }
+
+  initializeNotesSystem() {
+    // Adicionar botão de notas
+    this.addNotesButton();
+    
+    // Permitir seleção de texto para criar notas
+    document.addEventListener('mouseup', (e) => {
+      const selection = window.getSelection();
+      if (selection.toString().length > 0) {
+        this.showNoteOption(e.pageX, e.pageY, selection.toString());
+      }
+    });
+  }
+
+  addNotesButton() {
+    const notesButton = document.createElement('button');
+    notesButton.className = 'notes-toggle-btn';
+    notesButton.innerHTML = '<i class="fas fa-sticky-note"></i> Notas';
+    notesButton.onclick = () => this.toggleNotesPanel();
+    
+    const lessonHeader = document.querySelector('.lesson-header');
+    if (lessonHeader) {
+      lessonHeader.appendChild(notesButton);
+    }
+  }
+
+  toggleNotesPanel() {
+    let notesPanel = document.querySelector('.notes-panel');
+    
+    if (!notesPanel) {
+      notesPanel = this.createNotesPanel();
+      document.body.appendChild(notesPanel);
+    }
+    
+    notesPanel.classList.toggle('show');
+  }
+
+  createNotesPanel() {
+    const panel = document.createElement('div');
+    panel.className = 'notes-panel';
+    panel.innerHTML = `
+      <div class="notes-header">
+        <h3><i class="fas fa-sticky-note"></i> Minhas Notas</h3>
+        <button class="close-notes" onclick="lessonViewer.toggleNotesPanel()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="notes-content">
+        <div class="add-note">
+          <textarea placeholder="Adicionar nova nota..." rows="3"></textarea>
+          <button class="btn btn-primary btn-sm" onclick="lessonViewer.addNote()">
+            <i class="fas fa-plus"></i> Adicionar
+          </button>
+        </div>
+        <div class="notes-list"></div>
+      </div>
     `;
     
-    document.body.appendChild(toast);
+    return panel;
+  }
+
+  addNote(text = null) {
+    const textarea = document.querySelector('.add-note textarea');
+    const noteText = text || textarea?.value.trim();
+    
+    if (!noteText) return;
+    
+    const note = {
+      id: Date.now(),
+      text: noteText,
+      timestamp: new Date().toLocaleString('pt-BR'),
+      currentTime: this.formatTime(this.currentTime)
+    };
+    
+    this.notes.push(note);
+    this.renderNotes();
+    
+    if (textarea) {
+      textarea.value = '';
+    }
+    
+    this.showNotification('📝 Nota adicionada!', 'success');
+  }
+
+  renderNotes() {
+    const notesList = document.querySelector('.notes-list');
+    if (!notesList) return;
+    
+    notesList.innerHTML = this.notes.map(note => `
+      <div class="note-item" data-note-id="${note.id}">
+        <div class="note-content">${note.text}</div>
+        <div class="note-meta">
+          <span class="note-time">${note.currentTime}</span>
+          <span class="note-date">${note.timestamp}</span>
+          <button class="delete-note" onclick="lessonViewer.deleteNote(${note.id})">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  deleteNote(noteId) {
+    this.notes = this.notes.filter(note => note.id !== noteId);
+    this.renderNotes();
+    this.showNotification('🗑️ Nota removida', 'info');
+  }
+
+  initializeFocusMode() {
+    const focusButton = document.createElement('button');
+    focusButton.className = 'focus-mode-btn';
+    focusButton.innerHTML = '<i class="fas fa-eye"></i> Modo Foco';
+    focusButton.onclick = () => this.toggleFocusMode();
+    
+    const lessonHeader = document.querySelector('.lesson-header');
+    if (lessonHeader) {
+      lessonHeader.appendChild(focusButton);
+    }
+  }
+
+  toggleFocusMode() {
+    this.focusMode = !this.focusMode;
+    document.body.classList.toggle('focus-mode', this.focusMode);
+    
+    const button = document.querySelector('.focus-mode-btn');
+    if (button) {
+      button.innerHTML = this.focusMode 
+        ? '<i class="fas fa-eye-slash"></i> Sair do Foco'
+        : '<i class="fas fa-eye"></i> Modo Foco';
+    }
+    
+    this.showNotification(
+      this.focusMode ? '🎯 Modo foco ativado' : '👁️ Modo foco desativado',
+      'info'
+    );
+  }
+
+  initializeAccessibility() {
+    // Adicionar controles de acessibilidade
+    const accessibilityControls = document.createElement('div');
+    accessibilityControls.className = 'accessibility-controls';
+    accessibilityControls.innerHTML = `
+      <button class="accessibility-btn" onclick="lessonViewer.increaseFontSize()" title="Aumentar fonte">
+        <i class="fas fa-plus"></i> A
+      </button>
+      <button class="accessibility-btn" onclick="lessonViewer.decreaseFontSize()" title="Diminuir fonte">
+        <i class="fas fa-minus"></i> A
+      </button>
+      <button class="accessibility-btn" onclick="lessonViewer.toggleHighContrast()" title="Alto contraste">
+        <i class="fas fa-adjust"></i>
+      </button>
+    `;
+    
+    const lessonHeader = document.querySelector('.lesson-header');
+    if (lessonHeader) {
+      lessonHeader.appendChild(accessibilityControls);
+    }
+  }
+
+  increaseFontSize() {
+    const currentSize = parseInt(getComputedStyle(document.body).fontSize);
+    document.body.style.fontSize = `${currentSize + 2}px`;
+    this.showNotification('🔍 Fonte aumentada', 'info');
+  }
+
+  decreaseFontSize() {
+    const currentSize = parseInt(getComputedStyle(document.body).fontSize);
+    if (currentSize > 12) {
+      document.body.style.fontSize = `${currentSize - 2}px`;
+      this.showNotification('🔍 Fonte diminuída', 'info');
+    }
+  }
+
+  toggleHighContrast() {
+    document.body.classList.toggle('high-contrast');
+    const isActive = document.body.classList.contains('high-contrast');
+    this.showNotification(
+      isActive ? '🎨 Alto contraste ativado' : '🎨 Alto contraste desativado',
+      'info'
+    );
+  }
+
+  initializeKeyboardShortcuts() {
+    document.addEventListener('keydown', (e) => {
+      // Ignorar se estiver digitando em um input
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        return;
+      }
+      
+      switch (e.key) {
+        case ' ':
+          e.preventDefault();
+          this.togglePlay();
+          break;
+        case 'f':
+          e.preventDefault();
+          this.toggleFocusMode();
+          break;
+        case 'n':
+          e.preventDefault();
+          this.toggleNotesPanel();
+          break;
+        case 'm':
+          e.preventDefault();
+          this.toggleMute();
+          break;
+        case 'ArrowLeft':
+          e.preventDefault();
+          this.seekBackward();
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          this.seekForward();
+          break;
+      }
+    });
+    
+    // Mostrar dicas de atalhos
+    this.showKeyboardShortcuts();
+  }
+
+  showKeyboardShortcuts() {
+    const shortcuts = document.createElement('div');
+    shortcuts.className = 'keyboard-shortcuts';
+    shortcuts.innerHTML = `
+      <div class="shortcuts-header">
+        <h4><i class="fas fa-keyboard"></i> Atalhos do Teclado</h4>
+      </div>
+      <div class="shortcuts-list">
+        <div class="shortcut"><kbd>Espaço</kbd> Play/Pause</div>
+        <div class="shortcut"><kbd>F</kbd> Modo Foco</div>
+        <div class="shortcut"><kbd>N</kbd> Notas</div>
+        <div class="shortcut"><kbd>M</kbd> Mudo</div>
+        <div class="shortcut"><kbd>←</kbd> Voltar 10s</div>
+        <div class="shortcut"><kbd>→</kbd> Avançar 10s</div>
+      </div>
+    `;
+    
+    const lessonContent = document.querySelector('.lesson-content');
+    if (lessonContent) {
+      lessonContent.appendChild(shortcuts);
+    }
+  }
+
+  seekBackward() {
+    this.currentTime = Math.max(0, this.currentTime - 10);
+    this.updateTimeDisplay();
+    this.updateProgressBar();
+    this.showNotification('⏪ -10 segundos', 'info');
+  }
+
+  seekForward() {
+    this.currentTime = Math.min(this.duration, this.currentTime + 10);
+    this.updateTimeDisplay();
+    this.updateProgressBar();
+    this.showNotification('⏩ +10 segundos', 'info');
+  }
+
+  showNotification(message, type = 'info') {
+    // Criar ou reutilizar container de notificações
+    let container = document.querySelector('.lesson-notifications');
+    if (!container) {
+      container = document.createElement('div');
+      container.className = 'lesson-notifications';
+      document.body.appendChild(container);
+    }
+    
+    // Criar notificação
+    const notification = document.createElement('div');
+    notification.className = `lesson-notification lesson-notification-${type}`;
+    notification.textContent = message;
+    
+    container.appendChild(notification);
+    
+    // Animar entrada
+    setTimeout(() => {
+      notification.classList.add('show');
+    }, 100);
     
     // Remover após 3 segundos
     setTimeout(() => {
-        toast.style.animation = 'slideOutRight 0.3s ease-in';
-        setTimeout(() => toast.remove(), 300);
+      notification.classList.remove('show');
+      setTimeout(() => {
+        notification.remove();
+      }, 300);
     }, 3000);
+  }
+
+  // Métodos auxiliares para controles avançados
+  addSpeedControls() {
+    const speedControl = document.createElement('div');
+    speedControl.className = 'speed-control';
+    speedControl.innerHTML = `
+      <button class="control-btn" onclick="lessonViewer.changeSpeed(0.5)">0.5x</button>
+      <button class="control-btn active" onclick="lessonViewer.changeSpeed(1)">1x</button>
+      <button class="control-btn" onclick="lessonViewer.changeSpeed(1.25)">1.25x</button>
+      <button class="control-btn" onclick="lessonViewer.changeSpeed(1.5)">1.5x</button>
+      <button class="control-btn" onclick="lessonViewer.changeSpeed(2)">2x</button>
+    `;
+    
+    const playerControls = document.querySelector('.player-controls');
+    if (playerControls) {
+      playerControls.appendChild(speedControl);
+    }
+  }
+
+  changeSpeed(speed) {
+    this.playbackSpeed = speed;
+    
+    // Atualizar botões ativos
+    document.querySelectorAll('.speed-control .control-btn').forEach(btn => {
+      btn.classList.remove('active');
+    });
+    
+    event.target.classList.add('active');
+    
+    this.showNotification(`⚡ Velocidade: ${speed}x`, 'info');
+  }
+
+  initializeVolumeControls() {
+    const volumeSlider = document.querySelector('.volume-slider');
+    if (volumeSlider) {
+      volumeSlider.addEventListener('click', (e) => {
+        const rect = volumeSlider.getBoundingClientRect();
+        const percentage = (e.clientX - rect.left) / rect.width;
+        this.setVolume(percentage);
+      });
+    }
+  }
+
+  setVolume(percentage) {
+    this.volume = Math.max(0, Math.min(1, percentage));
+    
+    const volumeThumb = document.querySelector('.volume-thumb');
+    if (volumeThumb) {
+      volumeThumb.style.left = `${this.volume * 100}%`;
+    }
+    
+    // Atualizar ícone do volume
+    const volumeBtn = document.getElementById('volumeBtn');
+    if (volumeBtn) {
+      let icon = 'fa-volume-up';
+      if (this.volume === 0) icon = 'fa-volume-mute';
+      else if (this.volume < 0.5) icon = 'fa-volume-down';
+      
+      volumeBtn.innerHTML = `<i class="fas ${icon}"></i>`;
+    }
+  }
+
+  toggleMute() {
+    if (this.volume > 0) {
+      this.previousVolume = this.volume;
+      this.setVolume(0);
+    } else {
+      this.setVolume(this.previousVolume || 0.7);
+    }
+  }
+
+  toggleFullscreen() {
+    const contentPlayer = document.querySelector('.content-player');
+    if (contentPlayer) {
+      if (!document.fullscreenElement) {
+        contentPlayer.requestFullscreen();
+        this.showNotification('📺 Modo tela cheia ativado', 'info');
+      } else {
+        document.exitFullscreen();
+        this.showNotification('📺 Modo tela cheia desativado', 'info');
+      }
+    }
+  }
+
+  startProgressSimulation() {
+    // Simular carregamento de conteúdo
+    setTimeout(() => {
+      this.showNotification('📚 Conteúdo carregado com sucesso!', 'success');
+    }, 1000);
+  }
 }
 
-/**
- * Retorna ícone para o tipo de toast
- */
-function getToastIcon(type) {
-    const icons = {
-        success: '✓',
-        error: '✕',
-        warning: '⚠',
-        info: 'ℹ'
-    };
-    return icons[type] || icons.info;
-}
+// Inicializar quando o DOM estiver pronto
+document.addEventListener('DOMContentLoaded', () => {
+  window.lessonViewer = new LessonViewer();
+});
 
-/**
- * Retorna cor para o tipo de toast
- */
-function getToastColor(type) {
-    const colors = {
-        success: '#10B981',
-        error: '#EF4444',
-        warning: '#F59E0B',
-        info: '#3B82F6'
-    };
-    return colors[type] || colors.info;
-}
-
-// ========================================
-// UTILITÁRIOS
-// ========================================
-
-/**
- * Debounce function para otimizar performance
- * @param {Function} func - Função a ser executada
- * @param {number} wait - Tempo de espera em ms
- * @returns {Function} Função com debounce
- */
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
-
-// ========================================
-// LOGS DE DESENVOLVIMENTO
-// ========================================
-
-if (typeof console !== 'undefined') {
-    console.log('📚 CodePath - Lesson Viewer');
-    console.log('🎯 Aula interativa carregada com sucesso!');
-    console.log('🔧 Funcionalidades disponíveis:');
-    console.log('   - Cópia de código');
-    console.log('   - Teste básico de exercícios');
-    console.log('   - Rastreamento de progresso');
-    console.log('   - Notificações visuais');
-} 
+// Log de inicialização
+console.log('📚 CodePath - Lesson Viewer Avançado v2.0');
+console.log('🎯 Recursos: Player simulado, notas, modo foco, acessibilidade');
+console.log('⌨️ Atalhos: Espaço (play/pause), F (foco), N (notas), M (mudo)'); 

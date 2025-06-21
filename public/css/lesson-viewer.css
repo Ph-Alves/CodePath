@@ -1366,4 +1366,386 @@
     .concept-card {
         padding: 1rem;
     }
+}
+
+/* Estilos para as novas seções educacionais */
+
+/* Seção de Introdução */
+.intro-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.intro-section .section-header h3 {
+  color: white;
+  margin-bottom: 1rem;
+}
+
+.intro-content p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  opacity: 0.9;
+}
+
+.highlight-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.highlight-card .card-icon {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.highlight-card h4 {
+  color: white;
+  margin-bottom: 0.5rem;
+  font-size: 1.2rem;
+}
+
+.highlight-card p {
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 1rem;
+}
+
+.lesson-meta {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Seção de Objetivos */
+.objectives-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.objectives-list li {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  border-left: 4px solid #10b981;
+  transition: all 0.3s ease;
+}
+
+.objectives-list li:hover {
+  background: #f0f9ff;
+  border-left-color: #3b82f6;
+  transform: translateX(4px);
+}
+
+.objectives-list li i {
+  color: #10b981;
+  font-size: 1.2rem;
+}
+
+/* Seção de Código */
+.code-section {
+  background: #1e293b;
+  color: white;
+  border-radius: 16px;
+  padding: 2rem;
+  margin: 2rem 0;
+}
+
+.code-section .section-header h3 {
+  color: white;
+}
+
+.code-example {
+  background: #0f172a;
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 1.5rem 0;
+  border: 1px solid #334155;
+}
+
+.code-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: #1e293b;
+  border-bottom: 1px solid #334155;
+}
+
+.code-title {
+  color: #94a3b8;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+}
+
+.copy-btn {
+  background: #475569;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.copy-btn:hover {
+  background: #64748b;
+  transform: translateY(-1px);
+}
+
+.code-content {
+  padding: 1.5rem;
+  overflow-x: auto;
+}
+
+.code-content pre {
+  margin: 0;
+  font-family: 'Courier New', monospace;
+  line-height: 1.6;
+}
+
+.code-content code {
+  color: #e2e8f0;
+  font-size: 0.95rem;
+}
+
+.code-explanation {
+  margin-top: 1.5rem;
+}
+
+.code-explanation h4 {
+  color: #cbd5e1;
+  margin-bottom: 1rem;
+}
+
+.explanation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.explanation-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border-left: 3px solid #6366f1;
+}
+
+.explanation-item code {
+  color: #a78bfa;
+  background: rgba(167, 139, 250, 0.1);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  min-width: 120px;
+  text-align: center;
+}
+
+.explanation-item span {
+  color: #cbd5e1;
+  font-size: 0.95rem;
+}
+
+/* Seção de Dicas */
+.tips-section {
+  margin: 2rem 0;
+}
+
+.tips-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.tip-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid;
+  transition: all 0.3s ease;
+}
+
+.tip-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.tip-success {
+  background: #f0fdf4;
+  border-color: #22c55e;
+}
+
+.tip-info {
+  background: #f0f9ff;
+  border-color: #3b82f6;
+}
+
+.tip-warning {
+  background: #fffbeb;
+  border-color: #f59e0b;
+}
+
+.tip-icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.tip-success .tip-icon {
+  background: #22c55e;
+  color: white;
+}
+
+.tip-info .tip-icon {
+  background: #3b82f6;
+  color: white;
+}
+
+.tip-warning .tip-icon {
+  background: #f59e0b;
+  color: white;
+}
+
+.tip-content h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+.tip-success .tip-content h4 {
+  color: #15803d;
+}
+
+.tip-info .tip-content h4 {
+  color: #1d4ed8;
+}
+
+.tip-warning .tip-content h4 {
+  color: #d97706;
+}
+
+.tip-content p {
+  margin: 0;
+  line-height: 1.5;
+  color: #6b7280;
+}
+
+/* Seção de Recursos */
+.resources-section {
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 2rem;
+  margin: 2rem 0;
+}
+
+.resource-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.resource-link {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #374151;
+  transition: all 0.3s ease;
+}
+
+.resource-link:hover {
+  background: #f3f4f6;
+  border-color: #8b5cf6;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.1);
+}
+
+.resource-link i {
+  color: #8b5cf6;
+  font-size: 1.2rem;
+}
+
+.resource-link span {
+  font-weight: 500;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .tips-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .resource-links {
+    grid-template-columns: 1fr;
+  }
+  
+  .lesson-meta {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .meta-item {
+    justify-content: center;
+  }
+  
+  .explanation-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .explanation-item code {
+    min-width: auto;
+    text-align: left;
+  }
+  
+  .code-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+  
+  .tip-card {
+    flex-direction: column;
+    text-align: center;
+  }
 } 

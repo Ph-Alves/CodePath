@@ -29,30 +29,77 @@ async function updateSessionActivity(sessionToken) {
 /**
  * Middleware para verificar se o usuário está autenticado
  * Se não estiver, redireciona para a página de login
+ * Versão melhorada com tratamento robusto de erros
  */
 function requireAuth(req, res, next) {
-  // Verificar se existe sessão
-  if (!req.session.user) {
-    // Log tentativa de acesso não autorizado
-    const ip = req.ip || req.connection.remoteAddress || req.socket.remoteAddress;
-    setImmediate(() => {
-      ValidationModel.logSuspiciousActivity(
-        null,
-        'unauthorized_access',
-        ip,
-        JSON.stringify({
-          url: req.originalUrl,
-          method: req.method,
-          userAgent: req.get('User-Agent')
-        })
-      );
-    });
+  try {
+    // Verificar se existe sessão
+    if (!req.session || !req.session.user) {
+      console.log(`[AUTH] Acesso negado para ${req.originalUrl} - Usuário não autenticado`);
+      
+      // Log tentativa de acesso não autorizado de forma assíncrona
+      const ip = req.ip || req.connection.remoteAddress || req.socket.remoteAddress;
+      setImmediate(() => {
+        try {
+          ValidationModel.logSuspiciousActivity(
+            null,
+            'unauthorized_access',
+            ip,
+            JSON.stringify({
+              url: req.originalUrl,
+              method: req.method,
+              userAgent: req.get('User-Agent')
+            })
+          );
+        } catch (logError) {
+          console.warn('[AUTH] Erro ao registrar atividade suspeita:', logError.message);
+        }
+      });
+      
+      // Verificar se é uma requisição AJAX
+      if (req.xhr || req.headers.accept?.indexOf('json') > -1) {
+        return res.status(401).json({
+          error: 'Não autenticado',
+          message: 'Você precisa fazer login para acessar este recurso.',
+          redirectTo: '/login'
+        });
+      }
+      
+      // Redirecionar para login
+      return res.redirect('/login');
+    }
     
-    return res.redirect('/login');
+    // Verificar se os dados da sessão são válidos
+    if (!req.session.user.id || !req.session.user.email) {
+      console.log(`[AUTH] Sessão inválida detectada - dados do usuário incompletos`);
+      
+      // Limpar sessão inválida
+      req.session.user = null;
+      req.session.sessionToken = null;
+      
+      return res.redirect('/login');
+    }
+    
+    // Log de acesso autorizado (apenas para debug)
+    console.log(`[AUTH] Acesso autorizado para ${req.originalUrl} - Usuário: ${req.session.user.email}`);
+    
+    // Usuário autenticado, continuar
+    next();
+    
+  } catch (error) {
+    console.error('[AUTH] Erro no middleware requireAuth:', error);
+    
+    // Em caso de erro, limpar sessão por segurança
+    try {
+      req.session.user = null;
+      req.session.sessionToken = null;
+    } catch (sessionError) {
+      console.error('[AUTH] Erro ao limpar sessão:', sessionError);
+    }
+    
+    // Redirecionar para login
+    res.redirect('/login');
   }
-  
-  // Usuário autenticado, continuar
-  next();
 }
 
 /**

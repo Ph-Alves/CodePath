@@ -212,9 +212,15 @@ async function showPackageLessons(req, res) {
 async function showLesson(req, res) {
   try {
     const lessonId = parseInt(req.params.lessonId);
-    const userId = req.session.user.id;
+    const userId = req.session.user?.id;
 
     console.log(`[LESSON DEBUG] Iniciando carregamento da aula ${lessonId} para usuário ${userId}`);
+
+    // Verificar se o usuário está autenticado
+    if (!userId) {
+      console.log(`[LESSON DEBUG] Usuário não autenticado, redirecionando para login`);
+      return res.redirect('/login');
+    }
 
     // Buscar dados da aula
     const lesson = await contentModel.getLessonById(lessonId);
@@ -230,18 +236,46 @@ async function showLesson(req, res) {
 
     console.log(`[LESSON DEBUG] Aula encontrada: ${lesson.name}`);
 
-    // Buscar progresso do usuário na aula
-    const userProgress = await contentModel.getUserLessonProgress(userId, lessonId);
-    
-    // Buscar aulas anteriores e próximas
-    const nextLesson = await contentModel.getNextLesson(lesson.package_id, lessonId);
-    const previousLesson = await contentModel.getPreviousLesson(lesson.package_id, lessonId);
-    
-    // Buscar quizzes da aula
-    const quizzes = await contentModel.getQuizzesByLesson(lessonId);
-    
-    // Buscar estatísticas do pacote
-    const progressStats = await contentModel.getPackageProgressStats(userId, lesson.package_id);
+    // Buscar dados complementares com tratamento de erro individual
+    let userProgress = null;
+    let nextLesson = null;
+    let previousLesson = null;
+    let quizzes = [];
+    let progressStats = {
+      progressPercentage: 0,
+      completedLessons: 0,
+      totalLessons: 1
+    };
+
+    try {
+      userProgress = await contentModel.getUserLessonProgress(userId, lessonId);
+    } catch (error) {
+      console.warn(`[LESSON DEBUG] Erro ao buscar progresso do usuário: ${error.message}`);
+    }
+
+    try {
+      nextLesson = await contentModel.getNextLesson(lesson.package_id, lessonId);
+    } catch (error) {
+      console.warn(`[LESSON DEBUG] Erro ao buscar próxima aula: ${error.message}`);
+    }
+
+    try {
+      previousLesson = await contentModel.getPreviousLesson(lesson.package_id, lessonId);
+    } catch (error) {
+      console.warn(`[LESSON DEBUG] Erro ao buscar aula anterior: ${error.message}`);
+    }
+
+    try {
+      quizzes = await contentModel.getQuizzesByLesson(lessonId);
+    } catch (error) {
+      console.warn(`[LESSON DEBUG] Erro ao buscar quizzes: ${error.message}`);
+    }
+
+    try {
+      progressStats = await contentModel.getPackageProgressStats(userId, lesson.package_id);
+    } catch (error) {
+      console.warn(`[LESSON DEBUG] Erro ao buscar estatísticas de progresso: ${error.message}`);
+    }
 
     // Adicionar conteúdo da aula se disponível
     const lessonContent = LESSON_CONTENT[lessonId] || null;
@@ -254,50 +288,247 @@ async function showLesson(req, res) {
       console.log(`[LESSON DEBUG] Content preview: ${lessonContent.content ? lessonContent.content.substring(0, 100) : 'No content'}`);
     }
 
-    // Preparar dados para o template
+    // Preparar dados para o template com valores padrão seguros
     const templateData = {
-      title: `${lesson.name} - ${lesson.package_name}`,
-      additionalCSS: ['content', 'lesson-viewer'],
+      layout: 'main',
+      pageTitle: `${lesson.name} - ${lesson.package_name}`,
+      additionalCSS: 'lesson-viewer',
       additionalJS: 'lesson-viewer',
+      bodyClass: 'lesson-page',
       user: req.session.user,
-      lesson: lesson,
+      lesson: {
+        id: lesson.id,
+        name: lesson.name || 'Aula sem nome',
+        description: lesson.description || 'Descrição não disponível',
+        package_name: lesson.package_name || 'Pacote desconhecido',
+        package_id: lesson.package_id || 0,
+        lesson_number: lesson.lesson_number || 1,
+        package_icon: getPackageIcon(lesson.package_name) || '📚'
+      },
       lessonContent: lessonContent,
       userProgress: userProgress,
       nextLesson: nextLesson,
       previousLesson: previousLesson,
-      quizzes: quizzes,
-      progressStats: progressStats,
+      quizzes: quizzes || [],
+      progressStats: {
+        progressPercentage: Math.round(progressStats?.progressPercentage || 0),
+        completedLessons: progressStats?.completedLessons || 0,
+        totalLessons: progressStats?.totalLessons || 1
+      },
       flash: req.session.flash || null,
-      // Adicionar dados de debug
+      // Adicionar dados de debug sempre
       debugInfo: {
         lessonId: lessonId,
         hasContent: !!lessonContent,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        userId: userId,
+        hasProgressStats: !!progressStats
       }
     };
 
     console.log(`[LESSON DEBUG] Template data prepared:`, {
-      title: templateData.title,
+      title: templateData.pageTitle,
       hasLesson: !!templateData.lesson,
       hasContent: !!templateData.lessonContent,
-      hasProgressStats: !!templateData.progressStats
+      hasProgressStats: !!templateData.progressStats,
+      userId: templateData.debugInfo.userId
     });
 
-    // Renderizar página da aula
-    res.render('pages/lesson-view', templateData);
+    // Renderizar página da aula com tratamento de erro robusto
+    try {
+      res.render('pages/lesson-view', templateData);
+      console.log(`[LESSON DEBUG] Template renderizado com sucesso`);
+    } catch (renderError) {
+      console.error(`[LESSON DEBUG] Erro ao renderizar template:`, renderError);
+      
+      // Fallback: renderizar página de erro simples
+      return res.status(500).send(`
+        <!DOCTYPE html>
+        <html lang="pt-BR">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Erro - CodePath</title>
+          <style>
+            body { 
+              font-family: Arial, sans-serif; 
+              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              color: white; 
+              padding: 2rem; 
+              margin: 0;
+              min-height: 100vh;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            }
+            .error-container {
+              background: rgba(255, 255, 255, 0.1);
+              backdrop-filter: blur(10px);
+              border-radius: 16px;
+              padding: 3rem;
+              text-align: center;
+              max-width: 600px;
+              border: 1px solid rgba(255, 255, 255, 0.2);
+            }
+            .error-icon { font-size: 4rem; margin-bottom: 1rem; }
+            .error-title { font-size: 2rem; margin-bottom: 1rem; }
+            .error-message { font-size: 1.1rem; line-height: 1.6; margin-bottom: 2rem; opacity: 0.9; }
+            .error-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+            .btn {
+              padding: 0.75rem 1.5rem;
+              border: none;
+              border-radius: 8px;
+              text-decoration: none;
+              font-weight: 500;
+              transition: all 0.3s ease;
+              cursor: pointer;
+            }
+            .btn-primary {
+              background: #8b5cf6;
+              color: white;
+            }
+            .btn-secondary {
+              background: rgba(255, 255, 255, 0.2);
+              color: white;
+              border: 1px solid rgba(255, 255, 255, 0.3);
+            }
+            .btn:hover {
+              transform: translateY(-2px);
+              box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            }
+            .debug-info {
+              background: rgba(0, 0, 0, 0.2);
+              border-radius: 8px;
+              padding: 1rem;
+              margin-top: 2rem;
+              font-family: monospace;
+              font-size: 0.9rem;
+              text-align: left;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="error-container">
+            <div class="error-icon">🔧</div>
+            <h1 class="error-title">Erro ao Carregar Aula</h1>
+            <p class="error-message">
+              Ocorreu um erro interno ao tentar carregar a aula. 
+              Nossa equipe foi notificada e está trabalhando para resolver o problema.
+            </p>
+            <div class="error-actions">
+              <a href="/dashboard" class="btn btn-primary">Voltar ao Dashboard</a>
+              <a href="/careers" class="btn btn-secondary">Ver Carreiras</a>
+            </div>
+            <div class="debug-info">
+              <strong>Informações de Debug:</strong><br>
+              Aula ID: ${lessonId}<br>
+              Usuário ID: ${userId}<br>
+              Timestamp: ${new Date().toISOString()}<br>
+              Erro: ${renderError.message}
+            </div>
+          </div>
+        </body>
+        </html>
+      `);
+    }
 
     // Limpar flash message
     delete req.session.flash;
 
   } catch (error) {
-    console.error('Erro ao exibir aula:', error);
+    console.error('Erro crítico ao exibir aula:', error);
     console.error('Stack trace:', error.stack);
-    req.session.flash = {
-      type: 'error',
-      message: 'Erro interno do servidor. Tente novamente.'
-    };
-    res.redirect('/careers');
+    
+    // Em caso de erro crítico, renderizar página de erro robusta
+    try {
+      res.status(500).send(`
+        <!DOCTYPE html>
+        <html lang="pt-BR">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Erro Crítico - CodePath</title>
+          <style>
+            body { 
+              font-family: Arial, sans-serif; 
+              background: #dc2626;
+              color: white; 
+              padding: 2rem; 
+              margin: 0;
+              min-height: 100vh;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            }
+            .error-container {
+              background: rgba(0, 0, 0, 0.2);
+              border-radius: 16px;
+              padding: 3rem;
+              text-align: center;
+              max-width: 600px;
+            }
+            .error-icon { font-size: 4rem; margin-bottom: 1rem; }
+            .error-title { font-size: 2rem; margin-bottom: 1rem; }
+            .error-message { font-size: 1.1rem; line-height: 1.6; margin-bottom: 2rem; }
+            .btn {
+              display: inline-block;
+              padding: 0.75rem 1.5rem;
+              background: white;
+              color: #dc2626;
+              text-decoration: none;
+              border-radius: 8px;
+              font-weight: 500;
+              margin: 0.5rem;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="error-container">
+            <div class="error-icon">❌</div>
+            <h1 class="error-title">Erro Crítico do Sistema</h1>
+            <p class="error-message">
+              Ocorreu um erro crítico no sistema. Por favor, tente novamente em alguns minutos.
+              Se o problema persistir, entre em contato com o suporte.
+            </p>
+            <a href="/dashboard" class="btn">Voltar ao Dashboard</a>
+            <a href="/login" class="btn">Fazer Login Novamente</a>
+          </div>
+        </body>
+        </html>
+      `);
+    } catch (fallbackError) {
+      console.error('Erro ao renderizar página de erro:', fallbackError);
+      res.status(500).send('Erro interno do servidor');
+    }
   }
+}
+
+/**
+ * Função auxiliar para obter ícone do pacote
+ */
+function getPackageIcon(packageName) {
+  const icons = {
+    'C': '🔧',
+    'Python': '🐍',
+    'JavaScript': '⚡',
+    'Java': '☕',
+    'HTML/CSS': '🎨',
+    'React': '⚛️',
+    'Node.js': '🟢',
+    'Database': '🗃️',
+    'DevOps': '🔄',
+    'Mobile': '📱'
+  };
+  
+  if (!packageName) return '📚';
+  
+  for (const [key, icon] of Object.entries(icons)) {
+    if (packageName.toLowerCase().includes(key.toLowerCase())) {
+      return icon;
+    }
+  }
+  
+  return '📚';
 }
 
 /**

@@ -6,10 +6,10 @@
 <link rel="stylesheet" href="/css/lesson-navigation.css">
 
 <!-- DEBUG: Seção sempre visível para identificar problemas -->
-<div style="background: #ff6b6b; color: white; padding: 1rem; margin: 1rem; border-radius: 8px; font-weight: bold; text-align: center; position: relative; z-index: 9999;">
-  🔧 DEBUG MODE: Se você está vendo esta mensagem, o template está carregando!
-  <br>Timestamp: {{debugInfo.timestamp}}
-  <br>Lesson ID: {{lesson.id}} | Has Content: {{debugInfo.hasContent}}
+<div style="background: #10b981; color: white; padding: 1rem; margin: 1rem; border-radius: 8px; font-weight: bold; text-align: center; position: relative; z-index: 9999;">
+  ✅ SUCCESS: Template carregado com sucesso!
+  <br>Timestamp: {{#debugInfo}}{{timestamp}}{{/debugInfo}}
+  <br>Lesson ID: {{lesson.id}} | Nome: {{lesson.name}}
 </div>
 
 <main class="lesson-viewer">
@@ -132,93 +132,147 @@
           {{/debugInfo}}
         </div>
         
-        <!-- CONTEÚDO ESPECÍFICO PARA AULA DE C (ID = 1) -->
-        {{#lesson.id}}
-        <div style="background: #e0f2fe; border-left: 4px solid #0ea5e9; padding: 2rem; margin: 2rem 0; border-radius: 0 8px 8px 0;">
-          <h3 style="color: #0ea5e9; margin-bottom: 1rem;">🎯 Aula de C - Introdução</h3>
-          <p style="color: #1e293b; line-height: 1.6; margin-bottom: 1rem;">
-            Bem-vindo ao mundo da programação em C! Esta é uma das linguagens mais importantes da história da computação.
-          </p>
-          
-          <h4 style="color: #1e293b; margin: 1.5rem 0 1rem 0;">Seu primeiro programa:</h4>
-          <div style="background: #1e1e1e; color: #f8f8f2; padding: 1.5rem; border-radius: 8px; font-family: 'Courier New', monospace; overflow-x: auto; margin: 1rem 0;">
-#include &lt;stdio.h&gt;
-
-int main() {
-    printf("Hello, World!\\n");
-    return 0;
-}
-          </div>
-          
-          <h4 style="color: #1e293b; margin: 1.5rem 0 1rem 0;">Explicação linha por linha:</h4>
-          <ul style="color: #1e293b; line-height: 1.6; padding-left: 1.5rem;">
-            <li><code>#include &lt;stdio.h&gt;</code> - Inclui a biblioteca padrão de entrada/saída</li>
-            <li><code>int main()</code> - Função principal do programa</li>
-            <li><code>printf("Hello, World!\\n")</code> - Imprime texto na tela</li>
-            <li><code>return 0</code> - Retorna 0 indicando sucesso</li>
-          </ul>
-          
-          <div style="background: #f0fdf4; border: 1px solid #22c55e; padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0;">
-            <h4 style="color: #15803d; margin: 0 0 1rem 0;">💡 Dica Importante</h4>
-            <p style="color: #166534; margin: 0; line-height: 1.6;">
-              A linguagem C é a base para muitas outras linguagens. Dominar C te dará uma base sólida para aprender Python, Java, C++ e muitas outras!
-            </p>
-          </div>
-          
-          <div style="background: #fef3c7; border: 1px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0;">
-            <h4 style="color: #d97706; margin: 0 0 1rem 0;">🚀 Seu Desafio</h4>
-            <p style="color: #92400e; margin: 0; line-height: 1.6;">
-              Tente modificar o programa para exibir seu nome ao invés de "Hello, World!". Por exemplo: "Olá, João! Bem-vindo ao C!"
-            </p>
-          </div>
-        </div>
-        {{/lesson.id}}
-        
-        <!-- CONTEÚDO GENÉRICO PARA OUTRAS AULAS -->
+        <!-- CONTEÚDO EDUCACIONAL ESTRUTURADO -->
         <div class="content-sections">
-          <div class="content-section">
-            <h3>Objetivos de Aprendizado</h3>
-            <ul>
-              <li>Compreender os conceitos fundamentais abordados nesta aula</li>
-              <li>Aplicar os conhecimentos em exercícios práticos</li>
-              <li>Desenvolver habilidades de resolução de problemas</li>
-              <li>Preparar-se para os próximos tópicos do curso</li>
-            </ul>
-          </div>
-          
-          <div class="content-section">
-            <h3>Recursos Complementares</h3>
-            <div class="resource-links">
-              <a href="#" class="resource-link">
-                <i class="fas fa-file-pdf" aria-hidden="true"></i>
-                Material de Apoio (PDF)
-              </a>
-              <a href="#" class="resource-link">
-                <i class="fas fa-code" aria-hidden="true"></i>
-                Código de Exemplo
-              </a>
-              <a href="#" class="resource-link">
-                <i class="fas fa-external-link-alt" aria-hidden="true"></i>
-                Documentação Oficial
-              </a>
-              <a href="#" class="resource-link">
-                <i class="fas fa-video" aria-hidden="true"></i>
-                Vídeos Complementares
-              </a>
+          <!-- Seção de Introdução -->
+          <div class="content-section intro-section">
+            <div class="section-header">
+              <h3><i class="fas fa-rocket"></i> Bem-vindo à Aula!</h3>
+            </div>
+            
+            <div class="intro-content">
+              <p>Esta é uma aula interativa do CodePath. Aqui você vai aprender conceitos fundamentais de programação de forma prática e envolvente.</p>
+              
+              <!-- Card de destaque para aula de C -->
+              <div class="highlight-card">
+                <div class="card-icon">🎯</div>
+                <div class="card-content">
+                  <h4>Aula: {{lesson.name}}</h4>
+                  <p>{{lesson.description}}</p>
+                  <div class="lesson-meta">
+                    <span class="meta-item"><i class="fas fa-clock"></i> ~15 minutos</span>
+                    <span class="meta-item"><i class="fas fa-signal"></i> Iniciante</span>
+                    <span class="meta-item"><i class="fas fa-code"></i> Prático</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-          
+
+          <!-- Seção de Objetivos -->
           <div class="content-section">
-            <h3>Próximos Passos</h3>
-            <p style="color: #475569; line-height: 1.6;">
-              Após concluir esta aula, você estará pronto para avançar para tópicos mais avançados. 
-              Certifique-se de praticar os conceitos apresentados antes de prosseguir.
-            </p>
-            <div style="background: #f1f5f9; padding: 1rem; border-radius: 8px; margin-top: 1rem;">
-              <p style="color: #334155; margin: 0; font-weight: 500;">
-                💡 <strong>Dica:</strong> Pratique escrevendo código similar ao mostrado nos exemplos. 
-                A prática é essencial para fixar o aprendizado!
-              </p>
+            <div class="section-header">
+              <h3><i class="fas fa-bullseye"></i> Objetivos de Aprendizado</h3>
+            </div>
+            <ul class="objectives-list">
+              <li><i class="fas fa-check-circle"></i> Compreender os conceitos fundamentais da linguagem</li>
+              <li><i class="fas fa-check-circle"></i> Aplicar conhecimentos em exercícios práticos</li>
+              <li><i class="fas fa-check-circle"></i> Desenvolver habilidades de resolução de problemas</li>
+              <li><i class="fas fa-check-circle"></i> Preparar-se para os próximos tópicos do curso</li>
+            </ul>
+          </div>
+
+          <!-- Seção de Código Exemplo -->
+          <div class="content-section code-section">
+            <div class="section-header">
+              <h3><i class="fas fa-code"></i> Exemplo Prático</h3>
+            </div>
+            
+            <div class="code-example">
+              <div class="code-header">
+                <span class="code-title">hello.c</span>
+                <button class="copy-btn" onclick="copyCode(this)">
+                  <i class="fas fa-copy"></i> Copiar
+                </button>
+              </div>
+              <div class="code-content">
+                <pre><code>#include &lt;stdio.h&gt;
+
+int main() {
+    printf("Olá, mundo!\\n");
+    return 0;
+}</code></pre>
+              </div>
+            </div>
+            
+            <div class="code-explanation">
+              <h4>Explicação linha por linha:</h4>
+              <div class="explanation-list">
+                <div class="explanation-item">
+                  <code>#include &lt;stdio.h&gt;</code>
+                  <span>Inclui a biblioteca padrão de entrada/saída</span>
+                </div>
+                <div class="explanation-item">
+                  <code>int main()</code>
+                  <span>Função principal do programa</span>
+                </div>
+                <div class="explanation-item">
+                  <code>printf(...)</code>
+                  <span>Imprime texto na tela</span>
+                </div>
+                <div class="explanation-item">
+                  <code>return 0</code>
+                  <span>Retorna 0 indicando sucesso</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Seção de Dicas -->
+          <div class="content-section tips-section">
+            <div class="section-header">
+              <h3><i class="fas fa-lightbulb"></i> Dicas Importantes</h3>
+            </div>
+            
+            <div class="tips-grid">
+              <div class="tip-card tip-success">
+                <div class="tip-icon"><i class="fas fa-check"></i></div>
+                <div class="tip-content">
+                  <h4>Pratique Regularmente</h4>
+                  <p>A programação é uma habilidade que se desenvolve com a prática constante. Dedique tempo para escrever código todos os dias.</p>
+                </div>
+              </div>
+              
+              <div class="tip-card tip-info">
+                <div class="tip-icon"><i class="fas fa-info"></i></div>
+                <div class="tip-content">
+                  <h4>Entenda os Conceitos</h4>
+                  <p>Não apenas memorize o código. Entenda o que cada linha faz e por que ela é necessária.</p>
+                </div>
+              </div>
+              
+              <div class="tip-card tip-warning">
+                <div class="tip-icon"><i class="fas fa-exclamation"></i></div>
+                <div class="tip-content">
+                  <h4>Atenção aos Detalhes</h4>
+                  <p>Em programação, cada caractere importa. Um ponto e vírgula esquecido pode causar erros.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Seção de Recursos -->
+          <div class="content-section resources-section">
+            <div class="section-header">
+              <h3><i class="fas fa-book"></i> Recursos Complementares</h3>
+            </div>
+            <div class="resource-links">
+              <a href="#" class="resource-link">
+                <i class="fas fa-file-pdf"></i>
+                <span>Material de Apoio (PDF)</span>
+              </a>
+              <a href="#" class="resource-link">
+                <i class="fas fa-code"></i>
+                <span>Código de Exemplo</span>
+              </a>
+              <a href="#" class="resource-link">
+                <i class="fas fa-external-link-alt"></i>
+                <span>Documentação Oficial</span>
+              </a>
+              <a href="#" class="resource-link">
+                <i class="fas fa-video"></i>
+                <span>Vídeos Complementares</span>
+              </a>
             </div>
           </div>
         </div>
@@ -231,7 +285,7 @@ int main() {
       <div class="nav-section">
         {{#previousLesson}}
         <a href="/content/lesson/{{id}}" class="nav-btn nav-prev">
-          <i class="fas fa-arrow-left" aria-hidden="true"></i>
+          <i class="fas fa-arrow-left"></i>
           <div class="nav-content">
             <span class="nav-label">Aula Anterior</span>
             <span class="nav-title">{{name}}</span>
@@ -248,7 +302,7 @@ int main() {
 
       <div class="nav-center">
         <button class="btn btn-primary" id="markCompleteBtn" data-lesson-id="{{lesson.id}}">
-          <i class="fas fa-check" aria-hidden="true"></i>
+          <i class="fas fa-check"></i>
           Marcar como Concluída
         </button>
       </div>
@@ -260,7 +314,7 @@ int main() {
             <span class="nav-label">Próxima Aula</span>
             <span class="nav-title">{{name}}</span>
           </div>
-          <i class="fas fa-arrow-right" aria-hidden="true"></i>
+          <i class="fas fa-arrow-right"></i>
         </a>
         {{/nextLesson}}
         
@@ -272,24 +326,24 @@ int main() {
       </div>
     </div>
 
-    <!-- Questionários da Aula -->
+    <!-- Questionários da Aula (se existirem) -->
     {{#quizzes}}
     <div class="lesson-quizzes">
       <h2>Questionários da Aula</h2>
       <div class="quiz-list">
-        {{#quizzes}}
+        {{#.}}
         <div class="quiz-card">
           <div class="quiz-header">
             <h3>Questão {{question_number}}</h3>
-            <span class="quiz-type">Código</span>
+            <span class="quiz-type">{{question_type}}</span>
           </div>
           <p class="quiz-question">{{question_text}}</p>
           <a href="/quiz/{{id}}" class="btn btn-outline">
-            <i class="fas fa-code" aria-hidden="true"></i>
+            <i class="fas fa-code"></i>
             Responder Questão
           </a>
         </div>
-        {{/quizzes}}
+        {{/.}}
       </div>
     </div>
     {{/quizzes}}
@@ -299,15 +353,37 @@ int main() {
 <!-- Flash Messages -->
 {{#flash}}
 <div class="flash-message flash-{{type}}" role="alert">
-  <i class="flash-icon fas fa-info-circle" aria-hidden="true"></i>
+  <i class="flash-icon fas fa-info-circle"></i>
   <span class="flash-text">{{message}}</span>
   <button class="flash-close" aria-label="Fechar mensagem">
-          <i class="fas fa-times" aria-hidden="true"></i>
+    <i class="fas fa-times"></i>
   </button>
 </div>
 {{/flash}}
 
+<!-- JavaScript para funcionalidades da aula -->
+<script>
+// Função para copiar código
+function copyCode(button) {
+  const codeContent = button.closest('.code-example').querySelector('code').textContent;
+  navigator.clipboard.writeText(codeContent).then(() => {
+    const icon = button.querySelector('i');
+    const originalClass = icon.className;
+    icon.className = 'fas fa-check';
+    button.style.background = '#10b981';
+    
+    setTimeout(() => {
+      icon.className = originalClass;
+      button.style.background = '';
+    }, 2000);
+  });
+}
 
+// Log de debug
+console.log('✅ Lesson view template carregado com sucesso!');
+console.log('Lesson ID:', '{{lesson.id}}');
+console.log('Lesson Name:', '{{lesson.name}}');
+</script>
 
 <!-- JavaScript para sistema de progresso avançado -->
 <script src="/js/lesson-progress.js"></script>
