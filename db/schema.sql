@@ -172,6 +172,23 @@ CREATE TABLE IF NOT EXISTS user_sessions (
 );
 
 -- ========================================
+-- TABELA: notifications
+-- ========================================
+-- Armazena as notificações do sistema para os usuários
+CREATE TABLE IF NOT EXISTS notifications (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    type VARCHAR(50) NOT NULL,                     -- 'welcome', 'progress', 'quiz', 'streak', 'content'
+    title VARCHAR(200) NOT NULL,                   -- Título da notificação
+    message TEXT NOT NULL,                         -- Mensagem da notificação
+    action_url VARCHAR(500),                       -- URL de ação (opcional)
+    is_read BOOLEAN DEFAULT FALSE,                 -- Se foi lida
+    read_at DATETIME,                              -- Quando foi lida
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- ========================================
 -- ÍNDICES PARA OTIMIZAÇÃO
 -- ========================================
 
@@ -187,6 +204,9 @@ CREATE INDEX IF NOT EXISTS idx_quiz_questions_quiz_id ON quiz_questions(quiz_id)
 CREATE INDEX IF NOT EXISTS idx_quiz_options_question_id ON quiz_options(question_id);
 CREATE INDEX IF NOT EXISTS idx_user_quiz_answers_user_id ON user_quiz_answers(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_quiz_answers_question_id ON user_quiz_answers(question_id);
+CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);
+CREATE INDEX IF NOT EXISTS idx_notifications_type ON notifications(type);
+CREATE INDEX IF NOT EXISTS idx_notifications_read ON notifications(is_read);
 
 -- ========================================
 -- COMENTÁRIOS FINAIS

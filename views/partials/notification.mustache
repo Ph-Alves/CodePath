@@ -1,0 +1,128 @@
+{{!-- 
+    Partial de Notificação - CodePath
+    Componente reutilizável para exibir notificações
+    
+    Parâmetros esperados:
+    - notifications: Array de notificações
+    - unreadCount: Número de notificações não lidas
+--}}
+
+<!-- Botão de Notificações no Header -->
+<div class="notification-trigger">
+    <button class="notification-btn" id="notificationBtn" aria-label="Notificações">
+        <i class="fas fa-bell"></i>
+        {{#unreadCount}}
+        <span class="notification-badge" id="notificationBadge">{{unreadCount}}</span>
+        {{/unreadCount}}
+    </button>
+</div>
+
+<!-- Dropdown de Notificações -->
+<div class="notification-dropdown" id="notificationDropdown">
+    <div class="notification-header">
+        <h3>Notificações</h3>
+        <div class="notification-actions">
+            {{#unreadCount}}
+            <button class="btn-link" id="markAllReadBtn" title="Marcar todas como lidas">
+                <i class="fas fa-check-double"></i>
+            </button>
+            {{/unreadCount}}
+            <button class="btn-link" id="cleanupBtn" title="Limpar antigas">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="notification-content" id="notificationContent">
+        {{#notifications.length}}
+        <div class="notification-list">
+            {{#notifications}}
+            <div class="notification-item {{^is_read}}unread{{/is_read}}" data-id="{{id}}">
+                <div class="notification-icon">
+                    <i class="fas fa-bell text-primary"></i>
+                </div>
+                
+                <div class="notification-body">
+                    <h4 class="notification-title">{{title}}</h4>
+                    <p class="notification-message">{{message}}</p>
+                    <div class="notification-meta">
+                        <span class="notification-time">{{time_group}}</span>
+                        {{^is_read}}
+                        <span class="notification-status">Nova</span>
+                        {{/is_read}}
+                    </div>
+                </div>
+
+                <div class="notification-controls">
+                    {{#action_url}}
+                    <button class="btn-notification-action" data-url="{{action_url}}" title="Ir para">
+                        <i class="fas fa-external-link-alt"></i>
+                    </button>
+                    {{/action_url}}
+                    {{^is_read}}
+                    <button class="btn-mark-read" data-id="{{id}}" title="Marcar como lida">
+                        <i class="fas fa-check"></i>
+                    </button>
+                    {{/is_read}}
+                    <button class="btn-delete-notification" data-id="{{id}}" title="Excluir">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            {{/notifications}}
+        </div>
+
+        <!-- Botão Carregar Mais -->
+        <div class="notification-footer">
+            <button class="btn-load-more" id="loadMoreBtn" style="display: none;">
+                <i class="fas fa-chevron-down"></i>
+                Carregar mais
+            </button>
+        </div>
+        {{/notifications.length}}
+
+        {{^notifications.length}}
+        <!-- Estado Vazio -->
+        <div class="notification-empty">
+            <div class="empty-icon">
+                <i class="fas fa-bell-slash"></i>
+            </div>
+            <h4>Nenhuma notificação</h4>
+            <p>Você não tem notificações no momento.</p>
+        </div>
+        {{/notifications.length}}
+    </div>
+
+    <!-- Loading State -->
+    <div class="notification-loading" id="notificationLoading" style="display: none;">
+        <div class="loading-spinner"></div>
+        <p>Carregando notificações...</p>
+    </div>
+</div>
+
+<!-- Toast de Notificação -->
+<div class="notification-toast" id="notificationToast">
+    <div class="toast-content">
+        <div class="toast-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="toast-message">
+            <span id="toastMessage">Notificação atualizada</span>
+        </div>
+        <button class="toast-close" id="toastClose">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+</div>
+
+<!-- Overlay para fechar dropdown -->
+<div class="notification-overlay" id="notificationOverlay" style="display: none;"></div>
+
+<script>
+// Funcionalidade de notificações será carregada via notifications.js
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof NotificationManager !== 'undefined') {
+        NotificationManager.init();
+    }
+});
+</script> 

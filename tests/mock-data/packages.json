@@ -1,0 +1,349 @@
+[
+  {
+    "id": 1,
+    "name": "C - Fundamentos",
+    "description": "Aprenda os fundamentos da linguagem C, base para muitas outras linguagens",
+    "icon": "💻",
+    "color": "#4A90E2",
+    "difficulty": "Iniciante",
+    "estimated_hours": 40,
+    "total_lessons": 15,
+    "total_quizzes": 8,
+    "total_projects": 3,
+    "career_profile_id": 1,
+    "prerequisites": [],
+    "skills_learned": [
+      "Sintaxe básica de C",
+      "Ponteiros e gerenciamento de memória",
+      "Estruturas de dados básicas",
+      "Algoritmos fundamentais"
+    ],
+    "lessons": [
+      {
+        "id": 1,
+        "title": "Introdução ao C",
+        "duration": "45 min",
+        "type": "video",
+        "completed": false
+      },
+      {
+        "id": 2,
+        "title": "Variáveis e Tipos de Dados",
+        "duration": "30 min",
+        "type": "video",
+        "completed": false
+      },
+      {
+        "id": 3,
+        "title": "Estruturas de Controle",
+        "duration": "60 min",
+        "type": "interactive",
+        "completed": false
+      }
+    ],
+    "quizzes": [
+      {
+        "id": 1,
+        "title": "Quiz: Sintaxe Básica",
+        "questions": 10,
+        "estimated_time": 15
+      },
+      {
+        "id": 2,
+        "title": "Quiz: Ponteiros",
+        "questions": 8,
+        "estimated_time": 12
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Front-end (HTML/CSS)",
+    "description": "Domine HTML5 e CSS3 para criar interfaces web modernas e responsivas",
+    "icon": "🎨",
+    "color": "#E94B3C",
+    "difficulty": "Iniciante",
+    "estimated_hours": 35,
+    "total_lessons": 18,
+    "total_quizzes": 6,
+    "total_projects": 4,
+    "career_profile_id": 1,
+    "prerequisites": [],
+    "skills_learned": [
+      "HTML5 semântico",
+      "CSS3 avançado",
+      "Flexbox e Grid",
+      "Design responsivo",
+      "Animações CSS"
+    ],
+    "lessons": [
+      {
+        "id": 4,
+        "title": "Estrutura HTML",
+        "duration": "40 min",
+        "type": "video",
+        "completed": false
+      },
+      {
+        "id": 5,
+        "title": "Estilização com CSS",
+        "duration": "50 min",
+        "type": "hands-on",
+        "completed": false
+      },
+      {
+        "id": 6,
+        "title": "Layout Responsivo",
+        "duration": "70 min",
+        "type": "project",
+        "completed": false
+      }
+    ],
+    "quizzes": [
+      {
+        "id": 3,
+        "title": "Quiz: HTML Semântico",
+        "questions": 12,
+        "estimated_time": 18
+      },
+      {
+        "id": 4,
+        "title": "Quiz: CSS Flexbox",
+        "questions": 10,
+        "estimated_time": 15
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "name": "Python",
+    "description": "Aprenda Python, uma das linguagens mais versáteis e demandadas do mercado",
+    "icon": "🐍",
+    "color": "#3776AB",
+    "difficulty": "Iniciante",
+    "estimated_hours": 50,
+    "total_lessons": 22,
+    "total_quizzes": 10,
+    "total_projects": 5,
+    "career_profile_id": 2,
+    "prerequisites": [],
+    "skills_learned": [
+      "Sintaxe Python",
+      "Estruturas de dados",
+      "Programação orientada a objetos",
+      "Bibliotecas populares",
+      "Desenvolvimento web com Django/Flask"
+    ],
+    "lessons": [
+      {
+        "id": 7,
+        "title": "Python Básico",
+        "duration": "45 min",
+        "type": "video",
+        "completed": false
+      },
+      {
+        "id": 8,
+        "title": "Estruturas de Dados",
+        "duration": "60 min",
+        "type": "interactive",
+        "completed": false
+      },
+      {
+        "id": 9,
+        "title": "Orientação a Objetos",
+        "duration": "80 min",
+        "type": "video",
+        "completed": false
+      }
+    ],
+    "quizzes": [
+      {
+        "id": 5,
+        "title": "Quiz: Sintaxe Python",
+        "questions": 15,
+        "estimated_time": 20
+      },
+      {
+        "id": 6,
+        "title": "Quiz: OOP em Python",
+        "questions": 12,
+        "estimated_time": 18
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "name": "Java",
+    "description": "Domine Java, linguagem robusta e amplamente utilizada no desenvolvimento enterprise",
+    "icon": "☕",
+    "color": "#F89820",
+    "difficulty": "Intermediário",
+    "estimated_hours": 60,
+    "total_lessons": 25,
+    "total_quizzes": 12,
+    "total_projects": 6,
+    "career_profile_id": 1,
+    "prerequisites": ["Lógica de programação"],
+    "skills_learned": [
+      "Sintaxe Java",
+      "Programação orientada a objetos",
+      "Collections Framework",
+      "Tratamento de exceções",
+      "Spring Framework básico"
+    ],
+    "lessons": [
+      {
+        "id": 10,
+        "title": "Fundamentos Java",
+        "duration": "50 min",
+        "type": "video",
+        "completed": false
+      },
+      {
+        "id": 11,
+        "title": "Classes e Objetos",
+        "duration": "70 min",
+        "type": "hands-on",
+        "completed": false
+      },
+      {
+        "id": 12,
+        "title": "Collections",
+        "duration": "65 min",
+        "type": "interactive",
+        "completed": false
+      }
+    ],
+    "quizzes": [
+      {
+        "id": 7,
+        "title": "Quiz: Fundamentos Java",
+        "questions": 18,
+        "estimated_time": 25
+      },
+      {
+        "id": 8,
+        "title": "Quiz: OOP Java",
+        "questions": 15,
+        "estimated_time": 22
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "name": "Back-end (JavaScript)",
+    "description": "Desenvolva APIs e serviços backend robustos usando Node.js e JavaScript",
+    "icon": "⚙️",
+    "color": "#F7DF1E",
+    "difficulty": "Intermediário",
+    "estimated_hours": 55,
+    "total_lessons": 20,
+    "total_quizzes": 9,
+    "total_projects": 4,
+    "career_profile_id": 1,
+    "prerequisites": ["JavaScript básico", "HTML/CSS"],
+    "skills_learned": [
+      "Node.js fundamentals",
+      "Express.js",
+      "APIs RESTful",
+      "Banco de dados",
+      "Autenticação e segurança"
+    ],
+    "lessons": [
+      {
+        "id": 13,
+        "title": "Introdução ao Node.js",
+        "duration": "55 min",
+        "type": "video",
+        "completed": false
+      },
+      {
+        "id": 14,
+        "title": "Express.js Framework",
+        "duration": "75 min",
+        "type": "hands-on",
+        "completed": false
+      },
+      {
+        "id": 15,
+        "title": "APIs RESTful",
+        "duration": "90 min",
+        "type": "project",
+        "completed": false
+      }
+    ],
+    "quizzes": [
+      {
+        "id": 9,
+        "title": "Quiz: Node.js Basics",
+        "questions": 14,
+        "estimated_time": 20
+      },
+      {
+        "id": 10,
+        "title": "Quiz: Express.js",
+        "questions": 12,
+        "estimated_time": 18
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "name": "C#",
+    "description": "Aprenda C# e o ecossistema .NET para desenvolvimento de aplicações robustas",
+    "icon": "🔷",
+    "color": "#239120",
+    "difficulty": "Intermediário",
+    "estimated_hours": 65,
+    "total_lessons": 28,
+    "total_quizzes": 14,
+    "total_projects": 7,
+    "career_profile_id": 1,
+    "prerequisites": ["Lógica de programação", "Conceitos de OOP"],
+    "skills_learned": [
+      "Sintaxe C#",
+      "Programação orientada a objetos",
+      ".NET Framework/Core",
+      "Entity Framework",
+      "ASP.NET básico"
+    ],
+    "lessons": [
+      {
+        "id": 16,
+        "title": "Fundamentos C#",
+        "duration": "60 min",
+        "type": "video",
+        "completed": false
+      },
+      {
+        "id": 17,
+        "title": ".NET Ecosystem",
+        "duration": "50 min",
+        "type": "video",
+        "completed": false
+      },
+      {
+        "id": 18,
+        "title": "Entity Framework",
+        "duration": "85 min",
+        "type": "hands-on",
+        "completed": false
+      }
+    ],
+    "quizzes": [
+      {
+        "id": 11,
+        "title": "Quiz: C# Fundamentals",
+        "questions": 16,
+        "estimated_time": 24
+      },
+      {
+        "id": 12,
+        "title": "Quiz: .NET Framework",
+        "questions": 13,
+        "estimated_time": 20
+      }
+    ]
+  }
+] 

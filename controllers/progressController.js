@@ -81,6 +81,7 @@ const progressController = {
             
             res.render('pages/progress', {
                 title: 'Meu Progresso - CodePath',
+                additionalCSS: 'progress',
                 ...progressData
             });
             

@@ -1,0 +1,170 @@
+[
+  {
+    "id": 1,
+    "name": "Carlos Pereira",
+    "email": "carlos.pereira@email.com",
+    "password": "senha123",
+    "birth_date": "1995-03-15",
+    "education_level": "Ensino Superior",
+    "current_package_id": 2,
+    "selected_career_profile_id": 1,
+    "level": 3,
+    "xp_points": 1250,
+    "streak_days": 7,
+    "created_at": "2024-01-15T10:30:00Z",
+    "profile": {
+      "bio": "Desenvolvedor em transição de carreira, focado em desenvolvimento web",
+      "interests": ["JavaScript", "React", "Node.js"],
+      "goals": ["Conseguir primeiro emprego como dev", "Dominar full-stack"],
+      "preferred_learning_style": "hands-on"
+    },
+    "progress": {
+      "total_lessons_completed": 25,
+      "total_quizzes_completed": 12,
+      "total_projects_completed": 3,
+      "current_streak": 7,
+      "longest_streak": 14,
+      "last_activity": "2024-12-20T14:30:00Z"
+    }
+  },
+  {
+    "id": 2,
+    "name": "Ana Silva",
+    "email": "ana.silva@email.com",
+    "password": "senha123",
+    "birth_date": "1998-07-22",
+    "education_level": "Ensino Médio",
+    "current_package_id": 1,
+    "selected_career_profile_id": 2,
+    "level": 2,
+    "xp_points": 850,
+    "streak_days": 3,
+    "created_at": "2024-02-10T09:15:00Z",
+    "profile": {
+      "bio": "Estudante interessada em tecnologia, começando do zero",
+      "interests": ["Python", "Data Science", "Machine Learning"],
+      "goals": ["Aprender programação", "Conseguir estágio em tech"],
+      "preferred_learning_style": "visual"
+    },
+    "progress": {
+      "total_lessons_completed": 18,
+      "total_quizzes_completed": 8,
+      "total_projects_completed": 1,
+      "current_streak": 3,
+      "longest_streak": 8,
+      "last_activity": "2024-12-20T11:45:00Z"
+    }
+  },
+  {
+    "id": 3,
+    "name": "João Santos",
+    "email": "joao.santos@email.com",
+    "password": "senha123",
+    "birth_date": "1992-11-08",
+    "education_level": "Ensino Superior",
+    "current_package_id": 4,
+    "selected_career_profile_id": 3,
+    "level": 4,
+    "xp_points": 2100,
+    "streak_days": 12,
+    "created_at": "2023-11-20T16:45:00Z",
+    "profile": {
+      "bio": "Engenheiro civil migrando para desenvolvimento de software",
+      "interests": ["Java", "Spring Boot", "Microservices"],
+      "goals": ["Especializar em backend", "Arquitetura de sistemas"],
+      "preferred_learning_style": "theoretical"
+    },
+    "progress": {
+      "total_lessons_completed": 42,
+      "total_quizzes_completed": 20,
+      "total_projects_completed": 6,
+      "current_streak": 12,
+      "longest_streak": 21,
+      "last_activity": "2024-12-20T18:20:00Z"
+    }
+  },
+  {
+    "id": 4,
+    "name": "Maria Oliveira",
+    "email": "maria.oliveira@email.com",
+    "password": "senha123",
+    "birth_date": "1990-05-30",
+    "education_level": "Pós-graduação",
+    "current_package_id": 6,
+    "selected_career_profile_id": 4,
+    "level": 5,
+    "xp_points": 3200,
+    "streak_days": 18,
+    "created_at": "2023-08-12T13:20:00Z",
+    "profile": {
+      "bio": "Administradora buscando especialização em tecnologia",
+      "interests": ["C#", ".NET", "Azure"],
+      "goals": ["Liderar projetos tech", "Gestão de equipes dev"],
+      "preferred_learning_style": "mixed"
+    },
+    "progress": {
+      "total_lessons_completed": 65,
+      "total_quizzes_completed": 32,
+      "total_projects_completed": 10,
+      "current_streak": 18,
+      "longest_streak": 25,
+      "last_activity": "2024-12-20T20:10:00Z"
+    }
+  },
+  {
+    "id": 5,
+    "name": "Pedro Costa",
+    "email": "pedro.costa@email.com",
+    "password": "senha123",
+    "birth_date": "2001-12-03",
+    "education_level": "Ensino Médio",
+    "current_package_id": 3,
+    "selected_career_profile_id": 5,
+    "level": 1,
+    "xp_points": 320,
+    "streak_days": 1,
+    "created_at": "2024-11-15T08:30:00Z",
+    "profile": {
+      "bio": "Jovem aprendiz interessado em segurança da informação",
+      "interests": ["Cybersecurity", "Ethical Hacking", "Network Security"],
+      "goals": ["Aprender fundamentos", "Certificações de segurança"],
+      "preferred_learning_style": "practical"
+    },
+    "progress": {
+      "total_lessons_completed": 8,
+      "total_quizzes_completed": 3,
+      "total_projects_completed": 0,
+      "current_streak": 1,
+      "longest_streak": 4,
+      "last_activity": "2024-12-20T07:15:00Z"
+    }
+  },
+  {
+    "id": 6,
+    "name": "Fernanda Lima",
+    "email": "fernanda.lima@email.com",
+    "password": "senha123",
+    "birth_date": "1996-09-18",
+    "education_level": "Ensino Superior",
+    "current_package_id": 5,
+    "selected_career_profile_id": 6,
+    "level": 3,
+    "xp_points": 1580,
+    "streak_days": 5,
+    "created_at": "2024-03-08T12:00:00Z",
+    "profile": {
+      "bio": "Designer gráfica explorando desenvolvimento frontend",
+      "interests": ["HTML", "CSS", "JavaScript", "UI/UX"],
+      "goals": ["Tornar-se full-stack", "Criar interfaces incríveis"],
+      "preferred_learning_style": "visual"
+    },
+    "progress": {
+      "total_lessons_completed": 31,
+      "total_quizzes_completed": 15,
+      "total_projects_completed": 4,
+      "current_streak": 5,
+      "longest_streak": 11,
+      "last_activity": "2024-12-20T16:40:00Z"
+    }
+  }
+] 

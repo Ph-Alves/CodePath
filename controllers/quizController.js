@@ -31,6 +31,7 @@ const quizController = {
 
             res.render('pages/quiz', {
                 title: `${quiz.title} - CodePath`,
+                additionalCSS: 'quiz',
                 user: req.session.user,
                 quiz: {
                     ...quiz,
@@ -89,6 +90,7 @@ const quizController = {
 
             res.render('pages/quiz-question', {
                 title: `${quiz.title} - Questão ${questionNumber}`,
+                additionalCSS: 'quiz',
                 user: req.session.user,
                 quiz: {
                     ...quiz,
@@ -259,6 +261,7 @@ const quizController = {
 
             res.render('pages/quiz-result', {
                 title: `${quiz.title} - Resultado`,
+                additionalCSS: 'quiz',
                 user: req.session.user,
                 quiz,
                 result: {

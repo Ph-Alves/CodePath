@@ -51,43 +51,7 @@
             {{/user}}
             
             <!-- Notificações -->
-            <div class="notifications">
-                <button class="notification-btn" id="notificationBtn" aria-label="Notificações">
-                    <i class="fas fa-bell"></i>
-                    {{#hasNotifications}}
-                        <span class="notification-badge">{{notificationCount}}</span>
-                    {{/hasNotifications}}
-                </button>
-                
-                <!-- Dropdown de Notificações -->
-                <div class="notification-dropdown" id="notificationDropdown">
-                    <div class="notification-header">
-                        <h3>Notificações</h3>
-                        {{#hasNotifications}}
-                            <button class="mark-all-read">Marcar todas como lidas</button>
-                        {{/hasNotifications}}
-                    </div>
-                    <div class="notification-list">
-                        {{#notifications}}
-                            <div class="notification-item {{^read}}unread{{/read}}">
-                                <div class="notification-icon">
-                                    <i class="{{icon}}"></i>
-                                </div>
-                                <div class="notification-content">
-                                    <p class="notification-text">{{message}}</p>
-                                    <span class="notification-time">{{time}}</span>
-                                </div>
-                            </div>
-                        {{/notifications}}
-                        {{^notifications}}
-                            <div class="no-notifications">
-                                <i class="fas fa-bell-slash"></i>
-                                <p>Nenhuma notificação</p>
-                            </div>
-                        {{/notifications}}
-                    </div>
-                </div>
-            </div>
+            {{>partials/notification}}
             
             <!-- Menu do Usuário -->
             {{#user}}

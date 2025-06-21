@@ -35,6 +35,7 @@ async function showPackageLessons(req, res) {
     // Renderizar página de aulas do pacote
     res.render('pages/package-lessons', {
       title: `${progressStats.package.name} - Aulas`,
+      additionalCSS: 'content',
       user: req.session.user,
       package: progressStats.package,
       lessons: lessons,
@@ -92,6 +93,7 @@ async function showLesson(req, res) {
     // Renderizar página da aula
     res.render('pages/lesson-view', {
       title: `${lesson.name} - ${lesson.package_name}`,
+      additionalCSS: 'content',
       user: req.session.user,
       lesson: lesson,
       userProgress: userProgress,

@@ -702,4 +702,152 @@ body {
     to {
         transform: rotate(360deg);
     }
-} 
+}
+
+/* ===================================
+   ESTILOS ADICIONAIS PARA ELEMENTOS SEM CSS
+   =================================== */
+
+/* Links e navegação geral */
+a {
+    color: var(--primary-purple);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+a:hover {
+    color: var(--primary-purple-dark);
+    text-decoration: underline;
+}
+
+/* Botões sem classe específica */
+button:not([class]) {
+    background: var(--gradient-primary);
+    color: var(--white);
+    border: none;
+    padding: var(--spacing-2) var(--spacing-4);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    transition: all var(--transition-fast);
+    min-height: 44px;
+}
+
+button:not([class]):hover {
+    background: var(--gradient-secondary);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Listas de navegação */
+ul:not([class]) {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+li:not([class]) {
+    margin: var(--spacing-1) 0;
+}
+
+/* Badges e indicadores */
+.badge, span.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--spacing-1) var(--spacing-3);
+    background: var(--primary-purple);
+    color: var(--white);
+    border-radius: var(--border-radius-xl);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+}
+
+/* Texto de informações do usuário */
+.user-info-text, .user-details {
+    color: var(--gray-700);
+    font-size: var(--font-size-sm);
+    margin: var(--spacing-1) 0;
+}
+
+/* Estilo para elementos de notificação toast */
+.notification-toast {
+    position: fixed;
+    top: var(--spacing-4);
+    right: var(--spacing-4);
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-4);
+    box-shadow: var(--shadow-lg);
+    z-index: 9999;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all var(--transition-normal);
+}
+
+.notification-toast.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Estilo para menu dropdown */
+.dropdown-menu {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: var(--spacing-2);
+    min-width: 200px;
+}
+
+.dropdown-item {
+    display: block;
+    padding: var(--spacing-2) var(--spacing-3);
+    color: var(--gray-700);
+    text-decoration: none;
+    border-radius: var(--border-radius);
+    transition: background-color var(--transition-fast);
+}
+
+.dropdown-item:hover {
+    background-color: var(--gray-100);
+    color: var(--primary-purple);
+}
+
+/* Breadcrumb melhorado */
+.breadcrumb-list {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.breadcrumb-item {
+    color: var(--gray-500);
+    font-size: var(--font-size-sm);
+}
+
+.breadcrumb-item:not(:last-child)::after {
+    content: '/';
+    margin-left: var(--spacing-2);
+    color: var(--gray-400);
+}
+
+.breadcrumb-link {
+    color: var(--primary-purple);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+.breadcrumb-link:hover {
+    color: var(--primary-purple-dark);
+    text-decoration: underline;
+}
+
+.breadcrumb-current {
+    color: var(--gray-700);
+    font-weight: 500;
+}

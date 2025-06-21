@@ -218,12 +218,12 @@ CodePath/
 - [ ] Integrar dados reais do banco
 
 ### Médio Prazo (1-2 meses)
-- [ ] Sistema de conteúdos (Fase 7)
-- [ ] Sistema de questionários (Fase 8)
-- [ ] Sistema de progresso (Fase 9)
+- [x] Sistema de conteúdos (Fase 7)
+- [x] Sistema de questionários (Fase 8)
+- [x] Sistema de progresso (Fase 9)
 
 ### Longo Prazo (3+ meses)
-- [ ] Melhorias de UX (Fase 10)
+- [x] Notificações e Melhorias de UX (Fase 10)
 - [ ] Testes automatizados (Fase 11)
 - [ ] Deploy e produção
 

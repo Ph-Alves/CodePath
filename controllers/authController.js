@@ -12,6 +12,7 @@ const {
   createSession, 
   removeSession 
 } = require('../models/userModel');
+const { createSystemNotifications } = require('./notificationController');
 
 /**
  * Exibe a página de login
@@ -23,6 +24,7 @@ function showLogin(req, res) {
       title: 'Login - CodePath',
       pageTitle: 'Faça seu login',
       subtitle: 'Descubra o seu caminho na tecnologia',
+      additionalCSS: 'auth',
       error: null
     });
   } catch (error) {
@@ -36,34 +38,46 @@ function showLogin(req, res) {
  */
 async function processLogin(req, res) {
   try {
+    console.log('[AUTH] Iniciando processo de login...');
     const { email, password } = req.body;
+    console.log(`[AUTH] Email recebido: ${email}`);
     
     // Validar campos obrigatórios
     if (!email || !password) {
+      console.log('[AUTH] Erro: Campos obrigatórios não preenchidos');
       return res.render('pages/login', {
         title: 'Login - CodePath',
         pageTitle: 'Faça seu login',
         subtitle: 'Descubra o seu caminho na tecnologia',
+        additionalCSS: 'auth',
         error: 'Email e senha são obrigatórios',
         email: email // Manter o email preenchido
       });
     }
     
+    console.log('[AUTH] Validando credenciais...');
     // Validar credenciais
     const user = await validateUser(email, password);
     if (!user) {
+      console.log('[AUTH] Erro: Credenciais inválidas');
       return res.render('pages/login', {
         title: 'Login - CodePath',
         pageTitle: 'Faça seu login',
         subtitle: 'Descubra o seu caminho na tecnologia',
+        additionalCSS: 'auth',
         error: 'Email ou senha incorretos',
         email: email
       });
     }
     
+    console.log(`[AUTH] Usuário validado: ${user.email}, ID: ${user.id}`);
+    
+    console.log('[AUTH] Criando sessão...');
     // Criar sessão
     const sessionToken = await createSession(user.id);
+    console.log(`[AUTH] Sessão criada: ${sessionToken.substring(0, 10)}...`);
     
+    console.log('[AUTH] Salvando dados na sessão...');
     // Salvar dados na sessão
     req.session.user = user;
     req.session.sessionToken = sessionToken;
@@ -71,15 +85,18 @@ async function processLogin(req, res) {
     // Log de sucesso
     console.log(`[AUTH] Login realizado com sucesso: ${user.email}`);
     
+    console.log('[AUTH] Redirecionando para dashboard...');
     // Redirecionar para dashboard
     res.redirect('/dashboard');
     
   } catch (error) {
     console.error('Erro ao processar login:', error);
+    console.error('Stack trace:', error.stack);
     res.render('pages/login', {
       title: 'Login - CodePath',
       pageTitle: 'Faça seu login',
       subtitle: 'Descubra o seu caminho na tecnologia',
+      additionalCSS: 'auth',
       error: 'Erro interno do servidor. Tente novamente.',
       email: req.body.email
     });
@@ -95,6 +112,7 @@ function showRegister(req, res) {
       title: 'Cadastro - CodePath',
       pageTitle: 'Crie sua conta',
       subtitle: 'Comece sua jornada na tecnologia',
+      additionalCSS: 'auth',
       error: null,
       success: null
     });
@@ -117,6 +135,7 @@ async function processRegister(req, res) {
         title: 'Cadastro - CodePath',
         pageTitle: 'Crie sua conta',
         subtitle: 'Comece sua jornada na tecnologia',
+        additionalCSS: 'auth',
         error: 'Todos os campos obrigatórios devem ser preenchidos',
         formData: { name, email, birthDate, educationLevel }
       });
@@ -128,6 +147,7 @@ async function processRegister(req, res) {
         title: 'Cadastro - CodePath',
         pageTitle: 'Crie sua conta',
         subtitle: 'Comece sua jornada na tecnologia',
+        additionalCSS: 'auth',
         error: 'As senhas não coincidem',
         formData: { name, email, birthDate, educationLevel }
       });
@@ -139,6 +159,7 @@ async function processRegister(req, res) {
         title: 'Cadastro - CodePath',
         pageTitle: 'Crie sua conta',
         subtitle: 'Comece sua jornada na tecnologia',
+        additionalCSS: 'auth',
         error: 'A senha deve ter pelo menos 6 caracteres',
         formData: { name, email, birthDate, educationLevel }
       });
@@ -151,6 +172,7 @@ async function processRegister(req, res) {
         title: 'Cadastro - CodePath',
         pageTitle: 'Crie sua conta',
         subtitle: 'Comece sua jornada na tecnologia',
+        additionalCSS: 'auth',
         error: 'Por favor, insira um email válido',
         formData: { name, email, birthDate, educationLevel }
       });
@@ -168,11 +190,19 @@ async function processRegister(req, res) {
     // Log de sucesso
     console.log(`[AUTH] Usuário criado com sucesso: ${newUser.email}`);
     
+    // Criar notificação de boas-vindas
+    try {
+      await createSystemNotifications.welcome(newUser.id, newUser.name);
+    } catch (notificationError) {
+      console.error('Erro ao criar notificação de boas-vindas:', notificationError);
+    }
+    
     // Exibir mensagem de sucesso
     res.render('pages/register', {
       title: 'Cadastro - CodePath',
       pageTitle: 'Crie sua conta',
       subtitle: 'Comece sua jornada na tecnologia',
+      additionalCSS: 'auth',
       success: 'Conta criada com sucesso! Você já pode fazer login.',
       error: null
     });
@@ -190,6 +220,7 @@ async function processRegister(req, res) {
       title: 'Cadastro - CodePath',
       pageTitle: 'Crie sua conta',
       subtitle: 'Comece sua jornada na tecnologia',
+      additionalCSS: 'auth',
       error: errorMessage,
       formData: { 
         name: req.body.name, 

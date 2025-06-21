@@ -1,0 +1,162 @@
+{{!-- 
+    Partial de Estado de Carregamento - CodePath
+    Componente reutilizável para exibir estados de loading
+    
+    Parâmetros esperados:
+    - message: Mensagem de carregamento (opcional)
+    - size: Tamanho do spinner (small, medium, large)
+    - type: Tipo de loading (default, overlay, inline)
+--}}
+
+<div class="loading-state {{#type}}loading-{{type}}{{/type}}{{^type}}loading-default{{/type}} {{#size}}loading-{{size}}{{/size}}{{^size}}loading-medium{{/size}}">
+    <div class="loading-content">
+        <div class="loading-spinner">
+            <div class="spinner-ring">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+        
+        <div class="loading-message">
+            {{#message}}
+                <p>{{message}}</p>
+            {{/message}}
+            {{^message}}
+                <p>Carregando...</p>
+            {{/message}}
+        </div>
+    </div>
+</div>
+
+<style>
+/* Estilos do Loading State */
+.loading-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    text-align: center;
+}
+
+.loading-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Spinner animado */
+.loading-spinner {
+    position: relative;
+}
+
+.spinner-ring {
+    display: inline-block;
+    position: relative;
+    width: 40px;
+    height: 40px;
+}
+
+.spinner-ring div {
+    box-sizing: border-box;
+    display: block;
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    margin: 4px;
+    border: 3px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spinner-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+    border-color: var(--primary-color) transparent transparent transparent;
+}
+
+.spinner-ring div:nth-child(1) {
+    animation-delay: -0.45s;
+}
+
+.spinner-ring div:nth-child(2) {
+    animation-delay: -0.3s;
+}
+
+.spinner-ring div:nth-child(3) {
+    animation-delay: -0.15s;
+}
+
+@keyframes spinner-ring {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Tamanhos */
+.loading-small .spinner-ring {
+    width: 24px;
+    height: 24px;
+}
+
+.loading-small .spinner-ring div {
+    width: 20px;
+    height: 20px;
+    margin: 2px;
+    border-width: 2px;
+}
+
+.loading-large .spinner-ring {
+    width: 60px;
+    height: 60px;
+}
+
+.loading-large .spinner-ring div {
+    width: 48px;
+    height: 48px;
+    margin: 6px;
+    border-width: 4px;
+}
+
+/* Tipos */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    z-index: 9999;
+    backdrop-filter: blur(2px);
+}
+
+.loading-inline {
+    padding: 1rem;
+    display: inline-flex;
+}
+
+.loading-inline .loading-content {
+    flex-direction: row;
+    gap: 0.5rem;
+}
+
+/* Mensagem */
+.loading-message {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.loading-small .loading-message {
+    font-size: 0.8rem;
+}
+
+.loading-large .loading-message {
+    font-size: 1rem;
+}
+
+/* Animação de entrada */
+.loading-state {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+</style> 

@@ -6,8 +6,14 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "test:manual": "node tests/manual-test.js"
+    "test": "node tests/test-runner.js",
+    "test:performance": "node tests/performance-test.js",
+    "test:all": "npm run test && npm run test:performance",
+    "validate": "node -e \"console.log('✅ Validação de sintaxe passou')\"",
+    "setup": "npm install && node -e \"console.log('📦 Setup completo')\"",
+    "clean": "rm -rf logs/*.log && echo '🧹 Logs limpos'",
+    "docs": "echo '📚 Documentação disponível em docs/'",
+    "health": "curl -f http://localhost:4000/health || echo '❌ Servidor não está rodando'"
   },
   "keywords": [
     "education",

@@ -20,22 +20,39 @@ const {
  */
 async function showDashboard(req, res) {
   try {
-    const userId = req.session.user.id;
+    console.log('[DASHBOARD] Iniciando carregamento do dashboard...');
     
-    // Buscar dados atualizados do usuário
-    const user = await getUserById(userId);
-    if (!user) {
+    if (!req.session.user) {
+      console.log('[DASHBOARD] Erro: Usuário não encontrado na sessão');
       return res.redirect('/login');
     }
     
+    const userId = req.session.user.id;
+    console.log(`[DASHBOARD] ID do usuário: ${userId}`);
+    
+    console.log('[DASHBOARD] Buscando dados do usuário...');
+    // Buscar dados atualizados do usuário
+    const user = await getUserById(userId);
+    if (!user) {
+      console.log('[DASHBOARD] Erro: Usuário não encontrado no banco');
+      return res.redirect('/login');
+    }
+    console.log(`[DASHBOARD] Usuário encontrado: ${user.email}`);
+    
+    console.log('[DASHBOARD] Buscando métricas do usuário...');
     // Buscar métricas do usuário
     const metrics = await getUserMetrics(userId);
+    console.log('[DASHBOARD] Métricas obtidas:', metrics);
     
+    console.log('[DASHBOARD] Buscando progresso dos pacotes...');
     // Buscar progresso dos pacotes em andamento
     const userProgress = await getUserProgress(userId);
+    console.log(`[DASHBOARD] Progresso obtido: ${userProgress.length} pacotes`);
     
+    console.log('[DASHBOARD] Buscando atividade recente...');
     // Buscar atividade recente
     const recentActivity = await getUserRecentActivity(userId);
+    console.log(`[DASHBOARD] Atividades obtidas: ${recentActivity.length} atividades`);
     
     // Calcular progresso para o próximo nível
     // Cada nível requer 100 XP * nível atual
@@ -68,6 +85,8 @@ async function showDashboard(req, res) {
       }))
     } : null;
     
+    console.log('[DASHBOARD] Preparando dados para renderização...');
+    
     // Renderizar dashboard com dados reais
     res.render('pages/dashboard', {
       layout: 'main',
@@ -97,13 +116,35 @@ async function showDashboard(req, res) {
       recentActivity: activityData
     });
     
+    console.log('[DASHBOARD] Dashboard renderizado com sucesso');
+    
   } catch (error) {
     console.error('Erro ao exibir dashboard:', error);
-    res.status(500).render('pages/error', {
-      layout: 'main',
-      pageTitle: 'Erro',
-      error: 'Erro interno do servidor'
-    });
+    console.error('Stack trace:', error.stack);
+    
+    // Em caso de erro, redirecionar para login ou enviar erro simples
+    if (error.message && error.message.includes('render')) {
+      res.status(500).send(`
+        <h1>Erro interno do servidor</h1>
+        <p>Ocorreu um erro ao carregar o dashboard.</p>
+        <p><a href="/login">Voltar ao login</a></p>
+      `);
+    } else {
+      try {
+        res.status(500).render('pages/error', {
+          layout: 'main',
+          pageTitle: 'Erro',
+          error: 'Erro interno do servidor'
+        });
+      } catch (renderError) {
+        console.error('Erro ao renderizar página de erro:', renderError);
+        res.status(500).send(`
+          <h1>Erro interno do servidor</h1>
+          <p>Ocorreu um erro ao carregar o dashboard.</p>
+          <p><a href="/login">Voltar ao login</a></p>
+        `);
+      }
+    }
   }
 }
 

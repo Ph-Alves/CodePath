@@ -40,6 +40,8 @@ async function showCareersPage(req, res) {
     
     res.render('pages/careers', {
       title: 'Pacotes de Tecnologia - CodePath',
+      additionalCSS: 'careers',
+      additionalJS: 'careers',
       user: req.session.user,
       packages: packagesWithVisuals,
       totalPackages: packages.length,
@@ -83,6 +85,8 @@ async function showCareerProfilesPage(req, res) {
     
     res.render('pages/career-profiles', {
       title: 'Perfis Profissionais - CodePath',
+      additionalCSS: 'careers',
+      additionalJS: 'careers',
       user: req.session.user,
       profiles: profilesWithSelection,
       hasSelectedProfile: !!currentProfileId

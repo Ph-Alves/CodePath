@@ -55,9 +55,9 @@ INSERT INTO career_profiles (id, name, description, icon) VALUES
 -- Senha padrão para todos: "123456"
 
 INSERT INTO users (id, name, email, password_hash, current_package_id, selected_career_profile_id, level, xp_points, streak_days) VALUES
-(1, 'Carlos Pereira', 'carlos@codepath.com', '$2b$10$rOdQzXzXzXzXzXzXzXzXzXOeKq8Iq8Iq8Iq8Iq8Iq8Iq8Iq8Iq8I', 1, 1, 5, 1250, 2),
-(2, 'Ana Silva', 'ana@codepath.com', '$2b$10$rOdQzXzXzXzXzXzXzXzXzXOeKq8Iq8Iq8Iq8Iq8Iq8Iq8Iq8Iq8I', 2, 1, 3, 650, 5),
-(3, 'João Santos', 'joao@codepath.com', '$2b$10$rOdQzXzXzXzXzXzXzXzXzXOeKq8Iq8Iq8Iq8Iq8Iq8Iq8Iq8Iq8I', 3, 2, 2, 350, 1);
+(1, 'Carlos Pereira', 'carlos@codepath.com', '$2b$10$Q.NypOTY6H9gzA/XefdajefeJJleNUBeAxy04MLNApQ3Ft..ub3uW', 1, 1, 5, 1250, 2),
+(2, 'Ana Silva', 'ana@codepath.com', '$2b$10$XOTnuahK0JNAk9YGL/eo8uoHC7d1DW.DFDWmbunPGIMmd72vaiJZu', 2, 1, 3, 650, 5),
+(3, 'João Santos', 'joao@codepath.com', '$2b$10$3zjLlIt/q.ikRcFb4Y1yU.MpA1iri4ANC78YYlWyfSeuH4dYtTEyG', 3, 2, 2, 350, 1);
 
 -- ========================================
 -- INSERIR AULAS DOS PACOTES
@@ -267,6 +267,32 @@ INSERT OR REPLACE INTO user_quiz_answers (id, user_id, question_id, answer, is_c
 (1, 1, 1, '#include <stdio.h>\nint main() {\n    printf("Hello, World!");\n    return 0;\n}', 1, 10),
 (2, 1, 2, '2', 1, 10),
 (3, 1, 6, 'console.log', 1, 10);
+
+-- ========================================
+-- INSERIR NOTIFICAÇÕES DE TESTE
+-- ========================================
+
+-- Notificações para Carlos (usuário 1)
+INSERT INTO notifications (user_id, type, title, message, action_url, is_read, created_at) VALUES
+(1, 'welcome', '🎉 Bem-vindo ao CodePath!', 'Olá Carlos! Estamos felizes em tê-lo conosco. Explore nossas trilhas e descubra seu caminho na tecnologia!', '/careers', 1, datetime('now', '-5 days')),
+(1, 'progress', '📈 Progresso Atualizado', 'Parabéns! Você completou 75% do pacote Python. Continue assim!', '/progress', 1, datetime('now', '-3 days')),
+(1, 'quiz', '🏆 Questionário Concluído', 'Você obteve 95% no questionário "Python - Estruturas de Dados". Excelente trabalho!', '/quiz', 0, datetime('now', '-2 days')),
+(1, 'streak', '🔥 Streak Mantido!', 'Incrível! Você manteve sua sequência de estudos por 7 dias consecutivos!', '/dashboard', 0, datetime('now', '-1 day')),
+(1, 'content', '📚 Novo Conteúdo Disponível', 'O conteúdo "Python - APIs REST" foi adicionado ao pacote Python. Confira agora!', '/careers', 0, datetime('now', '-6 hours'));
+
+-- Notificações para Ana (usuário 2)
+INSERT INTO notifications (user_id, type, title, message, action_url, is_read, created_at) VALUES
+(2, 'welcome', '🎉 Bem-vindo ao CodePath!', 'Olá Ana! Estamos felizes em tê-la conosco. Explore nossas trilhas e descubra seu caminho na tecnologia!', '/careers', 1, datetime('now', '-7 days')),
+(2, 'progress', '📈 Progresso Atualizado', 'Parabéns! Você completou 60% do pacote Front-end. Continue assim!', '/progress', 1, datetime('now', '-4 days')),
+(2, 'quiz', '👏 Questionário Concluído', 'Você obteve 78% no questionário "HTML/CSS - Layouts". Bom trabalho!', '/quiz', 0, datetime('now', '-1 day')),
+(2, 'content', '📚 Novo Conteúdo Disponível', 'O conteúdo "CSS Grid Layout" foi adicionado ao pacote Front-end. Confira agora!', '/careers', 0, datetime('now', '-3 hours'));
+
+-- Notificações para João (usuário 3)
+INSERT INTO notifications (user_id, type, title, message, action_url, is_read, created_at) VALUES
+(3, 'welcome', '🎉 Bem-vindo ao CodePath!', 'Olá João! Estamos felizes em tê-lo conosco. Explore nossas trilhas e descubra seu caminho na tecnologia!', '/careers', 1, datetime('now', '-10 days')),
+(3, 'progress', '📈 Progresso Atualizado', 'Parabéns! Você completou 45% do pacote Java. Continue assim!', '/progress', 1, datetime('now', '-6 days')),
+(3, 'quiz', '💪 Questionário Concluído', 'Você obteve 55% no questionário "Java - POO". Continue praticando!', '/quiz', 1, datetime('now', '-3 days')),
+(3, 'streak', '🔥 Streak Mantido!', 'Incrível! Você manteve sua sequência de estudos por 3 dias consecutivos!', '/dashboard', 0, datetime('now', '-12 hours'));
 
 -- ========================================
 -- COMENTÁRIOS FINAIS

@@ -26,6 +26,7 @@ const careerRoutes = require('./routes/careerRoutes');
 const contentRoutes = require('./routes/contentRoutes');
 const quizRoutes = require('./routes/quizRoutes');
 const progressRoutes = require('./routes/progressRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 
 // Inicialização da aplicação Express
 const app = express();
@@ -87,6 +88,9 @@ app.use('/content', contentRoutes);
 // Usar as rotas de questionários
 app.use('/', quizRoutes);
 app.use('/', progressRoutes);
+
+// Usar as rotas de notificações
+app.use('/notifications', notificationRoutes);
 
 // ========================================
 // ROTA PRINCIPAL TEMPORÁRIA
@@ -331,7 +335,22 @@ app.use((req, res) => {
 
 // Middleware para tratamento de erros gerais
 app.use((err, req, res, next) => {
-  console.error('Erro no servidor:', err.stack);
+  console.error('=== ERRO CAPTURADO PELO MIDDLEWARE ===');
+  console.error('Tipo do erro:', typeof err);
+  console.error('Erro completo:', err);
+  console.error('Stack trace:', err?.stack);
+  console.error('Mensagem:', err?.message);
+  console.error('URL:', req.url);
+  console.error('Método:', req.method);
+  console.error('Headers:', req.headers);
+  console.error('=== FIM DO ERRO ===');
+  
+  // Verificar se a resposta já foi enviada
+  if (res.headersSent) {
+    console.log('⚠️ Resposta já foi enviada, não enviando erro 500');
+    return next(err);
+  }
+  
   res.status(500).send(`
     <html>
       <head>

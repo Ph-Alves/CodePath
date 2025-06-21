@@ -39,21 +39,74 @@ CodePath/
 │   ├── 📄 schema.sql                  # ✅ Estrutura das tabelas
 │   └── 📄 seed.sql                    # ✅ Dados iniciais
 │
-├── 📂 controllers/                    # 🔄 Lógica de Controle
-├── 📂 routes/                         # 🔄 Definição de Rotas
-├── 📂 middleware/                     # 🔄 Middlewares Customizados
+├── 📂 controllers/                    # ✅ Lógica de Controle
+│   ├── 📄 authController.js           # ✅ Autenticação e sessões
+│   ├── 📄 dashboardController.js      # ✅ Dashboard e métricas
+│   ├── 📄 careerController.js         # ✅ Sistema de carreiras
+│   ├── 📄 contentController.js        # ✅ Sistema de conteúdos
+│   ├── 📄 quizController.js           # ✅ Sistema de questionários
+│   └── 📄 progressController.js       # ✅ Sistema de progresso avançado
 │
-├── 📂 views/                          # 🔄 Templates Mustache
-│   ├── 📂 layouts/                    # Layout principal
-│   ├── 📂 pages/                      # Páginas da aplicação
-│   └── 📂 partials/                   # Componentes reutilizáveis
+├── 📂 routes/                         # ✅ Definição de Rotas
+│   ├── 📄 authRoutes.js               # ✅ Rotas de autenticação
+│   ├── 📄 dashboardRoutes.js          # ✅ Rotas de dashboard
+│   ├── 📄 careerRoutes.js             # ✅ Rotas de carreiras
+│   ├── 📄 contentRoutes.js            # ✅ Rotas de conteúdos
+│   ├── 📄 quizRoutes.js               # ✅ Rotas de questionários
+│   └── 📄 progressRoutes.js           # ✅ Rotas de progresso
 │
-├── 📂 public/                         # 🔄 Arquivos Estáticos
-│   ├── 📂 css/                        # Estilos CSS
-│   ├── 📂 js/                         # Scripts JavaScript
-│   └── 📂 images/                     # Imagens e ícones
+├── 📂 middleware/                     # ✅ Middlewares Customizados
+│   ├── 📄 auth.js                     # ✅ Middleware de autenticação
+│   └── 📄 validation.js               # ✅ Validação avançada e rate limiting
 │
-├── 📂 tests/                          # 🔄 Scripts de Teste
+├── 📂 views/                          # ✅ Templates Mustache
+│   ├── 📂 layouts/                    # ✅ Layout principal
+│   │   └── 📄 main.mustache           # ✅ Layout base com tema roxo
+│   ├── 📂 pages/                      # ✅ Páginas da aplicação
+│   │   ├── 📄 login.mustache          # ✅ Tela de login
+│   │   ├── 📄 register.mustache       # ✅ Tela de registro
+│   │   ├── 📄 dashboard.mustache      # ✅ Dashboard principal
+│   │   ├── 📄 careers.mustache        # ✅ Página de carreiras
+│   │   ├── 📄 career-profiles.mustache # ✅ Perfis profissionais
+│   │   ├── 📄 lesson-view.mustache    # ✅ Visualização de aulas
+│   │   ├── 📄 package-lessons.mustache # ✅ Lista de aulas
+│   │   ├── 📄 quiz.mustache           # ✅ Interface de questionários
+│   │   ├── 📄 quiz-question.mustache  # ✅ Questões individuais
+│   │   ├── 📄 quiz-result.mustache    # ✅ Resultados de quiz
+│   │   └── 📄 progress.mustache       # ✅ Página de progresso avançado
+│   └── 📂 partials/                   # ✅ Componentes reutilizáveis
+│       ├── 📄 header.mustache         # ✅ Cabeçalho com usuário
+│       ├── 📄 sidebar.mustache        # ✅ Menu lateral roxo
+│       ├── 📄 footer.mustache         # ✅ Rodapé
+│       ├── 📄 notification.mustache   # ✅ Sistema de notificações
+│       ├── 📄 loading-state.mustache  # ✅ Estados de carregamento
+│       └── 📄 empty-state.mustache    # ✅ Estados vazios
+│
+├── 📂 public/                         # ✅ Arquivos Estáticos
+│   ├── 📂 css/                        # ✅ Estilos CSS modulares
+│   │   ├── 📄 global.css              # ✅ Estilos globais com tema roxo
+│   │   ├── 📄 auth.css                # ✅ Estilos de autenticação
+│   │   ├── 📄 dashboard.css           # ✅ Estilos do dashboard
+│   │   ├── 📄 content.css             # ✅ Estilos de conteúdo
+│   │   ├── 📄 quiz.css                # ✅ Estilos de questionários
+│   │   ├── 📄 progress.css            # ✅ Estilos de progresso
+│   │   └── 📄 responsive.css          # ✅ Media queries responsivas
+│   ├── 📂 js/                         # ✅ Scripts JavaScript
+│   │   ├── 📄 main.js                 # ✅ Script principal
+│   │   ├── 📄 dashboard.js            # ✅ Funcionalidades do dashboard
+│   │   └── 📄 notifications.js        # ✅ Sistema de notificações
+│   └── 📂 images/                     # ✅ Imagens e ícones
+│       └── 📄 logoCodePath.png        # ✅ Logo da plataforma
+│
+├── 📂 tests/                          # ✅ Sistema de Testes Completo
+│   ├── 📄 test-runner.js              # ✅ Testes automatizados
+│   ├── 📄 performance-test.js         # ✅ Testes de performance
+│   └── 📂 mock-data/                  # ✅ Dados para testes
+│       ├── 📄 users.json              # ✅ Usuários mock
+│       ├── 📄 packages.json           # ✅ Pacotes mock
+│       └── 📄 career-profiles.json    # ✅ Perfis profissionais mock
+│
+├── 📂 logs/                           # ✅ Sistema de Logs
 └── 📂 docs/                           # ✅ Documentação
     ├── 📄 arquitetura.md              # ✅ Esta documentação
     └── 📄 db-schema.md                # ✅ Esquema do banco
