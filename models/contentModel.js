@@ -345,25 +345,42 @@ async function checkLessonPrerequisites(userId, lessonId) {
  */
 async function getLessonsWithCompletionStatus(userId, packageId) {
   try {
+    const db = getDatabase();
+    
+    // Buscar progresso do usuário no pacote
+    const userProgress = await db.get(`
+      SELECT lessons_watched, progress_percentage, status
+      FROM user_progress 
+      WHERE user_id = ? AND package_id = ?
+    `, [userId, packageId]);
 
-    const db = getDatabase();    const lessons = await db.all(`
+    // Buscar todas as aulas do pacote
+    const lessons = await db.all(`
       SELECT 
         l.*,
         p.name as package_name,
-        p.icon as package_icon,
-        CASE 
-          WHEN lc.lesson_id IS NOT NULL THEN 1 
-          ELSE 0 
-        END as is_completed,
-        lc.completed_at
+        p.icon as package_icon
       FROM lessons l
       JOIN packages p ON l.package_id = p.id
-      LEFT JOIN lesson_completions lc ON l.id = lc.lesson_id AND lc.user_id = ?
       WHERE l.package_id = ?
       ORDER BY l.order_sequence ASC
-    `, [userId, packageId]);
+    `, [packageId]);
 
-    return lessons;
+    // Determinar quais aulas foram concluídas baseado no número de aulas assistidas
+    const lessonsWatched = userProgress ? userProgress.lessons_watched : 0;
+    
+    const lessonsWithStatus = lessons.map((lesson, index) => {
+      // Aulas são consideradas concluídas se estão dentro do número de aulas assistidas
+      const isCompleted = (index + 1) <= lessonsWatched;
+      
+      return {
+        ...lesson,
+        is_completed: isCompleted ? 1 : 0,
+        completed_at: isCompleted && userProgress ? userProgress.created_at : null
+      };
+    });
+
+    return lessonsWithStatus;
   } catch (error) {
     console.error('Erro ao buscar aulas com status:', error);
     throw error;

@@ -33,13 +33,26 @@ async function showPackageLessons(req, res) {
       return res.redirect('/careers');
     }
 
+    // Buscar status de conclusão das aulas
+    const lessonsWithStatus = await contentModel.getLessonsWithCompletionStatus(userId, packageId);
+    
+    // Mapear status de conclusão para as aulas
+    const lessonsWithCompletion = lessons.map(lesson => {
+      const statusInfo = lessonsWithStatus.find(status => status.id === lesson.id);
+      return {
+        ...lesson,
+        isCompleted: statusInfo ? statusInfo.is_completed : false,
+        completedAt: statusInfo ? statusInfo.completed_at : null
+      };
+    });
+
     // Renderizar página de aulas do pacote
     res.render('pages/package-lessons', {
       title: `${progressStats.package.name} - Aulas`,
-      additionalCSS: 'content',
+      additionalCSS: 'package-lessons',
       user: req.session.user,
       package: progressStats.package,
-      lessons: lessons,
+      lessons: lessonsWithCompletion,
       progressStats: progressStats,
       flash: req.session.flash || null
     });
