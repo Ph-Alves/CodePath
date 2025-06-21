@@ -1,0 +1,209 @@
+{{> partials/header}}
+
+<div class="chat-container">
+    <!-- Sidebar com minhas salas -->
+    <div class="chat-sidebar">
+        <div class="sidebar-header">
+            <h3><i class="fas fa-comments"></i> Chat</h3>
+            <button class="btn-create-room" onclick="showCreateRoomModal()">
+                <i class="fas fa-plus"></i> Nova Sala
+            </button>
+        </div>
+
+        <!-- Minhas Salas -->
+        <div class="my-rooms-section">
+            <h4><i class="fas fa-user-friends"></i> Minhas Salas</h4>
+            <div class="rooms-list">
+                {{#userRooms}}
+                <div class="room-item {{#unread_count}}has-unread{{/unread_count}}" onclick="joinRoom({{id}})">
+                    <div class="room-info">
+                        <div class="room-name">{{name}}</div>
+                        <div class="room-last-message">{{last_message}}</div>
+                    </div>
+                    <div class="room-meta">
+                        <span class="member-count">{{member_count}} membros</span>
+                        {{#unread_count}}
+                        <span class="unread-badge">{{unread_count}}</span>
+                        {{/unread_count}}
+                    </div>
+                </div>
+                {{/userRooms}}
+                {{^userRooms}}
+                <div class="empty-state">
+                    <i class="fas fa-comments-slash"></i>
+                    <p>Você ainda não participa de nenhuma sala</p>
+                </div>
+                {{/userRooms}}
+            </div>
+        </div>
+
+        <!-- Grupos de Estudo -->
+        <div class="study-groups-section">
+            <h4><i class="fas fa-graduation-cap"></i> Grupos de Estudo</h4>
+            <div class="groups-list">
+                {{#studyGroups}}
+                <div class="group-item {{#is_member}}joined{{/is_member}}" onclick="{{#is_member}}joinRoom({{chat_room_id}}){{/is_member}}{{^is_member}}joinStudyGroup({{id}}){{/is_member}}">
+                    <div class="group-info">
+                        <div class="group-name">{{name}}</div>
+                        <div class="group-tech">{{technology}}</div>
+                        <div class="group-schedule">{{schedule}}</div>
+                    </div>
+                    <div class="group-members">{{member_count}}/{{max_members}}</div>
+                </div>
+                {{/studyGroups}}
+            </div>
+            <button class="btn-create-group" onclick="showCreateGroupModal()">
+                <i class="fas fa-plus"></i> Criar Grupo
+            </button>
+        </div>
+    </div>
+
+    <!-- Área principal -->
+    <div class="chat-main">
+        <!-- Filtros de tecnologia -->
+        <div class="technology-filters">
+            <h3>Salas Públicas</h3>
+            <div class="filter-buttons">
+                <button class="filter-btn active" onclick="filterByTechnology('')">Todas</button>
+                {{#technologies}}
+                <button class="filter-btn" onclick="filterByTechnology('{{.}}')">{{.}}</button>
+                {{/technologies}}
+            </div>
+        </div>
+
+        <!-- Lista de salas públicas -->
+        <div class="public-rooms-grid" id="publicRoomsGrid">
+            {{#publicRooms}}
+            <div class="room-card" data-technology="{{technology}}">
+                <div class="room-header">
+                    <div class="room-title">
+                        <h4>{{name}}</h4>
+                        <span class="tech-badge">{{technology}}</span>
+                    </div>
+                    <div class="room-activity">
+                        <span class="recent-messages">{{recent_messages}} msgs/h</span>
+                    </div>
+                </div>
+                <div class="room-description">{{description}}</div>
+                <div class="room-footer">
+                    <div class="room-stats">
+                        <span><i class="fas fa-users"></i> {{member_count}}/{{max_users}}</span>
+                        <span><i class="fas fa-user"></i> {{creator_name}}</span>
+                    </div>
+                    <div class="room-actions">
+                        {{#is_member}}
+                        <button class="btn-enter" onclick="joinRoom({{id}})">
+                            <i class="fas fa-sign-in-alt"></i> Entrar
+                        </button>
+                        {{/is_member}}
+                        {{^is_member}}
+                        <button class="btn-join" onclick="joinChatRoom({{id}})">
+                            <i class="fas fa-plus"></i> Participar
+                        </button>
+                        {{/is_member}}
+                    </div>
+                </div>
+            </div>
+            {{/publicRooms}}
+            {{^publicRooms}}
+            <div class="empty-state">
+                <i class="fas fa-comments"></i>
+                <h3>Nenhuma sala encontrada</h3>
+                <p>Seja o primeiro a criar uma sala para esta tecnologia!</p>
+            </div>
+            {{/publicRooms}}
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Criar Sala -->
+<div id="createRoomModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-plus-circle"></i> Criar Nova Sala</h3>
+            <button class="modal-close" onclick="closeModal('createRoomModal')">&times;</button>
+        </div>
+        <form id="createRoomForm" onsubmit="createChatRoom(event)">
+            <div class="form-group">
+                <label for="roomName">Nome da Sala</label>
+                <input type="text" id="roomName" name="name" required maxlength="100" placeholder="Ex: Dúvidas sobre C">
+            </div>
+            <div class="form-group">
+                <label for="roomDescription">Descrição</label>
+                <textarea id="roomDescription" name="description" required maxlength="500" placeholder="Descreva o propósito da sala..."></textarea>
+            </div>
+            <div class="form-group">
+                <label for="roomTechnology">Tecnologia</label>
+                <select id="roomTechnology" name="technology" required>
+                    <option value="">Selecione uma tecnologia</option>
+                    {{#technologies}}
+                    <option value="{{.}}">{{.}}</option>
+                    {{/technologies}}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="roomMaxUsers">Máximo de Usuários</label>
+                <input type="number" id="roomMaxUsers" name="maxUsers" min="5" max="100" value="50">
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeModal('createRoomModal')">Cancelar</button>
+                <button type="submit" class="btn-create">
+                    <i class="fas fa-plus"></i> Criar Sala
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal: Criar Grupo de Estudo -->
+<div id="createGroupModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-graduation-cap"></i> Criar Grupo de Estudo</h3>
+            <button class="modal-close" onclick="closeModal('createGroupModal')">&times;</button>
+        </div>
+        <form id="createGroupForm" onsubmit="createStudyGroup(event)">
+            <div class="form-group">
+                <label for="groupName">Nome do Grupo</label>
+                <input type="text" id="groupName" name="name" required maxlength="100" placeholder="Ex: Iniciantes em Python">
+            </div>
+            <div class="form-group">
+                <label for="groupDescription">Descrição</label>
+                <textarea id="groupDescription" name="description" required maxlength="500" placeholder="Descreva os objetivos do grupo..."></textarea>
+            </div>
+            <div class="form-group">
+                <label for="groupTechnology">Tecnologia de Foco</label>
+                <select id="groupTechnology" name="technology" required>
+                    <option value="">Selecione uma tecnologia</option>
+                    {{#technologies}}
+                    <option value="{{.}}">{{.}}</option>
+                    {{/technologies}}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="groupSchedule">Horário de Encontros</label>
+                <input type="text" id="groupSchedule" name="schedule" required placeholder="Ex: Terças e Quintas, 19h-21h">
+            </div>
+            <div class="form-group">
+                <label for="groupMaxMembers">Máximo de Membros</label>
+                <input type="number" id="groupMaxMembers" name="maxMembers" min="3" max="20" value="10">
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeModal('createGroupModal')">Cancelar</button>
+                <button type="submit" class="btn-create">
+                    <i class="fas fa-graduation-cap"></i> Criar Grupo
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Loading State -->
+<div id="loadingState" class="loading-state hidden">
+    <div class="spinner"></div>
+    <p>Carregando...</p>
+</div>
+
+<script src="/js/chat.js"></script>
+
+{{> partials/footer}} 

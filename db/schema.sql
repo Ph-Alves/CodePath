@@ -192,6 +192,79 @@ CREATE TABLE IF NOT EXISTS notifications (
 );
 
 -- ========================================
+-- TABELAS DE CHAT E COMUNIDADE
+-- ========================================
+
+-- ========================================
+-- TABELA: chat_rooms
+-- ========================================
+-- Armazena as salas de chat por tecnologia
+CREATE TABLE IF NOT EXISTS chat_rooms (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name VARCHAR(100) NOT NULL,                    -- Nome da sala
+    description TEXT,                              -- Descrição da sala
+    technology VARCHAR(50),                        -- Tecnologia (C, Python, Java, etc.)
+    type VARCHAR(20) DEFAULT 'public' CHECK(type IN ('public', 'private', 'study_group')),
+    created_by INTEGER NOT NULL,                   -- Usuário que criou a sala
+    max_users INTEGER DEFAULT 50,                  -- Máximo de usuários
+    is_active BOOLEAN DEFAULT TRUE,                -- Se a sala está ativa
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES users(id)
+);
+
+-- ========================================
+-- TABELA: chat_room_members
+-- ========================================
+-- Armazena os membros de cada sala de chat
+CREATE TABLE IF NOT EXISTS chat_room_members (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    room_id INTEGER NOT NULL,                      -- ID da sala
+    user_id INTEGER NOT NULL,                      -- ID do usuário
+    is_moderator BOOLEAN DEFAULT FALSE,            -- Se é moderador da sala
+    joined_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    last_read_at DATETIME DEFAULT CURRENT_TIMESTAMP, -- Última vez que leu mensagens
+    FOREIGN KEY (room_id) REFERENCES chat_rooms(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE(room_id, user_id)                       -- Um usuário por sala
+);
+
+-- ========================================
+-- TABELA: chat_messages
+-- ========================================
+-- Armazena as mensagens do chat
+CREATE TABLE IF NOT EXISTS chat_messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    room_id INTEGER NOT NULL,                      -- ID da sala
+    user_id INTEGER NOT NULL,                      -- Usuário que enviou
+    message TEXT NOT NULL,                         -- Conteúdo da mensagem
+    message_type VARCHAR(20) DEFAULT 'text' CHECK(message_type IN ('text', 'code', 'image', 'file')),
+    is_deleted BOOLEAN DEFAULT FALSE,              -- Se foi deletada
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (room_id) REFERENCES chat_rooms(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- ========================================
+-- TABELA: study_groups
+-- ========================================
+-- Armazena grupos de estudo organizados
+CREATE TABLE IF NOT EXISTS study_groups (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name VARCHAR(100) NOT NULL,                    -- Nome do grupo
+    description TEXT,                              -- Descrição do grupo
+    technology VARCHAR(50) NOT NULL,               -- Tecnologia de foco
+    schedule TEXT,                                 -- Horário de encontros
+    created_by INTEGER NOT NULL,                   -- Criador do grupo
+    chat_room_id INTEGER NOT NULL,                 -- Sala de chat associada
+    max_members INTEGER DEFAULT 10,                -- Máximo de membros
+    is_active BOOLEAN DEFAULT TRUE,                -- Se está ativo
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES users(id),
+    FOREIGN KEY (chat_room_id) REFERENCES chat_rooms(id) ON DELETE CASCADE
+);
+
+-- ========================================
 -- TABELAS DE SEGURANÇA
 -- ========================================
 
@@ -252,6 +325,20 @@ CREATE INDEX IF NOT EXISTS idx_user_quiz_answers_question_id ON user_quiz_answer
 CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);
 CREATE INDEX IF NOT EXISTS idx_notifications_type ON notifications(type);
 CREATE INDEX IF NOT EXISTS idx_notifications_read ON notifications(is_read);
+
+-- Índices para tabelas de chat
+CREATE INDEX IF NOT EXISTS idx_chat_rooms_technology ON chat_rooms(technology);
+CREATE INDEX IF NOT EXISTS idx_chat_rooms_type ON chat_rooms(type);
+CREATE INDEX IF NOT EXISTS idx_chat_rooms_created_by ON chat_rooms(created_by);
+CREATE INDEX IF NOT EXISTS idx_chat_rooms_active ON chat_rooms(is_active);
+CREATE INDEX IF NOT EXISTS idx_chat_room_members_room_id ON chat_room_members(room_id);
+CREATE INDEX IF NOT EXISTS idx_chat_room_members_user_id ON chat_room_members(user_id);
+CREATE INDEX IF NOT EXISTS idx_chat_messages_room_id ON chat_messages(room_id);
+CREATE INDEX IF NOT EXISTS idx_chat_messages_user_id ON chat_messages(user_id);
+CREATE INDEX IF NOT EXISTS idx_chat_messages_created_at ON chat_messages(created_at);
+CREATE INDEX IF NOT EXISTS idx_study_groups_technology ON study_groups(technology);
+CREATE INDEX IF NOT EXISTS idx_study_groups_created_by ON study_groups(created_by);
+CREATE INDEX IF NOT EXISTS idx_study_groups_chat_room_id ON study_groups(chat_room_id);
 
 -- Índices para tabelas de segurança
 CREATE INDEX IF NOT EXISTS idx_login_attempts_email ON login_attempts(email);

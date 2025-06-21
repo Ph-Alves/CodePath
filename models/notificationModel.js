@@ -17,6 +17,7 @@ const { getDatabase } = require('./databaseConnection');
  */
 const createNotification = async (notificationData) => {
     const { userId, type, title, message, actionUrl } = notificationData;
+    const db = await getDatabase();
     
     const query = `
         INSERT INTO notifications (user_id, type, title, message, action_url, created_at)
@@ -29,7 +30,7 @@ const createNotification = async (notificationData) => {
         // Retornar a notificação criada
         const createdNotification = await db.get(`
             SELECT * FROM notifications WHERE id = ?
-        `, [result.id]);
+        `, [result.lastID]);
         
         return createdNotification;
     } catch (error) {
@@ -46,6 +47,8 @@ const createNotification = async (notificationData) => {
  * @returns {Array} Lista de notificações
  */
 const getUserNotifications = async (userId, limit = 10, offset = 0) => {
+    const db = await getDatabase();
+    
     const query = `
         SELECT 
             id,
@@ -81,6 +84,8 @@ const getUserNotifications = async (userId, limit = 10, offset = 0) => {
  * @returns {number} Quantidade de notificações não lidas
  */
 const getUnreadCount = async (userId) => {
+    const db = await getDatabase();
+    
     const query = `
         SELECT COUNT(*) as count 
         FROM notifications 
@@ -103,6 +108,8 @@ const getUnreadCount = async (userId) => {
  * @returns {boolean} Sucesso da operação
  */
 const markAsRead = async (notificationId, userId) => {
+    const db = await getDatabase();
+    
     const query = `
         UPDATE notifications 
         SET is_read = 1, read_at = datetime('now')
@@ -124,6 +131,8 @@ const markAsRead = async (notificationId, userId) => {
  * @returns {number} Quantidade de notificações marcadas
  */
 const markAllAsRead = async (userId) => {
+    const db = await getDatabase();
+    
     const query = `
         UPDATE notifications 
         SET is_read = 1, read_at = datetime('now')
@@ -146,6 +155,8 @@ const markAllAsRead = async (userId) => {
  * @returns {boolean} Sucesso da operação
  */
 const deleteNotification = async (notificationId, userId) => {
+    const db = await getDatabase();
+    
     const query = `
         DELETE FROM notifications 
         WHERE id = ? AND user_id = ?
@@ -166,6 +177,8 @@ const deleteNotification = async (notificationId, userId) => {
  * @returns {number} Quantidade de notificações removidas
  */
 const cleanupOldNotifications = async (userId) => {
+    const db = await getDatabase();
+    
     const query = `
         DELETE FROM notifications 
         WHERE user_id = ? 
@@ -190,6 +203,8 @@ const cleanupOldNotifications = async (userId) => {
  * @returns {Array} Lista de notificações do tipo especificado
  */
 const getNotificationsByType = async (userId, type, limit = 5) => {
+    const db = await getDatabase();
+    
     const query = `
         SELECT * FROM notifications 
         WHERE user_id = ? AND type = ?
@@ -211,6 +226,8 @@ const getNotificationsByType = async (userId, type, limit = 5) => {
  * @returns {Object} Estatísticas das notificações
  */
 const getNotificationStats = async (userId) => {
+    const db = await getDatabase();
+    
     const query = `
         SELECT 
             COUNT(*) as total,

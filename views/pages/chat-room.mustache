@@ -1,0 +1,163 @@
+{{> partials/header}}
+
+<div class="chat-room-container">
+    <!-- Header da sala -->
+    <div class="room-header">
+        <div class="room-info">
+            <button class="btn-back" onclick="window.location.href='/chat'">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <div class="room-details">
+                <h2>{{room.name}}</h2>
+                <p>{{room.description}}</p>
+                <div class="room-meta">
+                    <span class="tech-badge">{{room.technology}}</span>
+                    <span class="member-count"><i class="fas fa-users"></i> {{room.member_count}} membros</span>
+                </div>
+            </div>
+        </div>
+        <div class="room-actions">
+            <button class="btn-members" onclick="toggleMembersList()">
+                <i class="fas fa-users"></i> Membros
+            </button>
+            <button class="btn-leave" onclick="leaveChatRoom({{room.id}})">
+                <i class="fas fa-sign-out-alt"></i> Sair
+            </button>
+        </div>
+    </div>
+
+    <!-- Área principal do chat -->
+    <div class="chat-content">
+        <!-- Lista de mensagens -->
+        <div class="messages-container" id="messagesContainer">
+            <div class="messages-list" id="messagesList">
+                {{#messages}}
+                <div class="message {{#user_id}}{{#user}}{{#id}}{{#user_id}}{{#.}}{{user_id}}{{/.}}{{/user_id}}{{#id}}{{#.}}{{id}}{{/.}}{{/id}}{{/user}}{{/user_id}}{{/user_id}}{{#user_id}}{{#user.id}}{{#.}}{{user_id}}{{/.}}{{/user.id}}{{/user_id}} own-message{{/user_id}}" data-message-id="{{id}}">
+                    <div class="message-avatar">
+                        {{#avatar_url}}
+                        <img src="{{avatar_url}}" alt="{{user_name}}">
+                        {{/avatar_url}}
+                        {{^avatar_url}}
+                        <div class="avatar-placeholder">{{user_name.0}}</div>
+                        {{/avatar_url}}
+                    </div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-author">{{user_name}}</span>
+                            <span class="message-time">{{time_display}}</span>
+                        </div>
+                        <div class="message-text {{#message_type}}{{#.}}type-{{message_type}}{{/.}}{{/message_type}}">
+                            {{#message_type}}
+                            {{#code}}
+                            <pre><code>{{message}}</code></pre>
+                            {{/code}}
+                            {{^code}}
+                            {{message}}
+                            {{/code}}
+                            {{/message_type}}
+                            {{^message_type}}
+                            {{message}}
+                            {{/message_type}}
+                        </div>
+                    </div>
+                </div>
+                {{/messages}}
+                {{^messages}}
+                <div class="empty-messages">
+                    <i class="fas fa-comments"></i>
+                    <h3>Seja o primeiro a enviar uma mensagem!</h3>
+                    <p>Comece a conversa nesta sala</p>
+                </div>
+                {{/messages}}
+            </div>
+        </div>
+
+        <!-- Área de digitação -->
+        <div class="message-input-container">
+            <form id="messageForm" onsubmit="sendMessage(event)">
+                <div class="input-group">
+                    <button type="button" class="btn-message-type" onclick="toggleMessageType()" title="Alternar tipo de mensagem">
+                        <i class="fas fa-code" id="messageTypeIcon"></i>
+                    </button>
+                    <textarea 
+                        id="messageInput" 
+                        name="message" 
+                        placeholder="Digite sua mensagem..." 
+                        maxlength="1000" 
+                        rows="1"
+                        onkeydown="handleMessageKeydown(event)"
+                    ></textarea>
+                    <button type="submit" class="btn-send" id="sendButton" disabled>
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+                <div class="input-info">
+                    <span class="message-type-indicator" id="messageTypeIndicator">Texto</span>
+                    <span class="character-count" id="characterCount">0/1000</span>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Sidebar de membros -->
+    <div class="members-sidebar" id="membersSidebar">
+        <div class="members-header">
+            <h3><i class="fas fa-users"></i> Membros ({{members.length}})</h3>
+            <button class="btn-close-members" onclick="toggleMembersList()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="members-list">
+            {{#members}}
+            <div class="member-item {{role}}">
+                <div class="member-avatar">
+                    {{#avatar_url}}
+                    <img src="{{avatar_url}}" alt="{{name}}">
+                    {{/avatar_url}}
+                    {{^avatar_url}}
+                    <div class="avatar-placeholder">{{name.0}}</div>
+                    {{/avatar_url}}
+                    {{#role}}
+                    {{#moderator}}
+                    <div class="role-badge moderator"><i class="fas fa-crown"></i></div>
+                    {{/moderator}}
+                    {{/role}}
+                </div>
+                <div class="member-info">
+                    <div class="member-name">{{name}}</div>
+                    <div class="member-level">Nível {{level}}</div>
+                    {{#role}}
+                    {{#moderator}}
+                    <div class="member-role">Moderador</div>
+                    {{/moderator}}
+                    {{/role}}
+                </div>
+            </div>
+            {{/members}}
+        </div>
+    </div>
+</div>
+
+<!-- Estados de loading e erro -->
+<div id="messageLoadingState" class="message-loading hidden">
+    <div class="spinner-small"></div>
+    <span>Enviando...</span>
+</div>
+
+<div id="connectionStatus" class="connection-status hidden">
+    <i class="fas fa-wifi"></i>
+    <span>Conectado</span>
+</div>
+
+<!-- Scripts -->
+<script>
+// Dados da sala para JavaScript
+window.chatRoomData = {
+    roomId: {{room.id}},
+    userId: {{user.id}},
+    userName: '{{user.name}}'
+};
+</script>
+<script src="/js/chat-room.js"></script>
+
+{{> partials/footer}} 

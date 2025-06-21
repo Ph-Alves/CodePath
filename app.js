@@ -39,6 +39,7 @@ const notificationRoutes = require('./routes/notificationRoutes');
 const xpRoutes = require('./routes/xpRoutes');
 const achievementRoutes = require('./routes/achievementRoutes');
 const securityRoutes = require('./routes/securityRoutes');
+const chatRoutes = require('./routes/chatRoutes');
 
 // Inicialização da aplicação Express
 const app = express();
@@ -130,6 +131,9 @@ app.use('/achievements', achievementRoutes);
 
 // Usar as rotas de segurança
 app.use('/security', securityRoutes);
+
+// Usar as rotas de chat e comunidade
+app.use('/chat', chatRoutes);
 
 // ========================================
 // ROTA PRINCIPAL TEMPORÁRIA
