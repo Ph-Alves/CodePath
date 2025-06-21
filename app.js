@@ -135,6 +135,10 @@ app.use('/security', securityRoutes);
 // Usar as rotas de chat e comunidade
 app.use('/chat', chatRoutes);
 
+// Usar as rotas de analytics
+const analyticsRoutes = require('./routes/analyticsRoutes');
+app.use('/analytics', analyticsRoutes);
+
 // ========================================
 // ROTA PRINCIPAL TEMPORÁRIA
 // ========================================

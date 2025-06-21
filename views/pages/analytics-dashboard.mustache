@@ -1,0 +1,363 @@
+{{> partials/header}}
+
+<div class="analytics-dashboard">
+    <!-- Header da página -->
+    <div class="analytics-header">
+        <div class="container">
+            <div class="header-content">
+                <div class="header-text">
+                    <h1 class="page-title">
+                        <i class="fas fa-chart-line"></i>
+                        Analytics e Insights
+                    </h1>
+                    <p class="page-subtitle">
+                        Acompanhe seu progresso e performance de aprendizado
+                    </p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-outline" id="export-data-btn">
+                        <i class="fas fa-download"></i>
+                        Exportar Dados
+                    </button>
+                    <a href="/analytics/report" class="btn btn-primary">
+                        <i class="fas fa-file-alt"></i>
+                        Relatório Detalhado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Métricas principais -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-icon xp">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="metric-info">
+                    <h3 class="metric-value">{{analytics.user.xp_points}}</h3>
+                    <p class="metric-label">XP Total</p>
+                    <span class="metric-level">Nível {{analytics.user.level}}</span>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon lessons">
+                    <i class="fas fa-book-open"></i>
+                </div>
+                <div class="metric-info">
+                    <h3 class="metric-value">{{analytics.user.lessons_completed}}</h3>
+                    <p class="metric-label">Aulas Concluídas</p>
+                    <span class="metric-trend positive">+{{analytics.recent_activity.length}} esta semana</span>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon streak">
+                    <i class="fas fa-fire"></i>
+                </div>
+                <div class="metric-info">
+                    <h3 class="metric-value">{{analytics.current_streak}}</h3>
+                    <p class="metric-label">Dias de Sequência</p>
+                    <span class="metric-description">Dias consecutivos</span>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon performance">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <div class="metric-info">
+                    <h3 class="metric-value">{{analytics.performance_metrics.avg_quiz_score}}%</h3>
+                    <p class="metric-label">Média em Quizzes</p>
+                    <span class="metric-trend {{#analytics.performance_metrics.performance_trend}}{{#if (eq . 'improving')}}positive{{/if}}{{#if (eq . 'declining')}}negative{{/if}}{{/analytics.performance_metrics.performance_trend}}">
+                        {{#analytics.performance_metrics.performance_trend}}
+                            {{#if (eq . 'improving')}}📈 Melhorando{{/if}}
+                            {{#if (eq . 'stable')}}📊 Estável{{/if}}
+                            {{#if (eq . 'declining')}}📉 Em declínio{{/if}}
+                        {{/analytics.performance_metrics.performance_trend}}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráficos e visualizações -->
+        <div class="charts-section">
+            <div class="charts-grid">
+                <!-- Atividade recente -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Atividade Recente</h3>
+                        <div class="chart-controls">
+                            <select id="activity-period" class="form-select">
+                                <option value="7">Últimos 7 dias</option>
+                                <option value="14">Últimos 14 dias</option>
+                                <option value="30" selected>Últimos 30 dias</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="activity-chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Progresso por pacote -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Progresso por Pacote</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="progress-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance detalhada -->
+            <div class="chart-card full-width">
+                <div class="chart-header">
+                    <h3 class="chart-title">Performance em Quizzes</h3>
+                    <div class="chart-stats">
+                        <div class="stat">
+                            <span class="stat-label">Melhor Score:</span>
+                            <span class="stat-value">{{analytics.performance_metrics.highest_score}}%</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Taxa de Sucesso:</span>
+                            <span class="stat-value">{{analytics.performance_metrics.high_score_rate}}%</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Tempo Médio:</span>
+                            <span class="stat-value">{{analytics.performance_metrics.avg_completion_time}}s</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="performance-details">
+                    {{#analytics.package_progress}}
+                    <div class="package-progress-item">
+                        <div class="package-info">
+                            <h4 class="package-name">{{name}}</h4>
+                            <p class="package-stats">{{completed_lessons}}/{{total_lessons}} aulas</p>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: {{completion_percentage}}%"></div>
+                        </div>
+                        <span class="progress-percentage">{{completion_percentage}}%</span>
+                    </div>
+                    {{/analytics.package_progress}}
+                </div>
+            </div>
+        </div>
+
+        <!-- Rankings e comparações -->
+        <div class="rankings-section">
+            <div class="section-header">
+                <h2 class="section-title">Sua Posição no Ranking</h2>
+                <a href="/analytics/comparison" class="btn btn-outline">
+                    <i class="fas fa-users"></i>
+                    Ver Comparação Completa
+                </a>
+            </div>
+
+            <div class="rankings-grid">
+                <div class="ranking-card">
+                    <div class="ranking-header">
+                        <h3 class="ranking-title">
+                            <i class="fas fa-star"></i>
+                            Ranking XP
+                        </h3>
+                        <span class="user-position">#{{rankings.user_xp_position}}</span>
+                    </div>
+                    <div class="ranking-list">
+                        {{#rankings.xp}}
+                        <div class="ranking-item {{#if (eq id ../../../analytics.user.id)}}current-user{{/if}}">
+                            <span class="rank">#{{@index + 1}}</span>
+                            <span class="username">{{username}}</span>
+                            <span class="value">{{value}} XP</span>
+                        </div>
+                        {{/rankings.xp}}
+                    </div>
+                </div>
+
+                <div class="ranking-card">
+                    <div class="ranking-header">
+                        <h3 class="ranking-title">
+                            <i class="fas fa-book-open"></i>
+                            Ranking Aulas
+                        </h3>
+                        <span class="user-position">#{{rankings.user_lessons_position}}</span>
+                    </div>
+                    <div class="ranking-list">
+                        {{#rankings.lessons}}
+                        <div class="ranking-item {{#if (eq id ../../../analytics.user.id)}}current-user{{/if}}">
+                            <span class="rank">#{{@index + 1}}</span>
+                            <span class="username">{{username}}</span>
+                            <span class="value">{{value}} aulas</span>
+                        </div>
+                        {{/rankings.lessons}}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Insights e recomendações -->
+        <div class="insights-section">
+            <div class="section-header">
+                <h2 class="section-title">Insights Personalizados</h2>
+            </div>
+
+            <div class="insights-grid">
+                <!-- Tempo de estudo -->
+                <div class="insight-card">
+                    <div class="insight-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="insight-content">
+                        <h3 class="insight-title">Tempo de Estudo</h3>
+                        <div class="insight-stats">
+                            <div class="stat-item">
+                                <span class="stat-number">{{analytics.study_time.total_study_time}}</span>
+                                <span class="stat-label">minutos totais</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">{{analytics.study_time.study_days}}</span>
+                                <span class="stat-label">dias de estudo</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Conquistas -->
+                <div class="insight-card">
+                    <div class="insight-icon">
+                        <i class="fas fa-medal"></i>
+                    </div>
+                    <div class="insight-content">
+                        <h3 class="insight-title">Conquistas</h3>
+                        <div class="insight-stats">
+                            <div class="stat-item">
+                                <span class="stat-number">{{analytics.user.achievements_earned}}</span>
+                                <span class="stat-label">conquistadas</span>
+                            </div>
+                            <div class="stat-item">
+                                <a href="/achievements" class="stat-link">Ver todas</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Próximos objetivos -->
+                <div class="insight-card">
+                    <div class="insight-icon">
+                        <i class="fas fa-target"></i>
+                    </div>
+                    <div class="insight-content">
+                        <h3 class="insight-title">Próximo Nível</h3>
+                        <div class="insight-stats">
+                            <div class="level-progress">
+                                <div class="level-bar">
+                                    <div class="level-fill" style="width: {{analytics.user.level_progress}}%"></div>
+                                </div>
+                                <span class="level-text">
+                                    {{analytics.user.xp_to_next_level}} XP para nível {{analytics.user.next_level}}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{#if is_admin}}
+        <!-- Métricas da plataforma (apenas admin) -->
+        <div class="admin-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-cog"></i>
+                    Métricas da Plataforma
+                </h2>
+                <span class="admin-badge">Admin</span>
+            </div>
+
+            <div class="admin-metrics-grid">
+                <div class="admin-metric-card">
+                    <h3 class="metric-value">{{platform_stats.total_users}}</h3>
+                    <p class="metric-label">Usuários Ativos</p>
+                </div>
+                <div class="admin-metric-card">
+                    <h3 class="metric-value">{{platform_stats.completion_rate}}%</h3>
+                    <p class="metric-label">Taxa de Conclusão</p>
+                </div>
+                <div class="admin-metric-card">
+                    <h3 class="metric-value">{{engagement_metrics.retention_rate}}%</h3>
+                    <p class="metric-label">Taxa de Retenção</p>
+                </div>
+                <div class="admin-metric-card">
+                    <h3 class="metric-value">{{platform_stats.engagement_score}}</h3>
+                    <p class="metric-label">Score de Engajamento</p>
+                </div>
+            </div>
+        </div>
+        {{/if}}
+    </div>
+</div>
+
+<!-- Modal de exportação -->
+<div class="modal" id="export-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Exportar Dados de Analytics</h3>
+            <button class="modal-close" id="close-export-modal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="export-form">
+                <div class="form-group">
+                    <label for="export-period">Período:</label>
+                    <select id="export-period" class="form-select">
+                        <option value="week">Última Semana</option>
+                        <option value="month" selected>Último Mês</option>
+                        <option value="quarter">Últimos 3 Meses</option>
+                        <option value="year">Último Ano</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="export-format">Formato:</label>
+                    <select id="export-format" class="form-select">
+                        <option value="json">JSON</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" id="cancel-export">Cancelar</button>
+            <button class="btn btn-primary" id="confirm-export">
+                <i class="fas fa-download"></i>
+                Exportar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Estados de loading -->
+<div class="loading-overlay" id="loading-overlay" style="display: none;">
+    <div class="loading-spinner">
+        <i class="fas fa-spinner fa-spin"></i>
+        <p>Carregando dados...</p>
+    </div>
+</div>
+
+<!-- Scripts dos gráficos -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Dados dos gráficos passados do servidor
+    window.analyticsData = {
+        recentActivity: {{{chart_data.recent_activity}}},
+        packageProgress: {{{chart_data.package_progress}}},
+        performanceMetrics: {{{chart_data.performance_metrics}}}
+    };
+</script>
+<script src="/js/analytics-dashboard.js"></script>
+
+{{> partials/footer}} 
