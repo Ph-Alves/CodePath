@@ -212,8 +212,9 @@ async function cleanExpiredSessions() {
  */
 async function getUserMetrics(userId) {
   try {
+    const db = getDatabase();
     // Buscar métricas agregadas do progresso do usuário
-    const metrics = await database.database.get(
+    const metrics = await db.get(
       `SELECT 
         SUM(up.lessons_watched) as lessons_watched,
         SUM(CASE WHEN up.completed_at > date('now', '-7 days') THEN up.lessons_watched ELSE 0 END) as lessons_this_week,
@@ -279,11 +280,12 @@ async function getUserProgress(userId, packageId = null) {
     
     query += ' ORDER BY up.completed_at DESC NULLS LAST';
     
+    const db = getDatabase();
     if (packageId) {
-      const result = await database.database.get(query, params);
+      const result = await db.get(query, params);
       return result || null;
     } else {
-      const results = await database.all(query, params);
+      const results = await db.all(query, params);
       return results || [];
     }
   } catch (error) {
@@ -300,8 +302,9 @@ async function getUserProgress(userId, packageId = null) {
  */
 async function getUserRecentActivity(userId, limit = 10) {
   try {
+    const db = getDatabase();
     // Buscar progresso do usuário para gerar atividades baseadas no progresso
-    const userProgress = await database.all(
+    const userProgress = await db.all(
       `SELECT 
         p.name as package_name,
         up.status,

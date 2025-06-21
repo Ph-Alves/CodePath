@@ -5,7 +5,7 @@
  * de conteúdos, aulas e progresso de aprendizado dos usuários.
  */
 
-const { database } = require('./database');
+const { getDatabase } = require('./databaseConnection');
 
 /**
  * Busca todas as aulas de um pacote específico
@@ -14,7 +14,8 @@ const { database } = require('./database');
  */
 async function getLessonsByPackage(packageId) {
   try {
-    const lessons = await database.all(`
+
+    const db = getDatabase();    const lessons = await db.all(`
       SELECT 
         l.*,
         p.name as package_name,
@@ -39,7 +40,8 @@ async function getLessonsByPackage(packageId) {
  */
 async function getLessonById(lessonId) {
   try {
-    const lesson = await database.get(`
+
+    const db = getDatabase();    const lesson = await db.get(`
       SELECT 
         l.*,
         p.name as package_name,
@@ -65,8 +67,9 @@ async function getLessonById(lessonId) {
  */
 async function getUserLessonProgress(userId, lessonId) {
   try {
-    // Buscar progresso específico da aula (através do quiz relacionado)
-    const progress = await database.get(`
+
+    const db = getDatabase();    // Buscar progresso específico da aula (através do quiz relacionado)
+    const progress = await db.get(`
       SELECT 
         up.*,
         q.id as quiz_id,
@@ -93,15 +96,16 @@ async function getUserLessonProgress(userId, lessonId) {
  */
 async function markLessonAsWatched(userId, lessonId, packageId) {
   try {
-    // Verificar se já existe progresso para este pacote
-    let progress = await database.get(`
+
+    const db = getDatabase();    // Verificar se já existe progresso para este pacote
+    let progress = await db.get(`
       SELECT * FROM user_progress 
       WHERE user_id = ? AND package_id = ?
     `, [userId, packageId]);
 
     if (progress) {
       // Atualizar progresso existente
-      await database.run(`
+      await db.run(`
         UPDATE user_progress 
         SET 
           lessons_watched = lessons_watched + 1,
@@ -118,7 +122,7 @@ async function markLessonAsWatched(userId, lessonId, packageId) {
       `, [userId, packageId]);
     } else {
       // Criar novo registro de progresso
-      await database.run(`
+      await db.run(`
         INSERT INTO user_progress 
         (user_id, package_id, status, progress_percentage, lessons_watched, courses_completed, challenges_delivered, quizzes_completed)
         VALUES (?, ?, 'in_progress', 10, 1, 0, 0, 0)
@@ -126,7 +130,7 @@ async function markLessonAsWatched(userId, lessonId, packageId) {
     }
 
     // Atualizar XP do usuário
-    await database.run(`
+    await db.run(`
       UPDATE users 
       SET xp_points = xp_points + 50
       WHERE id = ?
@@ -147,13 +151,14 @@ async function markLessonAsWatched(userId, lessonId, packageId) {
  */
 async function getNextLesson(packageId, currentLessonId) {
   try {
-    const currentLesson = await database.get(`
+
+    const db = getDatabase();    const currentLesson = await db.get(`
       SELECT order_sequence FROM lessons WHERE id = ?
     `, [currentLessonId]);
 
     if (!currentLesson) return null;
 
-    const nextLesson = await database.get(`
+    const nextLesson = await db.get(`
       SELECT * FROM lessons 
       WHERE package_id = ? AND order_sequence > ?
       ORDER BY order_sequence ASC
@@ -175,13 +180,14 @@ async function getNextLesson(packageId, currentLessonId) {
  */
 async function getPreviousLesson(packageId, currentLessonId) {
   try {
-    const currentLesson = await database.get(`
+
+    const db = getDatabase();    const currentLesson = await db.get(`
       SELECT order_sequence FROM lessons WHERE id = ?
     `, [currentLessonId]);
 
     if (!currentLesson) return null;
 
-    const previousLesson = await database.get(`
+    const previousLesson = await db.get(`
       SELECT * FROM lessons 
       WHERE package_id = ? AND order_sequence < ?
       ORDER BY order_sequence DESC
@@ -203,19 +209,20 @@ async function getPreviousLesson(packageId, currentLessonId) {
  */
 async function getPackageProgressStats(userId, packageId) {
   try {
-    // Buscar total de aulas do pacote
-    const totalLessons = await database.get(`
+
+    const db = getDatabase();    // Buscar total de aulas do pacote
+    const totalLessons = await db.get(`
       SELECT COUNT(*) as total FROM lessons WHERE package_id = ?
     `, [packageId]);
 
     // Buscar progresso do usuário
-    const progress = await database.get(`
+    const progress = await db.get(`
       SELECT * FROM user_progress 
       WHERE user_id = ? AND package_id = ?
     `, [userId, packageId]);
 
     // Buscar informações do pacote
-    const packageInfo = await database.get(`
+    const packageInfo = await db.get(`
       SELECT * FROM packages WHERE id = ?
     `, [packageId]);
 
@@ -242,7 +249,8 @@ async function getPackageProgressStats(userId, packageId) {
  */
 async function getQuizzesByLesson(lessonId) {
   try {
-    const quizzes = await database.all(`
+
+    const db = getDatabase();    const quizzes = await db.all(`
       SELECT * FROM quizzes 
       WHERE lesson_id = ?
       ORDER BY question_number ASC
@@ -263,7 +271,8 @@ async function getQuizzesByLesson(lessonId) {
  */
 async function checkLessonPrerequisites(userId, lessonId) {
   try {
-    const lesson = await database.get(`
+
+    const db = getDatabase();    const lesson = await db.get(`
       SELECT l.*, p.name as package_name 
       FROM lessons l
       JOIN packages p ON l.package_id = p.id
@@ -276,7 +285,7 @@ async function checkLessonPrerequisites(userId, lessonId) {
 
     // Para aulas sequenciais, verificar se a anterior foi concluída
     if (lesson.order_sequence > 1) {
-      const previousLesson = await database.get(`
+      const previousLesson = await db.get(`
         SELECT l.id, l.name 
         FROM lessons l
         WHERE l.package_id = ? AND l.order_sequence = ?
@@ -284,7 +293,7 @@ async function checkLessonPrerequisites(userId, lessonId) {
 
       if (previousLesson) {
         // Verificar se a aula anterior foi concluída
-        const isCompleted = await database.get(`
+        const isCompleted = await db.get(`
           SELECT COUNT(*) as completed
           FROM lesson_completions lc
           WHERE lc.user_id = ? AND lc.lesson_id = ?
@@ -336,7 +345,8 @@ async function checkLessonPrerequisites(userId, lessonId) {
  */
 async function getLessonsWithCompletionStatus(userId, packageId) {
   try {
-    const lessons = await database.all(`
+
+    const db = getDatabase();    const lessons = await db.all(`
       SELECT 
         l.*,
         p.name as package_name,

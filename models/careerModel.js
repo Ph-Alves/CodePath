@@ -7,7 +7,7 @@
  * - Progresso dos usuários nos pacotes
  */
 
-const { database } = require('./database');
+const { getDatabase } = require('./databaseConnection');
 
 // ========================================
 // OPERAÇÕES COM PACOTES DE TECNOLOGIA
@@ -19,7 +19,8 @@ const { database } = require('./database');
  */
 async function getAllPackages() {
   try {
-    const packages = await database.all(`
+    const db = getDatabase();
+    const packages = await db.all(`
       SELECT 
         id,
         name,
@@ -45,7 +46,8 @@ async function getAllPackages() {
  */
 async function getPackageById(packageId) {
   try {
-    const packageData = await database.get(`
+
+    const db = getDatabase();    const packageData = await db.get(`
       SELECT 
         id,
         name,
@@ -63,7 +65,7 @@ async function getPackageById(packageId) {
     }
     
     // Buscar aulas do pacote
-    const lessons = await database.all(`
+    const lessons = await db.all(`
       SELECT 
         id,
         name,
@@ -92,7 +94,8 @@ async function getPackageById(packageId) {
  */
 async function getPackagesWithUserProgress(userId) {
   try {
-    const packages = await database.all(`
+
+    const db = getDatabase();    const packages = await db.all(`
       SELECT 
         p.id,
         p.name,
@@ -126,7 +129,8 @@ async function getPackagesWithUserProgress(userId) {
  */
 async function getAllCareerProfiles() {
   try {
-    const profiles = await database.all(`
+
+    const db = getDatabase();    const profiles = await db.all(`
       SELECT 
         id,
         name,
@@ -150,7 +154,8 @@ async function getAllCareerProfiles() {
  */
 async function getCareerProfileById(profileId) {
   try {
-    const profile = await database.get(`
+
+    const db = getDatabase();    const profile = await db.get(`
       SELECT 
         id,
         name,
@@ -180,8 +185,9 @@ async function getCareerProfileById(profileId) {
  */
 async function startPackageProgress(userId, packageId) {
   try {
-    // Verificar se já existe progresso
-    const existingProgress = await database.get(`
+
+    const db = getDatabase();    // Verificar se já existe progresso
+    const existingProgress = await db.get(`
       SELECT id FROM user_progress 
       WHERE user_id = ? AND package_id = ?
     `, [userId, packageId]);
@@ -191,7 +197,7 @@ async function startPackageProgress(userId, packageId) {
     }
     
     // Inserir novo progresso
-    const result = await database.run(`
+    const result = await db.run(`
       INSERT INTO user_progress (
         user_id, 
         package_id, 
@@ -205,7 +211,7 @@ async function startPackageProgress(userId, packageId) {
     `, [userId, packageId]);
     
     // Atualizar pacote atual do usuário
-    await database.run(`
+    await db.run(`
       UPDATE users 
       SET current_package_id = ?
       WHERE id = ?
@@ -230,8 +236,9 @@ async function startPackageProgress(userId, packageId) {
  */
 async function continuePackageProgress(userId, packageId) {
   try {
-    // Atualizar pacote atual do usuário
-    await database.run(`
+
+    const db = getDatabase();    // Atualizar pacote atual do usuário
+    await db.run(`
       UPDATE users 
       SET current_package_id = ?
       WHERE id = ?
@@ -255,14 +262,15 @@ async function continuePackageProgress(userId, packageId) {
  */
 async function selectCareerProfile(userId, profileId) {
   try {
-    // Verificar se o perfil existe
+
+    const db = getDatabase();    // Verificar se o perfil existe
     const profile = await getCareerProfileById(profileId);
     if (!profile) {
       return { success: false, message: 'Perfil profissional não encontrado' };
     }
     
     // Atualizar perfil do usuário
-    await database.run(`
+    await db.run(`
       UPDATE users 
       SET selected_career_profile_id = ?
       WHERE id = ?

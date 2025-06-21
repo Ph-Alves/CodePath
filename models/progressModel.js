@@ -4,7 +4,7 @@
  * detalhado de progresso, estatísticas e análises de desempenho
  */
 
-const { database } = require('./database');
+const { getDatabase } = require('./databaseConnection');
 
 const progressModel = {
     
@@ -45,7 +45,7 @@ const progressModel = {
                 GROUP BY u.id
             `;
             
-            database.get(query, [userId])
+            db.get(query, [userId])
                 .then(resolve)
                 .catch(reject);
         });
@@ -93,7 +93,7 @@ const progressModel = {
                     up.completed_at DESC NULLS LAST
             `;
             
-            database.all(query, [userId])
+            db.all(query, [userId])
                 .then(rows => resolve(rows || []))
                 .catch(reject);
         });
@@ -138,7 +138,7 @@ const progressModel = {
                 LIMIT ?
             `;
             
-            database.all(query, [userId, userId, limit])
+            db.all(query, [userId, userId, limit])
                 .then(rows => resolve(rows || []))
                 .catch(reject);
         });
@@ -194,7 +194,7 @@ const progressModel = {
                 WHERE up.user_id = ? AND ${dateFilter}
             `;
             
-            database.get(query, [userId])
+            db.get(query, [userId])
                 .then(row => resolve(row || {}))
                 .catch(reject);
         });
@@ -238,7 +238,7 @@ const progressModel = {
                 ORDER BY ds.date
             `;
             
-            database.all(query, [userId])
+            db.all(query, [userId])
                 .then(rows => resolve(rows || []))
                 .catch(reject);
         });
@@ -303,7 +303,7 @@ const progressModel = {
                 FROM user_stats us, platform_stats ps
             `;
             
-            database.get(query, [userId])
+            db.get(query, [userId])
                 .then(row => resolve(row || {}))
                 .catch(reject);
         });
@@ -330,7 +330,7 @@ const progressModel = {
                 GROUP BY u.id
             `;
             
-            database.get(query, [userId])
+            db.get(query, [userId])
                 .then(row => {
                     // Gerar metas baseadas no progresso atual
                     const goals = [];
@@ -400,7 +400,7 @@ const progressModel = {
                     JOIN packages p ON l.package_id = p.id
                     WHERE l.id = ?
                 `;
-                const lesson = await database.get(lessonQuery, [lessonId]);
+                const lesson = await db.get(lessonQuery, [lessonId]);
                 
                 if (!lesson) {
                     return reject(new Error('Aula não encontrada'));
@@ -421,7 +421,7 @@ const progressModel = {
                     SELECT * FROM user_progress 
                     WHERE user_id = ? AND package_id = ?
                 `;
-                let progress = await database.get(existingProgressQuery, [userId, lesson.package_id]);
+                let progress = await db.get(existingProgressQuery, [userId, lesson.package_id]);
 
                 if (progress) {
                     // Atualizar progresso existente
@@ -433,7 +433,7 @@ const progressModel = {
                             updated_at = datetime('now')
                         WHERE user_id = ? AND package_id = ?
                     `;
-                    await database.run(updateQuery, [userId, lesson.package_id]);
+                    await db.run(updateQuery, [userId, lesson.package_id]);
                 } else {
                     // Criar novo registro de progresso
                     const insertQuery = `
@@ -443,7 +443,7 @@ const progressModel = {
                             status, created_at, updated_at
                         ) VALUES (?, ?, 1, 0, 0, 'in_progress', datetime('now'), datetime('now'))
                     `;
-                    await database.run(insertQuery, [userId, lesson.package_id]);
+                    await db.run(insertQuery, [userId, lesson.package_id]);
                 }
 
                 // Recalcular percentual de progresso
@@ -495,7 +495,7 @@ const progressModel = {
                     LEFT JOIN quizzes q ON l.id = q.lesson_id
                     WHERE l.package_id = ?
                 `;
-                const totals = await database.get(totalQuery, [packageId]);
+                const totals = await db.get(totalQuery, [packageId]);
 
                 // Buscar progresso atual
                 const progressQuery = `
@@ -503,7 +503,7 @@ const progressModel = {
                     FROM user_progress
                     WHERE user_id = ? AND package_id = ?
                 `;
-                const progress = await database.get(progressQuery, [userId, packageId]);
+                const progress = await db.get(progressQuery, [userId, packageId]);
 
                 if (progress && totals) {
                     // Calcular percentual de progresso
@@ -529,7 +529,7 @@ const progressModel = {
                             updated_at = datetime('now')
                         WHERE user_id = ? AND package_id = ?
                     `;
-                    await database.run(updateQuery, [progressPercentage, status, status, userId, packageId]);
+                    await db.run(updateQuery, [progressPercentage, status, status, userId, packageId]);
 
                     // Se o pacote foi concluído, dar XP bônus
                     if (status === 'completed' && progress.status !== 'completed') {
@@ -537,7 +537,7 @@ const progressModel = {
                         
                         // Criar notificação de conclusão de pacote
                         const packageQuery = `SELECT name FROM packages WHERE id = ?`;
-                        const packageInfo = await database.get(packageQuery, [packageId]);
+                        const packageInfo = await db.get(packageQuery, [packageId]);
                         
                         await progressModel.createProgressNotification(userId, {
                             type: 'package_completed',
@@ -576,7 +576,7 @@ const progressModel = {
             try {
                 // Buscar XP atual do usuário
                 const userQuery = `SELECT xp_points, level FROM users WHERE id = ?`;
-                const user = await database.get(userQuery, [userId]);
+                const user = await db.get(userQuery, [userId]);
 
                 if (!user) {
                     return reject(new Error('Usuário não encontrado'));
@@ -592,7 +592,7 @@ const progressModel = {
                     SET xp_points = ?, level = ?, updated_at = datetime('now')
                     WHERE id = ?
                 `;
-                await database.run(updateQuery, [newXP, newLevel, userId]);
+                await db.run(updateQuery, [newXP, newLevel, userId]);
 
                 // Se subiu de nível, criar notificação
                 if (leveledUp) {
@@ -635,7 +635,7 @@ const progressModel = {
                     LEFT JOIN user_progress up ON l.package_id = up.package_id AND up.user_id = ?
                     WHERE l.id = ?
                 `;
-                const result = await database.get(query, [userId, lessonId]);
+                const result = await db.get(query, [userId, lessonId]);
                 
                 // Considera concluída se o número de aulas assistidas é >= número da aula atual
                 const isCompleted = result && result.lessons_watched >= result.lesson_number;
@@ -664,7 +664,7 @@ const progressModel = {
                 `;
                 
                 const dataJson = JSON.stringify(notificationData);
-                const result = await database.run(insertQuery, [
+                const result = await db.run(insertQuery, [
                     userId, 
                     notificationData.type, 
                     notificationData.title, 
@@ -713,7 +713,7 @@ const progressModel = {
                     WHERE l.id = ?
                 `;
                 
-                const result = await database.get(query, [userId, lessonId]);
+                const result = await db.get(query, [userId, lessonId]);
                 resolve(result || null);
 
             } catch (error) {

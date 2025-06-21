@@ -8,7 +8,7 @@
  * - Limpeza automática de notificações antigas
  */
 
-const { database } = require('./database');
+const { getDatabase } = require('./databaseConnection');
 
 /**
  * Criar nova notificação
@@ -24,10 +24,10 @@ const createNotification = async (notificationData) => {
     `;
     
     try {
-        const result = await database.run(query, [userId, type, title, message, actionUrl]);
+        const result = await db.run(query, [userId, type, title, message, actionUrl]);
         
         // Retornar a notificação criada
-        const createdNotification = await database.get(`
+        const createdNotification = await db.get(`
             SELECT * FROM notifications WHERE id = ?
         `, [result.id]);
         
@@ -68,7 +68,7 @@ const getUserNotifications = async (userId, limit = 10, offset = 0) => {
     `;
     
     try {
-        return await database.all(query, [userId, limit, offset]);
+        return await db.all(query, [userId, limit, offset]);
     } catch (error) {
         console.error('Erro ao buscar notificações:', error);
         throw error;
@@ -88,7 +88,7 @@ const getUnreadCount = async (userId) => {
     `;
     
     try {
-        const result = await database.get(query, [userId]);
+        const result = await db.get(query, [userId]);
         return result ? result.count : 0;
     } catch (error) {
         console.error('Erro ao contar notificações não lidas:', error);
@@ -110,7 +110,7 @@ const markAsRead = async (notificationId, userId) => {
     `;
     
     try {
-        const result = await database.run(query, [notificationId, userId]);
+        const result = await db.run(query, [notificationId, userId]);
         return result.changes > 0;
     } catch (error) {
         console.error('Erro ao marcar notificação como lida:', error);
@@ -131,7 +131,7 @@ const markAllAsRead = async (userId) => {
     `;
     
     try {
-        const result = await database.run(query, [userId]);
+        const result = await db.run(query, [userId]);
         return result.changes;
     } catch (error) {
         console.error('Erro ao marcar todas como lidas:', error);
@@ -152,7 +152,7 @@ const deleteNotification = async (notificationId, userId) => {
     `;
     
     try {
-        const result = await database.run(query, [notificationId, userId]);
+        const result = await db.run(query, [notificationId, userId]);
         return result.changes > 0;
     } catch (error) {
         console.error('Erro ao excluir notificação:', error);
@@ -174,7 +174,7 @@ const cleanupOldNotifications = async (userId) => {
     `;
     
     try {
-        const result = await database.run(query, [userId]);
+        const result = await db.run(query, [userId]);
         return result.changes;
     } catch (error) {
         console.error('Erro ao limpar notificações antigas:', error);
@@ -198,7 +198,7 @@ const getNotificationsByType = async (userId, type, limit = 5) => {
     `;
     
     try {
-        return await database.all(query, [userId, type, limit]);
+        return await db.all(query, [userId, type, limit]);
     } catch (error) {
         console.error('Erro ao buscar notificações por tipo:', error);
         throw error;
@@ -226,7 +226,7 @@ const getNotificationStats = async (userId) => {
     `;
     
     try {
-        const result = await database.get(query, [userId]);
+        const result = await db.get(query, [userId]);
         return result || {
             total: 0,
             unread: 0,
