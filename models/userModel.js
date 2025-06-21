@@ -8,7 +8,7 @@
 
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
-const { database } = require('./database');
+const { getDatabase } = require('./databaseConnection');
 
 /**
  * Busca um usuário pelo email
@@ -17,10 +17,11 @@ const { database } = require('./database');
  */
 async function getUserByEmail(email) {
   try {
-      const user = await database.database.get(
-    'SELECT * FROM users WHERE email = ?',
-    [email]
-  );
+    const db = getDatabase();
+    const user = await db.get(
+      'SELECT * FROM users WHERE email = ?',
+      [email]
+    );
     return user || null;
   } catch (error) {
     console.error('Erro ao buscar usuário por email:', error);
@@ -35,10 +36,11 @@ async function getUserByEmail(email) {
  */
 async function getUserById(id) {
   try {
-      const user = await database.database.get(
-    'SELECT * FROM users WHERE id = ?',
-    [id]
-  );
+    const db = getDatabase();
+    const user = await db.get(
+      'SELECT * FROM users WHERE id = ?',
+      [id]
+    );
     return user || null;
   } catch (error) {
     console.error('Erro ao buscar usuário por ID:', error);
@@ -71,7 +73,8 @@ async function createUser(userData) {
     const passwordHash = await bcrypt.hash(password, saltRounds);
     
     // Inserir o usuário no banco
-    const result = await database.database.run(
+    const db = getDatabase();
+    const result = await db.run(
       `INSERT INTO users (name, email, password_hash, birth_date, education_level) 
        VALUES (?, ?, ?, ?, ?)`,
       [name, email, passwordHash, birthDate, educationLevel]
@@ -129,7 +132,8 @@ async function createSession(userId) {
     expiresAt.setHours(expiresAt.getHours() + 24);
     
     // Inserir a sessão no banco
-    await database.database.run(
+    const db = getDatabase();
+    await db.run(
       'INSERT INTO user_sessions (user_id, session_token, expires_at) VALUES (?, ?, ?)',
       [userId, sessionToken, expiresAt.toISOString()]
     );
@@ -148,7 +152,8 @@ async function createSession(userId) {
  */
 async function validateSession(sessionToken) {
   try {
-    const session = await database.database.get(
+    const db = getDatabase();
+    const session = await db.get(
       `SELECT s.*, u.* FROM user_sessions s
        JOIN users u ON s.user_id = u.id
        WHERE s.session_token = ? AND s.expires_at > datetime('now')`,
@@ -174,7 +179,8 @@ async function validateSession(sessionToken) {
  */
 async function removeSession(sessionToken) {
   try {
-    await database.database.run(
+    const db = getDatabase();
+    await db.run(
       'DELETE FROM user_sessions WHERE session_token = ?',
       [sessionToken]
     );
@@ -189,7 +195,8 @@ async function removeSession(sessionToken) {
  */
 async function cleanExpiredSessions() {
   try {
-    await database.database.run(
+    const db = getDatabase();
+    await db.run(
       'DELETE FROM user_sessions WHERE expires_at < datetime("now")'
     );
   } catch (error) {

@@ -1,5 +1,5 @@
-const database = require('./database');
 const crypto = require('crypto');
+const { getDatabaseSafe } = require('./databaseConnection');
 
 /**
  * Modelo de Validação e Segurança
@@ -188,9 +188,10 @@ class ValidationModel {
      * @param {boolean} success - Se foi bem-sucedida
      */
     static async logLoginAttempt(email, ip, success) {
-        const db = database.database;
-        
         try {
+            const db = getDatabaseSafe();
+            if (!db) return;
+            
             await db.run(`
                 INSERT INTO login_attempts (email, ip_address, success, attempted_at)
                 VALUES (?, ?, ?, datetime('now'))
@@ -206,9 +207,12 @@ class ValidationModel {
      * @returns {object} Status do bloqueio
      */
     static async checkIPBlocked(ip) {
-        const db = database.database;
-        
         try {
+            const db = getDatabaseSafe();
+            if (!db) {
+                return { isBlocked: false, failedAttempts: 0, remainingTime: 0, maxAttempts: 5 };
+            }
+            
             // Verifica tentativas falhadas nas últimas 15 minutos
             const result = await db.get(`
                 SELECT COUNT(*) as failed_attempts
@@ -237,9 +241,10 @@ class ValidationModel {
      * Limpa tentativas antigas de login
      */
     static async cleanOldLoginAttempts() {
-        const db = database.database;
-        
         try {
+            const db = getDatabaseSafe();
+            if (!db) return;
+            
             await db.run(`
                 DELETE FROM login_attempts 
                 WHERE attempted_at < datetime('now', '-24 hours')
@@ -253,9 +258,10 @@ class ValidationModel {
      * Limpa sessões expiradas
      */
     static async cleanExpiredSessions() {
-        const db = database.database;
-        
         try {
+            const db = getDatabaseSafe();
+            if (!db) return;
+            
             // Remove sessões inativas há mais de 7 dias
             await db.run(`
                 DELETE FROM user_sessions 
@@ -274,9 +280,10 @@ class ValidationModel {
      * @param {string} details - Detalhes adicionais
      */
     static async logSuspiciousActivity(userId, activity, ip, details = '') {
-        const db = database.database;
-        
         try {
+            const db = getDatabaseSafe();
+            if (!db) return;
+            
             await db.run(`
                 INSERT INTO suspicious_activities (user_id, activity_type, ip_address, details, detected_at)
                 VALUES (?, ?, ?, ?, datetime('now'))
@@ -295,9 +302,19 @@ class ValidationModel {
      * @returns {object} Status do rate limiting
      */
     static async checkRateLimit(ip, endpoint, limit = 100, windowMinutes = 15) {
-        const db = database.database;
-        
         try {
+            const db = getDatabaseSafe();
+            if (!db) {
+                return { 
+                    isLimited: false, 
+                    requestCount: 1, 
+                    remainingRequests: limit - 1, 
+                    limit, 
+                    windowMinutes,
+                    resetTime: new Date(Date.now() + windowMinutes * 60 * 1000)
+                };
+            }
+            
             // Conta requisições na janela de tempo
             const result = await db.get(`
                 SELECT COUNT(*) as request_count
@@ -326,7 +343,14 @@ class ValidationModel {
             };
         } catch (error) {
             console.error('Erro no rate limiting:', error);
-            return { isLimited: false, requestCount: 1, remainingRequests: limit - 1, limit, windowMinutes };
+            return { 
+                isLimited: false, 
+                requestCount: 1, 
+                remainingRequests: limit - 1, 
+                limit, 
+                windowMinutes,
+                resetTime: new Date(Date.now() + windowMinutes * 60 * 1000)
+            };
         }
     }
 
@@ -334,9 +358,10 @@ class ValidationModel {
      * Limpa registros antigos de requisições
      */
     static async cleanOldApiRequests() {
-        const db = database.database;
-        
         try {
+            const db = getDatabaseSafe();
+            if (!db) return;
+            
             await db.run(`
                 DELETE FROM api_requests 
                 WHERE requested_at < datetime('now', '-1 hours')

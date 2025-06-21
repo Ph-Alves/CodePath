@@ -15,6 +15,7 @@ require('dotenv').config();
 
 // Importação da configuração do banco de dados
 const { initializeDatabase, database } = require('./models/database');
+const { setDatabaseInstance } = require('./models/databaseConnection');
 
 // Importação dos middlewares de autenticação
 const { validateSessionMiddleware, addUserToViews } = require('./middleware/auth');
@@ -423,7 +424,10 @@ async function startServer() {
   try {
     // Inicializar o banco de dados primeiro
     console.log('🔄 Inicializando banco de dados...');
-    await initializeDatabase();
+    const db = await initializeDatabase();
+    
+    // Configurar instância global do database
+    setDatabaseInstance(db);
     
     // Iniciar o servidor após o banco estar pronto
     app.listen(PORT, () => {

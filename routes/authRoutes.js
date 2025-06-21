@@ -46,9 +46,9 @@ router.get('/login', requireGuest, showLogin);
 router.post('/login', 
   requireGuest, 
   rateLimiter({
-    limit: 5,
-    windowMinutes: 15,
-    message: 'Muitas tentativas de login. Tente novamente em 15 minutos.'
+    limit: 10,
+    windowMinutes: 5,
+    message: 'Muitas tentativas de login. Tente novamente em 5 minutos.'
   }),
   validateForm({
     email: {

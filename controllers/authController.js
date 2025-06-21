@@ -81,24 +81,50 @@ async function processLogin(req, res) {
     
     console.log('[AUTH] Validando credenciais...');
     // Validar credenciais
-    const user = await validateUser(sanitizedEmail, password);
+    let user;
+    try {
+      user = await validateUser(sanitizedEmail, password);
+    } catch (validationError) {
+      console.error('[AUTH] Erro na validação de credenciais:', validationError);
+      
+      // Log tentativa de login com erro
+      try {
+        await ValidationModel.logLoginAttempt(sanitizedEmail, ip, false);
+      } catch (logError) {
+        console.error('[AUTH] Erro ao registrar tentativa de login:', logError);
+      }
+      
+      return res.render('pages/login', {
+        title: 'Login - CodePath',
+        pageTitle: 'Faça seu login',
+        subtitle: 'Descubra o seu caminho na tecnologia',
+        additionalCSS: 'auth',
+        error: 'Erro interno do sistema. Tente novamente.',
+        email: sanitizedEmail
+      });
+    }
+    
     if (!user) {
       console.log('[AUTH] Erro: Credenciais inválidas');
       
       // Log tentativa de login falhada
-      await ValidationModel.logLoginAttempt(sanitizedEmail, ip, false);
-      
-      // Log atividade suspeita para múltiplas tentativas
-      await ValidationModel.logSuspiciousActivity(
-        null,
-        'failed_login',
-        ip,
-        JSON.stringify({
-          email: sanitizedEmail,
-          userAgent: req.get('User-Agent'),
-          timestamp: new Date().toISOString()
-        })
-      );
+      try {
+        await ValidationModel.logLoginAttempt(sanitizedEmail, ip, false);
+        
+        // Log atividade suspeita para múltiplas tentativas
+        await ValidationModel.logSuspiciousActivity(
+          null,
+          'failed_login',
+          ip,
+          JSON.stringify({
+            email: sanitizedEmail,
+            userAgent: req.get('User-Agent'),
+            timestamp: new Date().toISOString()
+          })
+        );
+      } catch (logError) {
+        console.error('[AUTH] Erro ao registrar tentativa falhada:', logError);
+      }
       
       return res.render('pages/login', {
         title: 'Login - CodePath',
@@ -114,8 +140,22 @@ async function processLogin(req, res) {
     
     console.log('[AUTH] Criando sessão...');
     // Criar sessão
-    const sessionToken = await createSession(user.id);
-    console.log(`[AUTH] Sessão criada: ${sessionToken.substring(0, 10)}...`);
+    let sessionToken;
+    try {
+      sessionToken = await createSession(user.id);
+      console.log(`[AUTH] Sessão criada: ${sessionToken.substring(0, 10)}...`);
+    } catch (sessionError) {
+      console.error('[AUTH] Erro ao criar sessão:', sessionError);
+      
+      return res.render('pages/login', {
+        title: 'Login - CodePath',
+        pageTitle: 'Faça seu login',
+        subtitle: 'Descubra o seu caminho na tecnologia',
+        additionalCSS: 'auth',
+        error: 'Erro interno do sistema. Tente novamente.',
+        email: sanitizedEmail
+      });
+    }
     
     console.log('[AUTH] Salvando dados na sessão...');
     // Salvar dados na sessão
@@ -126,7 +166,11 @@ async function processLogin(req, res) {
     console.log(`[AUTH] Login realizado com sucesso: ${user.email}`);
     
     // Log tentativa de login bem-sucedida
-    await ValidationModel.logLoginAttempt(sanitizedEmail, ip, true);
+    try {
+      await ValidationModel.logLoginAttempt(sanitizedEmail, ip, true);
+    } catch (logError) {
+      console.error('[AUTH] Erro ao registrar login bem-sucedido:', logError);
+    }
     
     console.log('[AUTH] Redirecionando para dashboard...');
     // Redirecionar para dashboard
@@ -307,29 +351,41 @@ async function processRegister(req, res) {
  */
 async function processLogout(req, res) {
   try {
+    const userEmail = req.session.user?.email || 'Usuário desconhecido';
+    
     // Remover sessão do banco de dados se existir
     if (req.session.sessionToken) {
-      await removeSession(req.session.sessionToken);
+      try {
+        await removeSession(req.session.sessionToken);
+        console.log(`[AUTH] Sessão removida do banco: ${userEmail}`);
+      } catch (sessionError) {
+        console.error('[AUTH] Erro ao remover sessão do banco:', sessionError);
+        // Continua com o logout mesmo se não conseguir remover do banco
+      }
     }
     
     // Log de logout
-    console.log(`[AUTH] Logout realizado: ${req.session.user?.email || 'Usuário desconhecido'}`);
+    console.log(`[AUTH] Logout realizado: ${userEmail}`);
     
     // Destruir sessão
     req.session.destroy((err) => {
       if (err) {
-        console.error('Erro ao destruir sessão:', err);
+        console.error('[AUTH] Erro ao destruir sessão:', err);
       }
+      
+      // Limpar cookie de sessão
+      res.clearCookie('connect.sid');
       
       // Redirecionar para login
       res.redirect('/login');
     });
     
   } catch (error) {
-    console.error('Erro ao processar logout:', error);
+    console.error('[AUTH] Erro ao processar logout:', error);
     
     // Mesmo com erro, destruir a sessão local
     req.session.destroy(() => {
+      res.clearCookie('connect.sid');
       res.redirect('/login');
     });
   }
