@@ -205,7 +205,7 @@ function addUserToViews(req, res, next) {
     res.locals.userLevel = req.session.user.level || 1;
             res.locals.userXP = req.session.user.total_xp || 0;
     res.locals.userStreak = req.session.user.streak_days || 0;
-    res.locals.isAdmin = req.session.user.role === 'admin';
+    res.locals.isAdmin = req.session.user.isAdmin || req.session.user.is_admin;
   }
   
   next();
