@@ -182,6 +182,7 @@ async function showPackageLessons(req, res) {
 
     // Renderizar página de aulas do pacote
     res.render('pages/package-lessons', {
+      layout: 'main',
       title: `${progressStats.package.name} - Aulas`,
       additionalCSS: 'package-lessons',
       additionalJS: 'package-lessons',
