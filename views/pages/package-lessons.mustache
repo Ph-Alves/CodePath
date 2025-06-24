@@ -81,6 +81,21 @@
             {{#isCompleted}}Revisar Aula{{/isCompleted}}
             {{^isCompleted}}Assistir Aula{{/isCompleted}}
           </a>
+          
+          {{#isAdmin}}
+          <button class="btn btn-sm btn-warning edit-lesson-btn" 
+                  data-lesson-id="{{id}}" 
+                  data-lesson-name="{{name}}"
+                  title="Editar Nome da Aula">
+            <i class="fas fa-edit"></i> Editar
+          </button>
+          <button class="btn btn-sm btn-danger delete-lesson-btn" 
+                  data-lesson-id="{{id}}"
+                  data-lesson-name="{{name}}" 
+                  title="Excluir Aula">
+            <i class="fas fa-trash"></i> Excluir
+          </button>
+          {{/isAdmin}}
         </div>
         
         <!-- Status da Aula -->
