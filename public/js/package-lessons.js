@@ -1,5 +1,6 @@
 // JavaScript específico para página de aulas do pacote
 console.log('[PACKAGE-LESSONS] Script carregado');
+alert('JavaScript package-lessons.js CARREGADO! Se você vê este alerta, o JS está funcionando.');
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log('[PACKAGE-LESSONS] DOM carregado, inicializando event listeners');
@@ -141,6 +142,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (editButtons.length === 0 && deleteButtons.length === 0) {
         console.log('[PACKAGE-LESSONS] Nenhum botão de admin encontrado - usuário não é admin ou botões não foram renderizados');
+        alert('NENHUM BOTÃO DE ADMIN ENCONTRADO! Verifique se você está logado como admin.');
+    } else {
+        alert(`BOTÕES ENCONTRADOS! Edit: ${editButtons.length}, Delete: ${deleteButtons.length}`);
     }
 });
 
