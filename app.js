@@ -51,6 +51,7 @@ const achievementRoutes = require('./routes/achievementRoutes');
 const securityRoutes = require('./routes/securityRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const userRoutes = require('./routes/userRoutes');
+const settingsRoutes = require('./routes/settingsRoutes');
 
 // Inicialização da aplicação Express
 const app = express();
@@ -271,6 +272,9 @@ app.use('/chat', chatRoutes);
 
 // Usar as rotas do usuário (Minha Área)
 app.use('/', userRoutes);
+
+// Usar as rotas de configurações
+app.use('/settings', settingsRoutes);
 
 // Usar as rotas de analytics com cache
 const analyticsRoutes = require('./routes/analyticsRoutes');

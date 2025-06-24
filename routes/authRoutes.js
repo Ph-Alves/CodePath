@@ -153,34 +153,6 @@ router.get('/login', (req, res) => {
 
 // Rota /my-area removida - agora está em userRoutes.js
 
-// Rota temporária para Configurações
-router.get('/settings', requireAuth, async (req, res) => {
-    try {
-        // Buscar dados do usuário para a página
-        const user = req.session.user;
-        const userData = await userModel.getUserById(user.id);
-        
-        // Calcular progresso XP para próximo nível
-        const xpForNextLevel = userData.level * 1000;
-        const xpProgress = Math.round((userData.total_xp / xpForNextLevel) * 100);
-        
-        res.render('pages/settings', {
-            title: 'Configurações - CodePath',
-            user: {
-                ...userData,
-                xpProgress: xpProgress
-            },
-            isSettings: true,
-            comingSoon: true
-        });
-    } catch (error) {
-        console.error('Erro ao carregar Configurações:', error);
-        res.status(500).render('pages/error', {
-            title: 'Erro - CodePath',
-            error: 'Erro interno do servidor',
-            user: req.session.user
-        });
-    }
-});
+
 
 module.exports = router; 

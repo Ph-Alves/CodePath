@@ -916,4 +916,452 @@ window.CodePathApp = app;
 // Utilitários globais
 window.showToast = (message, type, duration) => app.showToast(message, type, duration);
 window.showLoading = (element) => app.showLoading(element);
-window.hideLoading = (element) => app.hideLoading(element); 
+window.hideLoading = (element) => app.hideLoading(element);
+
+/**
+ * FASE 30: COMPONENTES MODERNOS - FUNCIONALIDADES JAVASCRIPT
+ * Funcionalidades para cards, badges, botões e componentes modernos
+ */
+
+// Sistema de Ripple Effect para Botões Modernos
+function createRippleEffect(button, event) {
+    const ripple = document.createElement('span');
+    const rect = button.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    const x = event.clientX - rect.left - size / 2;
+    const y = event.clientY - rect.top - size / 2;
+    
+    ripple.style.width = ripple.style.height = size + 'px';
+    ripple.style.left = x + 'px';
+    ripple.style.top = y + 'px';
+    ripple.classList.add('ripple-effect');
+    
+    button.appendChild(ripple);
+    
+    setTimeout(() => {
+        ripple.remove();
+    }, 600);
+}
+
+// Aplicar ripple effect a todos os botões modernos
+document.addEventListener('DOMContentLoaded', function() {
+    const modernButtons = document.querySelectorAll('.btn-modern, .btn-primary, .btn-secondary');
+    
+    modernButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            createRippleEffect(this, e);
+        });
+    });
+});
+
+// Sistema de Toast Moderno
+class ModernToast {
+    constructor() {
+        this.container = this.createContainer();
+        document.body.appendChild(this.container);
+    }
+    
+    createContainer() {
+        const container = document.createElement('div');
+        container.className = 'toast-container-modern';
+        container.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            pointer-events: none;
+        `;
+        return container;
+    }
+    
+    show(message, type = 'info', duration = 4000) {
+        const toast = document.createElement('div');
+        toast.className = `toast-modern toast-${type}`;
+        toast.style.pointerEvents = 'auto';
+        
+        const icon = this.getIcon(type);
+        toast.innerHTML = `
+            <div class="toast-content">
+                <i class="${icon}"></i>
+                <span>${message}</span>
+                <button class="toast-close" onclick="this.parentElement.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+        
+        this.container.appendChild(toast);
+        
+        // Animação de entrada
+        setTimeout(() => toast.classList.add('toast-show'), 100);
+        
+        // Auto remove
+        setTimeout(() => {
+            toast.classList.remove('toast-show');
+            setTimeout(() => toast.remove(), 300);
+        }, duration);
+        
+        return toast;
+    }
+    
+    getIcon(type) {
+        const icons = {
+            success: 'fas fa-check-circle',
+            error: 'fas fa-exclamation-circle',
+            warning: 'fas fa-exclamation-triangle',
+            info: 'fas fa-info-circle'
+        };
+        return icons[type] || icons.info;
+    }
+}
+
+// Instância global do toast
+window.modernToast = new ModernToast();
+
+// Sistema de Modal Moderno
+class ModernModal {
+    constructor(modalId) {
+        this.modal = document.getElementById(modalId);
+        this.content = this.modal?.querySelector('.modal-content-modern');
+        this.init();
+    }
+    
+    init() {
+        if (!this.modal) return;
+        
+        // Fechar ao clicar no overlay
+        this.modal.addEventListener('click', (e) => {
+            if (e.target === this.modal) {
+                this.close();
+            }
+        });
+        
+        // Fechar com ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && this.isOpen()) {
+                this.close();
+            }
+        });
+        
+        // Botão de fechar
+        const closeBtn = this.modal.querySelector('.modal-close');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => this.close());
+        }
+    }
+    
+    open() {
+        this.modal.classList.add('modal-show');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    close() {
+        this.modal.classList.remove('modal-show');
+        document.body.style.overflow = '';
+    }
+    
+    isOpen() {
+        return this.modal.classList.contains('modal-show');
+    }
+}
+
+// Sistema de Cards Interativos
+class ModernCardSystem {
+    constructor() {
+        this.init();
+    }
+    
+    init() {
+        this.setupCardAnimations();
+        this.setupProgressAnimations();
+        this.setupBadgeAnimations();
+    }
+    
+    setupCardAnimations() {
+        const cards = document.querySelectorAll('.card-modern, .metric-card, .package-card, .action-card');
+        
+        cards.forEach(card => {
+            // Animação de entrada com Intersection Observer
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.animation = 'fadeInUp 0.6s ease-out';
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            observer.observe(card);
+            
+            // Efeito de tilt sutil no hover
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = (y - centerY) / 10;
+                const rotateY = (centerX - x) / 10;
+                
+                card.style.transform = `translateY(-6px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = '';
+            });
+        });
+    }
+    
+    setupProgressAnimations() {
+        const progressBars = document.querySelectorAll('.progress-bar-modern, .progress-fill');
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const bar = entry.target;
+                    const width = bar.dataset.width || bar.style.width;
+                    bar.style.width = '0%';
+                    setTimeout(() => {
+                        bar.style.width = width;
+                    }, 200);
+                    observer.unobserve(bar);
+                }
+            });
+        }, { threshold: 0.5 });
+        
+        progressBars.forEach(bar => observer.observe(bar));
+    }
+    
+    setupBadgeAnimations() {
+        const badges = document.querySelectorAll('.badge-modern, .difficulty-badge');
+        
+        badges.forEach(badge => {
+            badge.addEventListener('mouseenter', () => {
+                badge.style.transform = 'scale(1.05) translateY(-2px)';
+            });
+            
+            badge.addEventListener('mouseleave', () => {
+                badge.style.transform = '';
+            });
+        });
+    }
+}
+
+// Sistema de Loading States
+class ModernLoadingSystem {
+    static showLoading(element, text = 'Carregando...') {
+        const loading = document.createElement('div');
+        loading.className = 'loading-modern';
+        loading.innerHTML = `
+            <div class="spinner-modern"></div>
+            <span>${text}</span>
+        `;
+        
+        element.style.position = 'relative';
+        element.appendChild(loading);
+        element.classList.add('loading-state');
+        
+        return loading;
+    }
+    
+    static hideLoading(element) {
+        const loading = element.querySelector('.loading-modern');
+        if (loading) {
+            loading.remove();
+        }
+        element.classList.remove('loading-state');
+    }
+}
+
+// Utilitários para Componentes Modernos
+const ModernComponents = {
+    // Criar badge dinâmico
+    createBadge(text, type = 'primary', size = '') {
+        const badge = document.createElement('span');
+        badge.className = `badge-modern badge-${type} ${size ? `badge-${size}` : ''}`;
+        badge.textContent = text;
+        return badge;
+    },
+    
+    // Criar botão moderno
+    createButton(text, type = 'primary', size = '', onclick = null) {
+        const button = document.createElement('button');
+        button.className = `btn-modern btn-${type} ${size ? `btn-${size}` : ''}`;
+        button.innerHTML = `<span>${text}</span>`;
+        
+        if (onclick) {
+            button.addEventListener('click', onclick);
+        }
+        
+        return button;
+    },
+    
+    // Criar card moderno
+    createCard(content, variant = '', interactive = false) {
+        const card = document.createElement('div');
+        card.className = `card-modern ${variant} ${interactive ? 'card-interactive' : ''}`;
+        
+        if (typeof content === 'string') {
+            card.innerHTML = content;
+        } else {
+            card.appendChild(content);
+        }
+        
+        return card;
+    },
+    
+    // Criar progresso moderno
+    createProgress(percentage, type = '', size = '') {
+        const container = document.createElement('div');
+        container.className = `progress-modern ${type ? `progress-${type}` : ''} ${size ? `progress-${size}` : ''}`;
+        
+        const bar = document.createElement('div');
+        bar.className = 'progress-bar-modern';
+        bar.style.width = `${percentage}%`;
+        bar.dataset.width = `${percentage}%`;
+        
+        container.appendChild(bar);
+        return container;
+    }
+};
+
+// Inicializar sistemas quando o DOM estiver pronto
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar sistema de cards
+    new ModernCardSystem();
+    
+    // Configurar tooltips modernos
+    const elementsWithTooltips = document.querySelectorAll('[data-tooltip]');
+    elementsWithTooltips.forEach(element => {
+        element.addEventListener('mouseenter', function() {
+            const tooltip = document.createElement('div');
+            tooltip.className = 'tooltip-modern';
+            tooltip.textContent = this.dataset.tooltip;
+            tooltip.style.cssText = `
+                position: absolute;
+                background: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 8px 12px;
+                border-radius: 6px;
+                font-size: 12px;
+                white-space: nowrap;
+                z-index: 1000;
+                pointer-events: none;
+                opacity: 0;
+                transition: opacity 0.2s ease;
+            `;
+            
+            document.body.appendChild(tooltip);
+            
+            const rect = this.getBoundingClientRect();
+            tooltip.style.left = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2) + 'px';
+            tooltip.style.top = rect.top - tooltip.offsetHeight - 8 + 'px';
+            
+            setTimeout(() => tooltip.style.opacity = '1', 10);
+            
+            this.tooltipElement = tooltip;
+        });
+        
+        element.addEventListener('mouseleave', function() {
+            if (this.tooltipElement) {
+                this.tooltipElement.remove();
+                this.tooltipElement = null;
+            }
+        });
+    });
+    
+    // Adicionar estilos CSS dinâmicos
+    const style = document.createElement('style');
+    style.textContent = `
+        .ripple-effect {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        }
+        
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+        
+        .loading-state {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        
+        .loading-modern {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tooltip-modern {
+            animation: tooltipFadeIn 0.2s ease;
+        }
+        
+        @keyframes tooltipFadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    `;
+    document.head.appendChild(style);
+});
+
+// Exportar para uso global
+window.ModernComponents = ModernComponents;
+window.ModernLoadingSystem = ModernLoadingSystem;
+window.ModernModal = ModernModal;
+
+// Utilitário para fade in/out
+function fadeIn(element, duration = 600) {
+  element.classList.remove('fade-out');
+  element.classList.add('fade-in');
+  element.style.animationDuration = duration + 'ms';
+}
+function fadeOut(element, duration = 400) {
+  element.classList.remove('fade-in');
+  element.classList.add('fade-out');
+  element.style.animationDuration = duration + 'ms';
+}
+
+// Utilitário para slide up/down
+function slideUp(element, duration = 700) {
+  element.classList.remove('slide-down');
+  element.classList.add('slide-up');
+  element.style.animationDuration = duration + 'ms';
+}
+function slideDown(element, duration = 700) {
+  element.classList.remove('slide-up');
+  element.classList.add('slide-down');
+  element.style.animationDuration = duration + 'ms';
+}
+
+// Ripple effect em botões
+function addRippleEffect(button) {
+  button.classList.add('ripple');
+  button.addEventListener('click', function(e) {
+    const ripple = document.createElement('span');
+    ripple.className = 'ripple';
+    ripple.style.left = (e.clientX - button.getBoundingClientRect().left) + 'px';
+    ripple.style.top = (e.clientY - button.getBoundingClientRect().top) + 'px';
+    button.appendChild(ripple);
+    setTimeout(() => ripple.remove(), 600);
+  });
+}
+
+// Inicializar ripple em todos os botões .btn-primary e .btn-outline
+document.querySelectorAll('.btn-primary, .btn-outline').forEach(addRippleEffect); 

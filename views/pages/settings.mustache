@@ -1,6 +1,7 @@
 {{>partials/header}}
 
-<div class="coming-soon-container">
+<!-- Container Principal das Configurações -->
+<div class="settings-container">
     <!-- Header da Página -->
     <div class="page-header">
         <div class="page-header-content">
@@ -12,439 +13,326 @@
                 <p class="page-description">Personalize sua experiência de aprendizado</p>
             </div>
         </div>
-        <div class="coming-soon-badge">
-            <i class="fas fa-clock"></i>
-            <span>Em Breve</span>
-        </div>
     </div>
 
-    <!-- Conteúdo Principal -->
-    <div class="coming-soon-content">
-        <!-- Preview das Configurações -->
-        <div class="features-preview">
-            <h2 class="preview-title">Configurações que estarão disponíveis:</h2>
-            
-            <div class="settings-categories">
-                <!-- Perfil e Conta -->
-                <div class="settings-category">
-                    <div class="category-header">
-                        <div class="category-icon">
-                            <i class="fas fa-user-cog"></i>
+    <!-- Navegação das Configurações -->
+    <div class="settings-nav">
+        <button class="settings-tab active" data-tab="profile">
+            <i class="fas fa-user-cog"></i>
+            <span>Perfil</span>
+        </button>
+        <button class="settings-tab" data-tab="notifications">
+            <i class="fas fa-bell"></i>
+            <span>Notificações</span>
+        </button>
+        <button class="settings-tab" data-tab="privacy">
+            <i class="fas fa-shield-alt"></i>
+            <span>Privacidade</span>
+        </button>
+        <button class="settings-tab" data-tab="learning">
+            <i class="fas fa-graduation-cap"></i>
+            <span>Aprendizado</span>
+        </button>
+        <button class="settings-tab" data-tab="appearance">
+            <i class="fas fa-palette"></i>
+            <span>Aparência</span>
+        </button>
+    </div>
+
+    <!-- Conteúdo das Configurações -->
+    <div class="settings-content">
+        <!-- Aba: Perfil e Conta -->
+        <div class="settings-tab-content active" id="profile-tab">
+            <div class="settings-section">
+                <h2 class="section-title">Informações Pessoais</h2>
+                <form class="settings-form" id="profile-form">
+                    <div class="form-group form-row">
+                        <div class="form-group floating-label">
+                            <input type="text" id="name" name="name" class="form-control" 
+                                   value="{{user.name}}" placeholder=" " required>
+                            <label for="name" class="form-label">Nome Completo</label>
                         </div>
-                        <h3 class="category-title">Perfil e Conta</h3>
+                        <div class="form-group floating-label">
+                            <input type="email" id="email" name="email" class="form-control" 
+                                   value="{{user.email}}" placeholder=" " required>
+                            <label for="email" class="form-label">Email</label>
+                        </div>
                     </div>
-                    <div class="settings-items">
-                        <div class="setting-item">
-                            <i class="fas fa-edit"></i>
-                            <span>Editar informações pessoais</span>
+                    
+                    <div class="form-group form-row">
+                        <div class="form-group floating-label">
+                            <input type="date" id="birth_date" name="birth_date" class="form-control" 
+                                   value="{{user.birth_date}}" placeholder=" ">
+                            <label for="birth_date" class="form-label">Data de Nascimento</label>
                         </div>
-                        <div class="setting-item">
+                        <div class="form-group">
+                            <label for="education_level" class="form-label">Nível de Educação</label>
+                            <select id="education_level" name="education_level" class="form-control">
+                                <option value="">Selecione...</option>
+                                <option value="ensino_medio" {{#eq user.education_level "ensino_medio"}}selected{{/eq}}>Ensino Médio</option>
+                                <option value="tecnico" {{#eq user.education_level "tecnico"}}selected{{/eq}}>Técnico</option>
+                                <option value="superior_incompleto" {{#eq user.education_level "superior_incompleto"}}selected{{/eq}}>Superior Incompleto</option>
+                                <option value="superior_completo" {{#eq user.education_level "superior_completo"}}selected{{/eq}}>Superior Completo</option>
+                                <option value="pos_graduacao" {{#eq user.education_level "pos_graduacao"}}selected{{/eq}}>Pós-graduação</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="resetForm('profile-form')">
+                            <i class="fas fa-undo"></i>
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>
+                            Salvar Alterações
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="settings-section">
+                <h2 class="section-title">Alterar Senha</h2>
+                <form class="settings-form" id="password-form">
+                    <div class="form-group floating-label">
+                        <input type="password" id="current_password" name="current_password" class="form-control" placeholder=" " required>
+                        <label for="current_password" class="form-label">Senha Atual</label>
+                    </div>
+                    
+                    <div class="form-group form-row">
+                        <div class="form-group floating-label">
+                            <input type="password" id="new_password" name="new_password" class="form-control" placeholder=" " required>
+                            <label for="new_password" class="form-label">Nova Senha</label>
+                        </div>
+                        <div class="form-group floating-label">
+                            <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder=" " required>
+                            <label for="confirm_password" class="form-label">Confirmar Senha</label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="resetForm('password-form')">
+                            <i class="fas fa-undo"></i>
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary">
                             <i class="fas fa-key"></i>
-                            <span>Alterar senha</span>
-                        </div>
-                        <div class="setting-item">
-                            <i class="fas fa-image"></i>
-                            <span>Foto de perfil personalizada</span>
-                        </div>
-                        <div class="setting-item">
-                            <i class="fas fa-globe"></i>
-                            <span>Preferências de idioma</span>
-                        </div>
+                            Alterar Senha
+                        </button>
                     </div>
-                </div>
-
-                <!-- Notificações -->
-                <div class="settings-category">
-                    <div class="category-header">
-                        <div class="category-icon">
-                            <i class="fas fa-bell"></i>
-                        </div>
-                        <h3 class="category-title">Notificações</h3>
-                    </div>
-                    <div class="settings-items">
-                        <div class="setting-item">
-                            <i class="fas fa-envelope"></i>
-                            <span>Notificações por email</span>
-                        </div>
-                        <div class="setting-item">
-                            <i class="fas fa-mobile-alt"></i>
-                            <span>Notificações push</span>
-                        </div>
-                        <div class="setting-item">
-                            <i class="fas fa-trophy"></i>
-                            <span>Alertas de conquistas</span>
-                        </div>
-                        <div class="setting-item">
-                            <i class="fas fa-calendar-check"></i>
-                            <span>Lembretes de estudo</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Privacidade -->
-                <div class="settings-category">
-                    <div class="category-header">
-                        <div class="category-icon">
-                            <i class="fas fa-shield-alt"></i>
-                        </div>
-                        <h3 class="category-title">Privacidade e Segurança</h3>
-                    </div>
-                    <div class="settings-items">
-                        <div class="setting-item">
-                            <i class="fas fa-eye"></i>
-                            <span>Visibilidade do perfil</span>
-                        </div>
-                        <div class="setting-item">
-                            <i class="fas fa-lock"></i>
-                            <span>Autenticação de dois fatores</span>
-                        </div>
-                        <div class="setting-item">
-                            <i class="fas fa-history"></i>
-                            <span>Histórico de login</span>
-                        </div>
-                        <div class="setting-item">
-                            <i class="fas fa-download"></i>
-                            <span>Exportar dados pessoais</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Aprendizado -->
-                <div class="settings-category">
-                    <div class="category-header">
-                        <div class="category-icon">
-                            <i class="fas fa-graduation-cap"></i>
-                        </div>
-                        <h3 class="category-title">Preferências de Aprendizado</h3>
-                    </div>
-                    <div class="settings-items">
-                        <div class="setting-item">
-                            <i class="fas fa-clock"></i>
-                            <span>Horários de estudo preferidos</span>
-                        </div>
-                        <div class="setting-item">
-                            <i class="fas fa-target"></i>
-                            <span>Metas diárias personalizadas</span>
-                        </div>
-                        <div class="setting-item">
-                            <i class="fas fa-brain"></i>
-                            <span>Nível de dificuldade padrão</span>
-                        </div>
-                        <div class="setting-item">
-                            <i class="fas fa-volume-up"></i>
-                            <span>Preferências de áudio/vídeo</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Aparência -->
-                <div class="settings-category">
-                    <div class="category-header">
-                        <div class="category-icon">
-                            <i class="fas fa-palette"></i>
-                        </div>
-                        <h3 class="category-title">Aparência</h3>
-                    </div>
-                    <div class="settings-items">
-                        <div class="setting-item">
-                            <i class="fas fa-moon"></i>
-                            <span>Modo escuro/claro</span>
-                        </div>
-                        <div class="setting-item">
-                            <i class="fas fa-text-height"></i>
-                            <span>Tamanho da fonte</span>
-                        </div>
-                        <div class="setting-item">
-                            <i class="fas fa-paint-brush"></i>
-                            <span>Tema de cores personalizado</span>
-                        </div>
-                        <div class="setting-item">
-                            <i class="fas fa-desktop"></i>
-                            <span>Layout da interface</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Integrações -->
-                <div class="settings-category">
-                    <div class="category-header">
-                        <div class="category-icon">
-                            <i class="fas fa-plug"></i>
-                        </div>
-                        <h3 class="category-title">Integrações</h3>
-                    </div>
-                    <div class="settings-items">
-                        <div class="setting-item">
-                            <i class="fab fa-github"></i>
-                            <span>Conectar GitHub</span>
-                        </div>
-                        <div class="setting-item">
-                            <i class="fab fa-linkedin"></i>
-                            <span>Integração LinkedIn</span>
-                        </div>
-                        <div class="setting-item">
-                            <i class="fas fa-calendar"></i>
-                            <span>Sincronizar calendário</span>
-                        </div>
-                        <div class="setting-item">
-                            <i class="fas fa-share-alt"></i>
-                            <span>Compartilhamento social</span>
-                        </div>
-                    </div>
-                </div>
+                </form>
             </div>
         </div>
 
-        <!-- Call to Action -->
-        <div class="cta-section">
-            <div class="cta-content">
-                <h3 class="cta-title">Continue explorando o CodePath!</h3>
-                <p class="cta-description">
-                    Enquanto trabalhamos nas configurações, aproveite para avançar em seus estudos.
-                </p>
-                <div class="cta-buttons">
-                    <a href="/dashboard" class="btn btn-primary">
-                        <i class="fas fa-home"></i>
-                        Voltar ao Dashboard
-                    </a>
-                    <a href="/careers" class="btn btn-secondary">
-                        <i class="fas fa-road"></i>
-                        Explorar Carreiras
-                    </a>
-                </div>
+        <!-- Aba: Notificações -->
+        <div class="settings-tab-content" id="notifications-tab">
+            <div class="settings-section">
+                <h2 class="section-title">Preferências de Notificação</h2>
+                <form class="settings-form" id="notifications-form">
+                    <div class="form-group">
+                        <div class="toggle-group">
+                            <label class="toggle-label">
+                                <input type="checkbox" name="email_notifications" {{#settings.email_notifications}}checked{{/settings.email_notifications}}>
+                                <span class="toggle-slider"></span>
+                                <div class="toggle-content">
+                                    <strong>Notificações por Email</strong>
+                                    <p>Receba atualizações sobre seu progresso e novos conteúdos</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="toggle-group">
+                            <label class="toggle-label">
+                                <input type="checkbox" name="achievement_alerts" {{#settings.achievement_alerts}}checked{{/settings.achievement_alerts}}>
+                                <span class="toggle-slider"></span>
+                                <div class="toggle-content">
+                                    <strong>Alertas de Conquistas</strong>
+                                    <p>Seja notificado quando conquistar badges e marcos importantes</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="toggle-group">
+                            <label class="toggle-label">
+                                <input type="checkbox" name="study_reminders" {{#settings.study_reminders}}checked{{/settings.study_reminders}}>
+                                <span class="toggle-slider"></span>
+                                <div class="toggle-content">
+                                    <strong>Lembretes de Estudo</strong>
+                                    <p>Receba lembretes para manter sua sequência de estudos</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="toggle-group">
+                            <label class="toggle-label">
+                                <input type="checkbox" name="progress_updates" {{#settings.progress_updates}}checked{{/settings.progress_updates}}>
+                                <span class="toggle-slider"></span>
+                                <div class="toggle-content">
+                                    <strong>Atualizações de Progresso</strong>
+                                    <p>Relatórios semanais sobre seu desempenho e evolução</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>
+                            Salvar Preferências
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Aba: Privacidade -->
+        <div class="settings-tab-content" id="privacy-tab">
+            <div class="settings-section">
+                <h2 class="section-title">Configurações de Privacidade</h2>
+                <form class="settings-form" id="privacy-form">
+                    <div class="form-group">
+                        <div class="toggle-group">
+                            <label class="toggle-label">
+                                <input type="checkbox" name="profile_visibility" {{#settings.profile_visibility}}checked{{/settings.profile_visibility}}>
+                                <span class="toggle-slider"></span>
+                                <div class="toggle-content">
+                                    <strong>Perfil Público</strong>
+                                    <p>Permitir que outros usuários vejam seu perfil e progresso</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="toggle-group">
+                            <label class="toggle-label">
+                                <input type="checkbox" name="activity_sharing" {{#settings.activity_sharing}}checked{{/settings.activity_sharing}}>
+                                <span class="toggle-slider"></span>
+                                <div class="toggle-content">
+                                    <strong>Compartilhar Atividade</strong>
+                                    <p>Mostrar suas conquistas e atividades na comunidade</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="exportUserData()">
+                            <i class="fas fa-download"></i>
+                            Exportar Dados
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>
+                            Salvar Configurações
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Aba: Aprendizado -->
+        <div class="settings-tab-content" id="learning-tab">
+            <div class="settings-section">
+                <h2 class="section-title">Preferências de Aprendizado</h2>
+                <form class="settings-form" id="learning-form">
+                    <div class="form-group form-row">
+                        <div class="form-group">
+                            <label for="study_goal" class="form-label">Meta Diária (minutos)</label>
+                            <input type="range" id="study_goal" name="study_goal" class="form-range" 
+                                   min="15" max="240" step="15" value="{{settings.study_goal}}">
+                            <div class="range-value">
+                                <span id="study-goal-value">{{settings.study_goal}}</span> minutos
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="difficulty_level" class="form-label">Nível de Dificuldade Padrão</label>
+                            <select id="difficulty_level" name="difficulty_level" class="form-control">
+                                <option value="beginner" {{#eq settings.difficulty_level "beginner"}}selected{{/eq}}>Iniciante</option>
+                                <option value="intermediate" {{#eq settings.difficulty_level "intermediate"}}selected{{/eq}}>Intermediário</option>
+                                <option value="advanced" {{#eq settings.difficulty_level "advanced"}}selected{{/eq}}>Avançado</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="toggle-group">
+                            <label class="toggle-label">
+                                <input type="checkbox" name="auto_advance" {{#settings.auto_advance}}checked{{/settings.auto_advance}}>
+                                <span class="toggle-slider"></span>
+                                <div class="toggle-content">
+                                    <strong>Avanço Automático</strong>
+                                    <p>Passar automaticamente para a próxima aula após conclusão</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>
+                            Salvar Preferências
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Aba: Aparência -->
+        <div class="settings-tab-content" id="appearance-tab">
+            <div class="settings-section">
+                <h2 class="section-title">Personalização da Interface</h2>
+                <form class="settings-form" id="appearance-form">
+                    <div class="form-group form-row">
+                        <div class="form-group">
+                            <label for="theme_mode" class="form-label">Modo de Tema</label>
+                            <select id="theme_mode" name="theme_mode" class="form-control">
+                                <option value="light" {{#eq settings.theme_mode "light"}}selected{{/eq}}>Claro</option>
+                                <option value="dark" {{#eq settings.theme_mode "dark"}}selected{{/eq}}>Escuro</option>
+                                <option value="auto" {{#eq settings.theme_mode "auto"}}selected{{/eq}}>Automático</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="font_size" class="form-label">Tamanho da Fonte</label>
+                            <select id="font_size" name="font_size" class="form-control">
+                                <option value="small" {{#eq settings.font_size "small"}}selected{{/eq}}>Pequena</option>
+                                <option value="medium" {{#eq settings.font_size "medium"}}selected{{/eq}}>Média</option>
+                                <option value="large" {{#eq settings.font_size "large"}}selected{{/eq}}>Grande</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="toggle-group">
+                            <label class="toggle-label">
+                                <input type="checkbox" name="animations" {{#settings.animations}}checked{{/settings.animations}}>
+                                <span class="toggle-slider"></span>
+                                <div class="toggle-content">
+                                    <strong>Animações</strong>
+                                    <p>Habilitar animações e transições suaves na interface</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>
+                            Aplicar Tema
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
 
-<style>
-/* Estilos para página de Configurações "Em Breve" */
-.coming-soon-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem;
-}
-
-.page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 3rem;
-    padding-bottom: 2rem;
-    border-bottom: 2px solid var(--gray-200);
-}
-
-.page-header-content {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-}
-
-.page-icon {
-    width: 60px;
-    height: 60px;
-    background: var(--gradient-primary);
-    border-radius: var(--border-radius-xl);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 1.5rem;
-}
-
-.page-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--gray-900);
-    margin: 0;
-}
-
-.page-description {
-    color: var(--gray-600);
-    font-size: 1.1rem;
-    margin: 0.5rem 0 0 0;
-}
-
-.coming-soon-badge {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: var(--gradient-accent);
-    color: white;
-    padding: 0.75rem 1.5rem;
-    border-radius: var(--border-radius-xl);
-    font-weight: 600;
-    font-size: 0.9rem;
-    box-shadow: var(--shadow-md);
-}
-
-.preview-title {
-    font-size: 1.8rem;
-    font-weight: 600;
-    color: var(--gray-900);
-    margin-bottom: 2rem;
-    text-align: center;
-}
-
-.settings-categories {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 2rem;
-    margin-bottom: 4rem;
-}
-
-.settings-category {
-    background: white;
-    border-radius: var(--border-radius-xl);
-    box-shadow: var(--shadow-md);
-    border: 1px solid var(--gray-200);
-    overflow: hidden;
-    transition: all var(--transition-normal);
-}
-
-.settings-category:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-xl);
-    border-color: var(--primary-purple-light);
-}
-
-.category-header {
-    background: var(--gradient-secondary);
-    color: white;
-    padding: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.category-icon {
-    width: 40px;
-    height: 40px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: var(--border-radius-lg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.1rem;
-}
-
-.category-title {
-    font-size: 1.2rem;
-    font-weight: 600;
-    margin: 0;
-}
-
-.settings-items {
-    padding: 1.5rem;
-}
-
-.setting-item {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.75rem 0;
-    color: var(--gray-700);
-    border-bottom: 1px solid var(--gray-100);
-    transition: color var(--transition-fast);
-}
-
-.setting-item:last-child {
-    border-bottom: none;
-}
-
-.setting-item:hover {
-    color: var(--primary-purple);
-}
-
-.setting-item i {
-    width: 20px;
-    color: var(--primary-purple-light);
-    font-size: 0.9rem;
-}
-
-.cta-section {
-    background: var(--gradient-primary);
-    border-radius: var(--border-radius-2xl);
-    padding: 3rem;
-    text-align: center;
-    color: white;
-}
-
-.cta-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
-}
-
-.cta-description {
-    font-size: 1.1rem;
-    opacity: 0.9;
-    margin-bottom: 2rem;
-}
-
-.cta-buttons {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    flex-wrap: wrap;
-}
-
-.btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    border-radius: var(--border-radius-lg);
-    text-decoration: none;
-    font-weight: 600;
-    transition: all var(--transition-normal);
-    border: 2px solid transparent;
-}
-
-.btn-primary {
-    background: white;
-    color: var(--primary-purple);
-}
-
-.btn-primary:hover {
-    background: var(--gray-100);
-    transform: translateY(-2px);
-}
-
-.btn-secondary {
-    background: transparent;
-    color: white;
-    border-color: white;
-}
-
-.btn-secondary:hover {
-    background: white;
-    color: var(--primary-purple);
-}
-
-/* Responsividade */
-@media (max-width: 768px) {
-    .page-header {
-        flex-direction: column;
-        gap: 1.5rem;
-        text-align: center;
-    }
-    
-    .settings-categories {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-    }
-    
-    .cta-buttons {
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    .btn {
-        width: 100%;
-        max-width: 250px;
-    }
-}
-</style>
+<!-- Scripts específicos da página -->
+<script src="/js/settings.js"></script>
 
 {{>partials/footer}} 
