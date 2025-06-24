@@ -1,0 +1,342 @@
+<div class="admin-container">
+    <!-- Cabeçalho da página -->
+    <div class="admin-header">
+        <div class="admin-header-content">
+            <div class="admin-title-section">
+                <h1 class="admin-title">
+                    <i class="fas fa-box"></i>
+                    Administração de Pacotes
+                </h1>
+                <p class="admin-subtitle">Gerencie os pacotes de tecnologia da plataforma</p>
+            </div>
+            <div class="admin-actions">
+                <button class="btn btn-primary" id="addPackageBtn">
+                    <i class="fas fa-plus"></i>
+                    Novo Pacote
+                </button>
+                <button class="btn btn-secondary" id="refreshBtn">
+                    <i class="fas fa-sync-alt"></i>
+                    Atualizar
+                </button>
+                <a href="/dashboard" class="btn btn-outline">
+                    <i class="fas fa-arrow-left"></i>
+                    Voltar ao Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estatísticas -->
+    <div class="admin-stats">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-box"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number">{{stats.total_packages}}</div>
+                <div class="stat-label">Total de Pacotes</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon active">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number">{{stats.active_packages}}</div>
+                <div class="stat-label">Pacotes Ativos</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon inactive">
+                <i class="fas fa-pause-circle"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number">{{stats.inactive_packages}}</div>
+                <div class="stat-label">Pacotes Inativos</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number">{{stats.avg_duration}}h</div>
+                <div class="stat-label">Duração Média</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-star"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number">4.7⭐</div>
+                <div class="stat-label">Rating Médio</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="admin-filters">
+        <div class="filter-group">
+            <label for="statusFilter">Status:</label>
+            <select id="statusFilter" class="form-control">
+                <option value="">Todos</option>
+                <option value="1">Ativos</option>
+                <option value="0">Inativos</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="difficultyFilter">Dificuldade:</label>
+            <select id="difficultyFilter" class="form-control">
+                <option value="">Todas</option>
+                <option value="Iniciante">Iniciante</option>
+                <option value="Intermediário">Intermediário</option>
+                <option value="Avançado">Avançado</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="searchFilter">Buscar:</label>
+            <input type="text" id="searchFilter" class="form-control" placeholder="Nome do pacote...">
+        </div>
+        <div class="filter-actions">
+            <button class="btn btn-sm btn-outline" id="clearFiltersBtn">
+                <i class="fas fa-times"></i>
+                Limpar Filtros
+            </button>
+        </div>
+    </div>
+
+    <!-- Lista de pacotes em formato de cards -->
+    <div class="packages-grid-container">
+        <div class="table-loading" id="tableLoading" style="display: none;">
+            <div class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Carregando pacotes...</p>
+            </div>
+        </div>
+        <div class="packages-grid" id="packagesGrid">
+            {{#packages}}
+            <div class="package-card {{#is_active}}active{{/is_active}}{{^is_active}}inactive{{/is_active}}" data-package-id="{{id}}">
+                <div class="package-card-header">
+                    <div class="package-icon">
+                        <i class="{{icon}}"></i>
+                    </div>
+                    <div class="package-status-badge">
+                        {{#is_active}}
+                        <span class="status-badge status-active">
+                            <i class="fas fa-check-circle"></i>
+                            Ativo
+                        </span>
+                        {{/is_active}}
+                        {{^is_active}}
+                        <span class="status-badge status-inactive">
+                            <i class="fas fa-pause-circle"></i>
+                            Inativo
+                        </span>
+                        {{/is_active}}
+                    </div>
+                </div>
+                <div class="package-card-content">
+                    <h3 class="package-name">{{name}}</h3>
+                    <p class="package-description">{{description}}</p>
+                    <div class="package-metadata">
+                        <div class="metadata-item">
+                            <span class="difficulty-badge difficulty-{{difficulty}}">{{difficulty}}</span>
+                        </div>
+                        <div class="metadata-item">
+                            <i class="fas fa-clock"></i>
+                            <span>{{duration_hours}}h</span>
+                        </div>
+                        <div class="metadata-item">
+                            <i class="fas fa-book"></i>
+                            <span>{{lesson_count}} aulas</span>
+                        </div>
+                        <div class="metadata-item">
+                            <i class="fas fa-star"></i>
+                            <span>{{rating}}</span>
+                        </div>
+                    </div>
+                    {{#tags}}
+                    <div class="package-tags">
+                        <span class="tag">{{.}}</span>
+                    </div>
+                    {{/tags}}
+                </div>
+                <div class="package-card-actions">
+                    <button class="btn-action btn-edit" data-id="{{id}}" title="Editar Pacote">
+                        <i class="fas fa-edit"></i>
+                        Editar
+                    </button>
+                    {{#is_active}}
+                    <button class="btn-action btn-delete" data-id="{{id}}" title="Desativar Pacote">
+                        <i class="fas fa-pause"></i>
+                        Desativar
+                    </button>
+                    {{/is_active}}
+                    {{^is_active}}
+                    <button class="btn-action btn-reactivate" data-id="{{id}}" title="Reativar Pacote">
+                        <i class="fas fa-play"></i>
+                        Reativar
+                    </button>
+                    {{/is_active}}
+                    <button class="btn-action btn-view" data-id="{{id}}" title="Ver Detalhes">
+                        <i class="fas fa-eye"></i>
+                        Detalhes
+                    </button>
+                </div>
+            </div>
+            {{/packages}}
+        </div>
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <div class="empty-state-content">
+                <i class="fas fa-box-open"></i>
+                <h3>Nenhum pacote encontrado</h3>
+                <p>Não há pacotes correspondentes aos filtros aplicados.</p>
+                <button class="btn btn-primary" id="addFirstPackageBtn">
+                    <i class="fas fa-plus"></i>
+                    Criar Primeiro Pacote
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para adicionar/editar pacote -->
+<div class="modal" id="packageModal">
+    <div class="modal-content modal-large">
+        <div class="modal-header">
+            <h2 id="modalTitle">Novo Pacote</h2>
+            <button class="modal-close" id="closeModal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form id="packageForm" class="modal-body">
+            <div class="form-section">
+                <h4><i class="fas fa-info-circle"></i> Informações Básicas</h4>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="packageName">Nome do Pacote *</label>
+                        <input type="text" id="packageName" name="name" class="form-control" required>
+                        <small class="form-help">Nome que aparecerá para os usuários</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="packageDifficulty">Dificuldade *</label>
+                        <select id="packageDifficulty" name="difficulty" class="form-control" required>
+                            <option value="">Selecione...</option>
+                            <option value="Iniciante">Iniciante</option>
+                            <option value="Intermediário">Intermediário</option>
+                            <option value="Avançado">Avançado</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="packageDescription">Descrição *</label>
+                    <textarea id="packageDescription" name="description" class="form-control" rows="3" required></textarea>
+                    <small class="form-help">Descrição detalhada do conteúdo do pacote</small>
+                </div>
+            </div>
+            <div class="form-section">
+                <h4><i class="fas fa-chart-line"></i> Métricas e Avaliação</h4>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="packageDuration">Duração (horas) *</label>
+                        <input type="number" id="packageDuration" name="duration_hours" class="form-control" min="1" max="1000" required>
+                        <small class="form-help">Duração estimada para completar o pacote</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="packageRating">Rating</label>
+                        <input type="number" id="packageRating" name="rating" class="form-control" min="0" max="5" step="0.1">
+                        <small class="form-help">Avaliação média (0 a 5 estrelas)</small>
+                    </div>
+                </div>
+            </div>
+            <div class="form-section">
+                <h4><i class="fas fa-tags"></i> Organização</h4>
+                <div class="form-group">
+                    <label for="packageTags">Tags</label>
+                    <input type="text" id="packageTags" name="tags" class="form-control" placeholder="Ex: javascript,web,frontend">
+                    <small class="form-help">Tags separadas por vírgula para facilitar a busca</small>
+                </div>
+                <div class="form-group">
+                    <label for="packagePrerequisites">Pré-requisitos</label>
+                    <textarea id="packagePrerequisites" name="prerequisites" class="form-control" rows="2"></textarea>
+                    <small class="form-help">Conhecimentos necessários antes de iniciar este pacote</small>
+                </div>
+                <div class="form-group">
+                    <label for="packageIcon">Ícone</label>
+                    <select id="packageIcon" name="icon" class="form-control">
+                        <option value="fas fa-code">Código (padrão)</option>
+                        <option value="fab fa-html5">HTML5</option>
+                        <option value="fab fa-css3-alt">CSS3</option>
+                        <option value="fab fa-js-square">JavaScript</option>
+                        <option value="fab fa-python">Python</option>
+                        <option value="fab fa-java">Java</option>
+                        <option value="fab fa-react">React</option>
+                        <option value="fab fa-node-js">Node.js</option>
+                        <option value="fas fa-database">Banco de Dados</option>
+                        <option value="fas fa-mobile-alt">Mobile</option>
+                        <option value="fas fa-server">Backend</option>
+                        <option value="fas fa-palette">Design</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-section">
+                <h4><i class="fas fa-cogs"></i> Configurações</h4>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="packageActive" name="is_active" checked>
+                        <span class="checkmark"></span>
+                        Pacote Ativo
+                    </label>
+                    <small class="form-help">Pacotes inativos não aparecem para os usuários</small>
+                </div>
+            </div>
+        </form>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="cancelBtn">
+                <i class="fas fa-times"></i>
+                Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary" id="saveBtn" form="packageForm">
+                <i class="fas fa-save"></i>
+                Salvar Pacote
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmação -->
+<div class="modal" id="confirmModal">
+    <div class="modal-content modal-small">
+        <div class="modal-header">
+            <h3 id="confirmTitle">Confirmar Ação</h3>
+        </div>
+        <div class="modal-body">
+            <div class="confirm-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <p id="confirmMessage">Tem certeza que deseja realizar esta ação?</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="confirmCancel">
+                <i class="fas fa-times"></i>
+                Cancelar
+            </button>
+            <button type="button" class="btn btn-danger" id="confirmAction">
+                <i class="fas fa-check"></i>
+                Confirmar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast para notificações -->
+<div class="toast" id="toast">
+    <div class="toast-content">
+        <i class="toast-icon"></i>
+        <span class="toast-message"></span>
+    </div>
+    <button class="toast-close" onclick="this.parentElement.classList.remove('show')">
+        <i class="fas fa-times"></i>
+    </button>
+</div> 

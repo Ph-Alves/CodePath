@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.css" rel="stylesheet">
+    <link href="/css/global.min.css" rel="stylesheet">
+    <link href="/css/admin.css" rel="stylesheet">
+    <link href="/css/animations.css" rel="stylesheet">
+    <style>
+        .question-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            cursor: move;
+        }
+        
+        .question-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-color: #6f42c1;
+        }
+        
+        .question-header {
+            padding: 1rem;
+            border-bottom: 1px solid #e9ecef;
+            background: #f8f9fa;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .question-content {
+            padding: 1rem;
+        }
+        
+        .question-actions {
+            padding: 0.75rem 1rem;
+            border-top: 1px solid #e9ecef;
+            background: #f8f9fa;
+            border-radius: 0 0 8px 8px;
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        .drag-handle {
+            cursor: grab;
+            color: #6c757d;
+        }
+        
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+        
+        .question-title {
+            margin: 0;
+            color: #343a40;
+            font-size: 1rem;
+        }
+        
+        .code-snippet {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+        
+        .question-options, .question-explanation {
+            margin-top: 0.5rem;
+        }
+        
+        .option-item {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .option-item.correct {
+            background: #d4edda;
+            border-color: #c3e6cb;
+        }
+        
+        .sortable-ghost {
+            opacity: 0.5;
+        }
+        
+        .sortable-chosen {
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+<body>
+    {{> header}}
+
+    <div class="container-fluid">
+        <div class="row">
+            {{> sidebar}}
+            
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+                <!-- Cabeçalho da Página -->
+                <div class="admin-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="admin-title">
+                                <i class="fas fa-list-ul me-2"></i>
+                                Questões: {{quiz.title}}
+                            </h1>
+                            <p class="admin-subtitle">Gerencie as questões do questionário</p>
+                            <div class="mt-2">
+                                <span class="badge bg-info">{{quiz.lesson_name}}</span>
+                                {{#quiz.difficulty_level}}
+                                <span class="badge {{#if (eq quiz.difficulty_level 'Fácil')}}bg-success{{/if}}{{#if (eq quiz.difficulty_level 'Médio')}}bg-warning{{/if}}{{#if (eq quiz.difficulty_level 'Difícil')}}bg-danger{{/if}}">
+                                    {{quiz.difficulty_level}}
+                                </span>
+                                {{/quiz.difficulty_level}}
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-secondary" onclick="window.history.back()">
+                                <i class="fas fa-arrow-left me-2"></i>Voltar
+                            </button>
+                            <button class="btn btn-primary btn-lg" id="addQuestionBtn">
+                                <i class="fas fa-plus me-2"></i>Nova Questão
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estatísticas -->
+                <div class="row mb-4">
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="stats-card">
+                            <div class="stats-icon bg-primary">
+                                <i class="fas fa-list-ul"></i>
+                            </div>
+                            <div class="stats-content">
+                                <h3 class="stats-number">{{stats.total_questions}}</h3>
+                                <p class="stats-label">Total de Questões</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="stats-card">
+                            <div class="stats-icon bg-success">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stats-content">
+                                <h3 class="stats-number">{{stats.multiple_choice_count}}</h3>
+                                <p class="stats-label">Múltipla Escolha</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="stats-card">
+                            <div class="stats-icon bg-info">
+                                <i class="fas fa-code"></i>
+                            </div>
+                            <div class="stats-content">
+                                <h3 class="stats-number">{{stats.code_count}}</h3>
+                                <p class="stats-label">Questões de Código</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="stats-card">
+                            <div class="stats-icon bg-warning">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stats-content">
+                                <h3 class="stats-number">{{stats.users_answered}}</h3>
+                                <p class="stats-label">Usuários Responderam</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filtros -->
+                <div class="admin-filters">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="search-container">
+                                <i class="fas fa-search search-icon"></i>
+                                <input type="text" class="form-control search-input" id="searchQuestions" 
+                                       placeholder="Buscar questões...">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="filterType">
+                                <option value="">Todos os Tipos</option>
+                                <option value="multiple_choice">Múltipla Escolha</option>
+                                <option value="code">Código</option>
+                                <option value="text">Texto</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-secondary w-100" id="resetFilters">
+                                <i class="fas fa-undo me-1"></i>Limpar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de Questões -->
+                <div class="admin-table-container">
+                    <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+                        <h5 class="mb-0">Lista de Questões</h5>
+                        <small class="text-muted">Arraste para reordenar</small>
+                    </div>
+                    
+                    <div id="questionsContainer" class="p-3">
+                        {{#questions}}
+                        <div class="question-card" data-question-id="{{id}}" data-type="{{type}}">
+                            <div class="question-header">
+                                <div class="d-flex align-items-center">
+                                    <div class="drag-handle me-3">
+                                        <i class="fas fa-grip-vertical text-muted"></i>
+                                    </div>
+                                    <div class="question-number">
+                                        <span class="badge bg-primary">#{{order_sequence}}</span>
+                                    </div>
+                                    <div class="question-type ms-3">
+                                        {{#if (eq type 'multiple_choice')}}
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check-circle me-1"></i>Múltipla Escolha
+                                        </span>
+                                        {{/if}}
+                                        {{#if (eq type 'code')}}
+                                        <span class="badge bg-info">
+                                            <i class="fas fa-code me-1"></i>Código
+                                        </span>
+                                        {{/if}}
+                                        {{#if (eq type 'text')}}
+                                        <span class="badge bg-warning">
+                                            <i class="fas fa-font me-1"></i>Texto
+                                        </span>
+                                        {{/if}}
+                                    </div>
+                                    <div class="question-points ms-auto me-3">
+                                        <span class="badge bg-secondary">{{points}} pts</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="question-content">
+                                <h6 class="question-title">{{question_text}}</h6>
+                                
+                                {{#code_snippet}}
+                                <div class="code-snippet">
+                                    <pre><code>{{code_snippet}}</code></pre>
+                                </div>
+                                {{/code_snippet}}
+                                
+                                {{#if (eq type 'multiple_choice')}}
+                                <div class="question-options">
+                                    <small class="text-muted">{{options_count}} opções disponíveis</small>
+                                </div>
+                                {{/if}}
+                                
+                                {{#explanation}}
+                                <div class="question-explanation">
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        {{explanation}}
+                                    </small>
+                                </div>
+                                {{/explanation}}
+                            </div>
+                            
+                            <div class="question-actions">
+                                <button class="btn btn-sm btn-outline-primary me-1" 
+                                        onclick="editQuestion({{id}})" 
+                                        title="Editar Questão">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-info me-1" 
+                                        onclick="previewQuestion({{id}})" 
+                                        title="Visualizar">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" 
+                                        onclick="deleteQuestion({{id}})" 
+                                        title="Excluir Questão">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        {{/questions}}
+                        
+                        {{^questions}}
+                        <div class="empty-state">
+                            <i class="fas fa-list-ul fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Nenhuma questão encontrada</h5>
+                            <p class="text-muted">Comece criando a primeira questão para este quiz.</p>
+                            <button class="btn btn-primary" onclick="document.getElementById('addQuestionBtn').click()">
+                                <i class="fas fa-plus me-2"></i>Criar Primeira Questão
+                            </button>
+                        </div>
+                        {{/questions}}
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div id="loadingState" class="text-center py-5" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Carregando...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Carregando questões...</p>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal: Adicionar/Editar Questão -->
+    <div class="modal fade" id="questionModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="questionModalTitle">
+                        <i class="fas fa-plus me-2"></i>Nova Questão
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="questionForm">
+                        <input type="hidden" id="questionId" name="questionId">
+                        <input type="hidden" id="quizId" name="quiz_id" value="{{quiz.id}}">
+                        
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label for="questionType" class="form-label">Tipo de Questão *</label>
+                                    <select class="form-select" id="questionType" name="type" required>
+                                        <option value="">Selecione o tipo</option>
+                                        <option value="multiple_choice">Múltipla Escolha</option>
+                                        <option value="code">Código</option>
+                                        <option value="text">Texto</option>
+                                    </select>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="questionPoints" class="form-label">Pontuação</label>
+                                    <input type="number" class="form-control" id="questionPoints" name="points" 
+                                           min="1" max="100" value="10">
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="questionText" class="form-label">Texto da Questão *</label>
+                            <textarea class="form-control" id="questionText" name="question_text" rows="3" 
+                                      placeholder="Digite o enunciado da questão..." required></textarea>
+                            <div class="invalid-feedback"></div>
+                        </div>
+
+                        <div class="mb-3" id="codeSnippetContainer" style="display: none;">
+                            <label for="codeSnippet" class="form-label">Código (opcional)</label>
+                            <textarea class="form-control" id="codeSnippet" name="code_snippet" rows="6" 
+                                      placeholder="Cole aqui o código relacionado à questão..."></textarea>
+                            <small class="form-text text-muted">Usado para questões que envolvem análise de código</small>
+                        </div>
+
+                        <div id="optionsContainer" style="display: none;">
+                            <label class="form-label">Opções de Resposta *</label>
+                            <div id="optionsList">
+                                <!-- Opções serão adicionadas dinamicamente -->
+                            </div>
+                            <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="addOptionBtn">
+                                <i class="fas fa-plus me-1"></i>Adicionar Opção
+                            </button>
+                        </div>
+
+                        <div class="mb-3" id="correctAnswerContainer" style="display: none;">
+                            <label for="correctAnswer" class="form-label">Resposta Correta *</label>
+                            <textarea class="form-control" id="correctAnswer" name="correct_answer" rows="2" 
+                                      placeholder="Digite a resposta correta..."></textarea>
+                            <div class="invalid-feedback"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="questionExplanation" class="form-label">Explicação (opcional)</label>
+                            <textarea class="form-control" id="questionExplanation" name="explanation" rows="2" 
+                                      placeholder="Explicação que será mostrada após a resposta..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="saveQuestionBtn">
+                        <i class="fas fa-save me-2"></i>Salvar Questão
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Preview da Questão -->
+    <div class="modal fade" id="previewModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-eye me-2"></i>Preview da Questão
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="previewContent">
+                    <!-- Conteúdo será preenchido via JavaScript -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Confirmar Exclusão -->
+    <div class="modal fade" id="deleteQuestionModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exclamation-triangle text-danger me-2"></i>Confirmar Exclusão
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Tem certeza que deseja excluir esta questão?</p>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Atenção:</strong> Esta ação não pode ser desfeita. Todas as respostas dos usuários para esta questão serão perdidas.
+                    </div>
+                    <div id="questionToDeleteInfo" class="question-info-card">
+                        <!-- Informações da questão serão preenchidas via JavaScript -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteQuestionBtn">
+                        <i class="fas fa-trash me-2"></i>Excluir Questão
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <script src="/js/main.min.js"></script>
+    <script src="/js/admin-questions.js"></script>
+</body>
+</html> 

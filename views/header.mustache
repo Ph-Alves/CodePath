@@ -1,0 +1,135 @@
+<!-- Header/Topbar -->
+<header class="topbar">
+    <div class="topbar-content">
+        <!-- Menu Toggle para Mobile -->
+        <button class="sidebar-toggle mobile-only" id="sidebarToggle" aria-label="Abrir menu">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <!-- Breadcrumb/Título da Página -->
+        <div class="page-info">
+            {{#pageTitle}}
+                <h2 class="page-title">{{pageTitle}}</h2>
+            {{/pageTitle}}
+            {{#breadcrumb}}
+                <nav class="breadcrumb" aria-label="Navegação estrutural">
+                    <ol class="breadcrumb-list">
+                        {{#items}}
+                        <li class="breadcrumb-item">
+                            {{#url}}
+                                <a href="{{url}}" class="breadcrumb-link">{{name}}</a>
+                            {{/url}}
+                            {{^url}}
+                                <span class="breadcrumb-current">{{name}}</span>
+                            {{/url}}
+                        </li>
+                        {{/items}}
+                    </ol>
+                </nav>
+            {{/breadcrumb}}
+        </div>
+        
+        <!-- Área de Ações do Usuário -->
+        <div class="user-actions">
+            <!-- Progresso/XP do Usuário -->
+            {{#user}}
+            <div class="user-progress">
+                {{#userXP}}
+                <div class="xp-info">
+                    <span class="xp-points">{{totalXP}} XP</span>
+                    <div class="level-badge">
+                        <i class="fas fa-star"></i>
+                        <span>Nível {{currentLevel}}</span>
+                    </div>
+                </div>
+                <div class="xp-progress-bar">
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: {{progressToNextLevel}}%"></div>
+                    </div>
+                    <span class="next-level-info">{{xpForNextLevel}} XP para nível {{#math}}{{currentLevel}}+1{{/math}}</span>
+                </div>
+                {{#currentStreak}}
+                <div class="streak-info">
+                    <i class="fas fa-fire"></i>
+                    <span>{{currentStreak}} dias</span>
+                </div>
+                {{/currentStreak}}
+                {{/userXP}}
+                {{^userXP}}
+                <div class="xp-info">
+                    <span class="xp-points">{{xp_points}} XP</span>
+                    <div class="level-badge">
+                        <i class="fas fa-star"></i>
+                        <span>Nível {{level}}</span>
+                    </div>
+                </div>
+                {{#streak_days}}
+                <div class="streak-info">
+                    <i class="fas fa-fire"></i>
+                    <span>{{streak_days}} dias</span>
+                </div>
+                {{/streak_days}}
+                {{/userXP}}
+            </div>
+            {{/user}}
+            
+            <!-- Notificações -->
+            {{>partials/notification}}
+            
+            <!-- Menu do Usuário -->
+            {{#user}}
+            <div class="user-menu">
+                <button class="user-menu-btn" id="userMenuBtn" aria-label="Menu do usuário">
+                    <div class="user-avatar-small">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <span class="user-name-small">{{name}}</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                
+                <!-- Dropdown do Menu do Usuário -->
+                <div class="user-menu-dropdown" id="userMenuDropdown">
+                    <div class="user-info-header">
+                        <div class="user-avatar-large">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <div class="user-details-large">
+                            <span class="user-name-large">{{name}}</span>
+                            <span class="user-email">{{email}}</span>
+                        </div>
+                    </div>
+                    <ul class="user-menu-list">
+                        <li>
+                            <a href="/profile" class="user-menu-link">
+                                <i class="fas fa-user"></i>
+                                <span>Meu Perfil</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/settings" class="user-menu-link">
+                                <i class="fas fa-cog"></i>
+                                <span>Configurações</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/help" class="user-menu-link">
+                                <i class="fas fa-question-circle"></i>
+                                <span>Ajuda</span>
+                            </a>
+                        </li>
+                        <li class="menu-divider"></li>
+                        <li>
+                            <form action="/logout" method="POST" class="logout-form-inline">
+                                <button type="submit" class="user-menu-link logout-link">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    <span>Sair</span>
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            {{/user}}
+        </div>
+    </div>
+</header> 

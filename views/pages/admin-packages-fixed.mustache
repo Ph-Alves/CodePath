@@ -1,0 +1,283 @@
+<!-- Cabeçalho da página -->
+<div class="admin-header">
+    <div class="admin-header-content">
+        <div class="admin-title-section">
+            <h1 class="admin-title">
+                <i class="fas fa-box"></i>
+                Administração de Pacotes
+            </h1>
+            <p class="admin-subtitle">Gerencie os pacotes de tecnologia da plataforma</p>
+        </div>
+        
+        <div class="admin-actions">
+            <button class="btn btn-primary" id="addPackageBtn">
+                <i class="fas fa-plus"></i>
+                Novo Pacote
+            </button>
+            <button class="btn btn-secondary" id="refreshBtn">
+                <i class="fas fa-sync-alt"></i>
+                Atualizar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Estatísticas -->
+<div class="admin-stats">
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-box"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-number">{{stats.total_packages}}</div>
+            <div class="stat-label">Total de Pacotes</div>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon active">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-number">{{stats.active_packages}}</div>
+            <div class="stat-label">Pacotes Ativos</div>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon inactive">
+            <i class="fas fa-pause-circle"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-number">{{stats.inactive_packages}}</div>
+            <div class="stat-label">Pacotes Inativos</div>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-clock"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-number">{{stats.avg_duration}}h</div>
+            <div class="stat-label">Duração Média</div>
+        </div>
+    </div>
+</div>
+
+<!-- Filtros -->
+<div class="admin-filters">
+    <div class="filter-group">
+        <label for="statusFilter">Status:</label>
+        <select id="statusFilter" class="form-control">
+            <option value="">Todos</option>
+            <option value="1">Ativos</option>
+            <option value="0">Inativos</option>
+        </select>
+    </div>
+    
+    <div class="filter-group">
+        <label for="difficultyFilter">Dificuldade:</label>
+        <select id="difficultyFilter" class="form-control">
+            <option value="">Todas</option>
+            <option value="Iniciante">Iniciante</option>
+            <option value="Intermediário">Intermediário</option>
+            <option value="Avançado">Avançado</option>
+        </select>
+    </div>
+    
+    <div class="filter-group">
+        <label for="searchFilter">Buscar:</label>
+        <input type="text" id="searchFilter" class="form-control" placeholder="Nome do pacote...">
+    </div>
+</div>
+
+<!-- Tabela de pacotes -->
+<div class="admin-table-container">
+    <div class="table-loading" id="tableLoading" style="display: none;">
+        <i class="fas fa-spinner fa-spin"></i>
+        Carregando...
+    </div>
+    
+    <table class="admin-table" id="packagesTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Dificuldade</th>
+                <th>Duração</th>
+                <th>Aulas</th>
+                <th>Rating</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody id="packagesTableBody">
+            {{#packages}}
+            <tr data-package-id="{{id}}" class="{{#is_active}}active{{/is_active}}{{^is_active}}inactive{{/is_active}}">
+                <td class="package-id">{{id}}</td>
+                <td class="package-name">
+                    <div class="package-info">
+                        <strong>{{name}}</strong>
+                        <small>{{description}}</small>
+                    </div>
+                </td>
+                <td class="package-difficulty">
+                    <span class="difficulty-badge difficulty-{{difficulty}}">{{difficulty}}</span>
+                </td>
+                <td class="package-duration">{{duration_hours}}h</td>
+                <td class="package-lessons">{{lesson_count}}</td>
+                <td class="package-rating">
+                    <div class="rating-display">
+                        <span class="rating-value">{{rating}}</span>
+                        <div class="rating-stars">
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </td>
+                <td class="package-status">
+                    {{#is_active}}
+                    <span class="status-badge status-active">
+                        <i class="fas fa-check-circle"></i>
+                        Ativo
+                    </span>
+                    {{/is_active}}
+                    {{^is_active}}
+                    <span class="status-badge status-inactive">
+                        <i class="fas fa-pause-circle"></i>
+                        Inativo
+                    </span>
+                    {{/is_active}}
+                </td>
+                <td class="package-actions">
+                    <div class="action-buttons">
+                        <button class="btn-action btn-edit" data-id="{{id}}" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        {{#is_active}}
+                        <button class="btn-action btn-delete" data-id="{{id}}" title="Desativar">
+                            <i class="fas fa-pause"></i>
+                        </button>
+                        {{/is_active}}
+                        {{^is_active}}
+                        <button class="btn-action btn-reactivate" data-id="{{id}}" title="Reativar">
+                            <i class="fas fa-play"></i>
+                        </button>
+                        {{/is_active}}
+                    </div>
+                </td>
+            </tr>
+            {{/packages}}
+        </tbody>
+    </table>
+    
+    <!-- Estado vazio -->
+    <div class="empty-state" id="emptyState" style="display: none;">
+        <i class="fas fa-box-open"></i>
+        <h3>Nenhum pacote encontrado</h3>
+        <p>Não há pacotes correspondentes aos filtros aplicados.</p>
+    </div>
+</div>
+
+<!-- Modal para adicionar/editar pacote -->
+<div class="modal" id="packageModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalTitle">Novo Pacote</h2>
+            <button class="modal-close" id="closeModal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <form id="packageForm" class="modal-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="packageName">Nome do Pacote *</label>
+                    <input type="text" id="packageName" name="name" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="packageDifficulty">Dificuldade *</label>
+                    <select id="packageDifficulty" name="difficulty" class="form-control" required>
+                        <option value="">Selecione...</option>
+                        <option value="Iniciante">Iniciante</option>
+                        <option value="Intermediário">Intermediário</option>
+                        <option value="Avançado">Avançado</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="packageDescription">Descrição *</label>
+                <textarea id="packageDescription" name="description" class="form-control" rows="3" required></textarea>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="packageDuration">Duração (horas) *</label>
+                    <input type="number" id="packageDuration" name="duration_hours" class="form-control" min="1" max="1000" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="packageRating">Rating</label>
+                    <input type="number" id="packageRating" name="rating" class="form-control" min="0" max="5" step="0.1">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="packageTags">Tags</label>
+                <input type="text" id="packageTags" name="tags" class="form-control" placeholder="Ex: javascript,web,frontend">
+            </div>
+            
+            <div class="form-group">
+                <label for="packagePrerequisites">Pré-requisitos</label>
+                <textarea id="packagePrerequisites" name="prerequisites" class="form-control" rows="2"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="packageImageUrl">URL da Imagem</label>
+                <input type="url" id="packageImageUrl" name="image_url" class="form-control">
+            </div>
+            
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="packageActive" name="is_active" checked>
+                    <span class="checkmark"></span>
+                    Pacote Ativo
+                </label>
+            </div>
+        </form>
+        
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="cancelBtn">Cancelar</button>
+            <button type="submit" class="btn btn-primary" id="saveBtn" form="packageForm">
+                <i class="fas fa-save"></i>
+                Salvar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmação -->
+<div class="modal" id="confirmModal">
+    <div class="modal-content modal-small">
+        <div class="modal-header">
+            <h3 id="confirmTitle">Confirmar Ação</h3>
+        </div>
+        <div class="modal-body">
+            <p id="confirmMessage">Tem certeza que deseja realizar esta ação?</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="confirmCancel">Cancelar</button>
+            <button type="button" class="btn btn-danger" id="confirmAction">Confirmar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast para notificações -->
+<div class="toast" id="toast">
+    <div class="toast-content">
+        <i class="toast-icon"></i>
+        <span class="toast-message"></span>
+    </div>
+</div> 

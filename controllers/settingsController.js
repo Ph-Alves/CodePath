@@ -394,5 +394,66 @@ module.exports = {
     updateProfile,
     changePassword,
     saveSettings,
-    exportUserData
+    exportUserData,
+    getUserSettingsAPI: async (req, res) => {
+        try {
+            const userId = req.session.user.id;
+            const settings = await getUserSettings(userId);
+            res.json({ success: true, settings });
+        } catch (error) {
+            res.status(500).json({ success: false, message: 'Erro ao buscar configurações' });
+        }
+    },
+    saveNotifications: async (req, res) => {
+        try {
+            const userId = req.session.user.id;
+            const settings = await getUserSettings(userId);
+            settings.email_notifications = req.body.email_notifications;
+            settings.achievement_alerts = req.body.achievement_alerts;
+            settings.study_reminders = req.body.study_reminders;
+            settings.progress_updates = req.body.progress_updates;
+            await saveUserSettings(userId, settings);
+            res.json({ success: true, message: 'Configurações de notificações salvas' });
+        } catch (error) {
+            res.status(500).json({ success: false, message: 'Erro ao salvar notificações' });
+        }
+    },
+    saveAppearance: async (req, res) => {
+        try {
+            const userId = req.session.user.id;
+            const settings = await getUserSettings(userId);
+            settings.theme_mode = req.body.theme_mode;
+            settings.font_size = req.body.font_size;
+            settings.animations = req.body.animations;
+            await saveUserSettings(userId, settings);
+            res.json({ success: true, message: 'Configurações de aparência salvas' });
+        } catch (error) {
+            res.status(500).json({ success: false, message: 'Erro ao salvar aparência' });
+        }
+    },
+    saveLearningPreferences: async (req, res) => {
+        try {
+            const userId = req.session.user.id;
+            const settings = await getUserSettings(userId);
+            settings.study_goal = req.body.study_goal;
+            settings.difficulty_level = req.body.difficulty_level;
+            settings.auto_advance = req.body.auto_advance;
+            await saveUserSettings(userId, settings);
+            res.json({ success: true, message: 'Preferências de aprendizado salvas' });
+        } catch (error) {
+            res.status(500).json({ success: false, message: 'Erro ao salvar preferências' });
+        }
+    },
+    deleteUserAccount: async (req, res) => {
+        try {
+            const userId = req.session.user.id;
+            // Por segurança, apenas marcar como inativo
+            const db = getDatabase();
+            await db.run('UPDATE users SET is_active = 0 WHERE id = ?', [userId]);
+            req.session.destroy();
+            res.json({ success: true, message: 'Conta desativada com sucesso' });
+        } catch (error) {
+            res.status(500).json({ success: false, message: 'Erro ao desativar conta' });
+        }
+    }
 }; 

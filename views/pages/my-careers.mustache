@@ -1,0 +1,295 @@
+{{>layouts/main}}
+
+{{#contentBody}}
+<div class="my-careers-page">
+  <!-- Header da página -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">
+        <i class="fas fa-briefcase"></i>
+        Minhas Carreiras
+      </h1>
+      <p class="page-subtitle">
+        Gerencie suas áreas de interesse e personalize sua jornada de aprendizado
+      </p>
+    </div>
+    
+    <div class="header-actions">
+      <button class="btn btn-primary" id="addCareerBtn">
+        <i class="fas fa-plus"></i>
+        Adicionar Carreira
+      </button>
+    </div>
+  </div>
+
+  <!-- Estatísticas das carreiras -->
+  <div class="careers-stats">
+    <div class="stat-card">
+      <div class="stat-icon">
+        <i class="fas fa-list"></i>
+      </div>
+      <div class="stat-content">
+        <h3 class="stat-number" id="totalCareers">{{selectedCareersCount}}</h3>
+        <p class="stat-label">Carreiras Selecionadas</p>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon">
+        <i class="fas fa-chart-line"></i>
+      </div>
+      <div class="stat-content">
+        <h3 class="stat-number" id="totalPackages">{{totalPackages}}</h3>
+        <p class="stat-label">Pacotes Disponíveis</p>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon">
+        <i class="fas fa-clock"></i>
+      </div>
+      <div class="stat-content">
+        <h3 class="stat-number" id="estimatedHours">{{estimatedHours}}h</h3>
+        <p class="stat-label">Horas Estimadas</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lista de carreiras selecionadas -->
+  <div class="selected-careers-section">
+    <h2 class="section-title">
+      <i class="fas fa-star"></i>
+      Suas Carreiras Selecionadas
+    </h2>
+    
+    {{#hasSelectedCareers}}
+    <div class="careers-grid" id="selectedCareersGrid">
+      {{#selectedCareers}}
+      <div class="career-card selected" data-career-id="{{id}}">
+        <div class="career-header">
+          <div class="career-icon">
+            <i class="{{icon}}"></i>
+          </div>
+          <div class="career-priority">
+            <span class="priority-badge priority-{{priority}}">
+              #{{priority}}
+            </span>
+          </div>
+        </div>
+        
+        <div class="career-content">
+          <h3 class="career-name">{{name}}</h3>
+          <p class="career-description">{{description}}</p>
+          
+          <div class="career-stats">
+            <div class="stat">
+              <i class="fas fa-box"></i>
+              <span>{{package_count}} pacotes</span>
+            </div>
+            <div class="stat">
+              <i class="fas fa-clock"></i>
+              <span>{{estimated_hours}}h</span>
+            </div>
+            <div class="stat">
+              <i class="fas fa-signal"></i>
+              <span>{{difficulty_level}}</span>
+            </div>
+          </div>
+          
+          <div class="career-tags">
+            {{#tags}}
+            <span class="tag">{{.}}</span>
+            {{/tags}}
+          </div>
+        </div>
+        
+        <div class="career-actions">
+          <button class="btn btn-sm btn-secondary" onclick="CareerManager.editPriority({{id}})">
+            <i class="fas fa-sort"></i>
+            Prioridade
+          </button>
+          <button class="btn btn-sm btn-danger" onclick="CareerManager.removeCareer({{id}})">
+            <i class="fas fa-trash"></i>
+            Remover
+          </button>
+        </div>
+        
+        <div class="selection-date">
+          <i class="fas fa-calendar"></i>
+          <span>Adicionada em {{selected_at_formatted}}</span>
+        </div>
+      </div>
+      {{/selectedCareers}}
+    </div>
+    {{/hasSelectedCareers}}
+    
+    {{^hasSelectedCareers}}
+    <div class="empty-state">
+      <div class="empty-icon">
+        <i class="fas fa-briefcase"></i>
+      </div>
+      <h3>Nenhuma carreira selecionada</h3>
+      <p>Adicione suas primeiras áreas de interesse para começar sua jornada de aprendizado.</p>
+      <button class="btn btn-primary" onclick="CareerManager.showAddModal()">
+        <i class="fas fa-plus"></i>
+        Adicionar Primeira Carreira
+      </button>
+    </div>
+    {{/hasSelectedCareers}}
+  </div>
+
+  <!-- Carreiras disponíveis -->
+  <div class="available-careers-section">
+    <h2 class="section-title">
+      <i class="fas fa-compass"></i>
+      Outras Carreiras Disponíveis
+    </h2>
+    
+    <div class="careers-grid" id="availableCareersGrid">
+      {{#availableCareers}}
+      <div class="career-card available" data-career-id="{{id}}">
+        <div class="career-header">
+          <div class="career-icon">
+            <i class="{{icon}}"></i>
+          </div>
+        </div>
+        
+        <div class="career-content">
+          <h3 class="career-name">{{name}}</h3>
+          <p class="career-description">{{description}}</p>
+          
+          <div class="career-stats">
+            <div class="stat">
+              <i class="fas fa-box"></i>
+              <span>{{package_count}} pacotes</span>
+            </div>
+            <div class="stat">
+              <i class="fas fa-clock"></i>
+              <span>{{estimated_hours}}h</span>
+            </div>
+            <div class="stat">
+              <i class="fas fa-signal"></i>
+              <span>{{difficulty_level}}</span>
+            </div>
+          </div>
+          
+          <div class="career-tags">
+            {{#tags}}
+            <span class="tag">{{.}}</span>
+            {{/tags}}
+          </div>
+        </div>
+        
+        <div class="career-actions">
+          <button class="btn btn-primary" onclick="CareerManager.addCareer({{id}})">
+            <i class="fas fa-plus"></i>
+            Adicionar
+          </button>
+        </div>
+      </div>
+      {{/availableCareers}}
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Edição de Prioridade -->
+<div class="modal" id="priorityModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Editar Prioridade</h3>
+      <button class="modal-close" onclick="CareerManager.closePriorityModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <p>Defina a prioridade desta carreira em sua jornada de aprendizado:</p>
+      
+      <div class="priority-selector">
+        <label>
+          <input type="radio" name="priority" value="1">
+          <span class="priority-option">
+            <i class="fas fa-star"></i>
+            <strong>Alta Prioridade</strong>
+            <small>Foco principal dos estudos</small>
+          </span>
+        </label>
+        
+        <label>
+          <input type="radio" name="priority" value="2">
+          <span class="priority-option">
+            <i class="fas fa-star-half-alt"></i>
+            <strong>Média Prioridade</strong>
+            <small>Importante mas não urgente</small>
+          </span>
+        </label>
+        
+        <label>
+          <input type="radio" name="priority" value="3">
+          <span class="priority-option">
+            <i class="far fa-star"></i>
+            <strong>Baixa Prioridade</strong>
+            <small>Para estudo futuro</small>
+          </span>
+        </label>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="CareerManager.closePriorityModal()">
+        Cancelar
+      </button>
+      <button class="btn btn-primary" onclick="CareerManager.savePriority()">
+        <i class="fas fa-save"></i>
+        Salvar Prioridade
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Confirmação de Remoção -->
+<div class="modal" id="removeModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Remover Carreira</h3>
+      <button class="modal-close" onclick="CareerManager.closeRemoveModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="warning-icon">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
+      <p>Tem certeza que deseja remover esta carreira de sua lista?</p>
+      <p><strong>Esta ação não pode ser desfeita.</strong></p>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="CareerManager.closeRemoveModal()">
+        Cancelar
+      </button>
+      <button class="btn btn-danger" onclick="CareerManager.confirmRemove()">
+        <i class="fas fa-trash"></i>
+        Sim, Remover
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner">
+    <i class="fas fa-spinner fa-spin"></i>
+    <p>Processando...</p>
+  </div>
+</div>
+
+<!-- Toast para notificações -->
+<div class="toast" id="toast">
+  <div class="toast-content">
+    <i class="toast-icon"></i>
+    <span class="toast-message"></span>
+  </div>
+</div>
+{{/contentBody}} 

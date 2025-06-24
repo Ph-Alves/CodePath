@@ -52,6 +52,7 @@ const securityRoutes = require('./routes/securityRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const userRoutes = require('./routes/userRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 // Inicialização da aplicação Express
 const app = express();
@@ -64,7 +65,7 @@ const PORT = process.env.PORT || 4000;
 // ========================================
 
 // Configuração do Mustache como template engine
-app.engine('mustache', mustacheExpress());
+app.engine('mustache', mustacheExpress(path.join(__dirname, 'views'), '.mustache'));
 app.set('view engine', 'mustache');
 app.set('views', path.join(__dirname, 'views'));
 
@@ -275,6 +276,9 @@ app.use('/', userRoutes);
 
 // Usar as rotas de configurações
 app.use('/settings', settingsRoutes);
+
+// Usar as rotas de administração
+app.use('/admin', adminRoutes);
 
 // Usar as rotas de analytics com cache
 const analyticsRoutes = require('./routes/analyticsRoutes');

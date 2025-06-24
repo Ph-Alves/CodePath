@@ -1,0 +1,399 @@
+{{>partials/header}}
+
+<!-- CSS específico para seleção de carreiras -->
+<link rel="stylesheet" href="/css/career-selection.css">
+
+<main class="career-selection">
+  <div class="container">
+    <!-- Cabeçalho da Seleção -->
+    <div class="selection-header">
+      <div class="header-content">
+        <div class="header-icon">
+          <i class="fas fa-route"></i>
+        </div>
+        <h1>Escolha Suas Carreiras</h1>
+        <p>Selecione as áreas de tecnologia que mais te interessam para personalizar sua experiência de aprendizado.</p>
+      </div>
+      
+      <div class="progress-indicator">
+        <div class="step active">
+          <div class="step-number">1</div>
+          <span>Seleção</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <span>Personalização</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <span>Aprendizado</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grid de Carreiras -->
+    <div class="careers-grid">
+      {{#careers}}
+      <div class="career-card" data-career-id="{{id}}">
+        <div class="career-checkbox">
+          <input type="checkbox" id="career-{{id}}" name="careers" value="{{id}}">
+          <label for="career-{{id}}" class="checkbox-label">
+            <i class="fas fa-check"></i>
+          </label>
+        </div>
+        
+        <div class="career-icon">
+          <i class="{{icon}}"></i>
+        </div>
+        
+        <div class="career-content">
+          <h3>{{name}}</h3>
+          <p>{{description}}</p>
+          
+          <div class="career-stats">
+            <div class="stat">
+              <i class="fas fa-book"></i>
+              <span>{{package_count}} pacotes</span>
+            </div>
+            <div class="stat">
+              <i class="fas fa-clock"></i>
+              <span>~{{estimated_hours}}h</span>
+            </div>
+            <div class="stat">
+              <i class="fas fa-signal"></i>
+              <span>{{difficulty_level}}</span>
+            </div>
+          </div>
+          
+          <div class="career-tags">
+            {{#tags}}
+            <span class="tag">{{.}}</span>
+            {{/tags}}
+          </div>
+        </div>
+        
+        <div class="career-overlay">
+          <div class="overlay-content">
+            <i class="fas fa-check-circle"></i>
+            <span>Selecionado</span>
+          </div>
+        </div>
+      </div>
+      {{/careers}}
+    </div>
+
+    <!-- Informações Adicionais -->
+    <div class="selection-info">
+      <div class="info-card">
+        <div class="info-icon">
+          <i class="fas fa-info-circle"></i>
+        </div>
+        <div class="info-content">
+          <h4>Por que escolher carreiras?</h4>
+          <ul>
+            <li>Conteúdo personalizado baseado nos seus interesses</li>
+            <li>Recomendações de pacotes relevantes</li>
+            <li>Trilha de aprendizado otimizada</li>
+            <li>Estatísticas específicas por área</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="info-card">
+        <div class="info-icon">
+          <i class="fas fa-edit"></i>
+        </div>
+        <div class="info-content">
+          <h4>Posso alterar depois?</h4>
+          <p>Sim! Você pode adicionar ou remover carreiras a qualquer momento nas suas configurações.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botões de Ação -->
+    <div class="action-buttons">
+      <div class="selection-summary">
+        <span id="selectionCount">0</span> carreiras selecionadas
+        <small>(mínimo 1, máximo 5)</small>
+      </div>
+      
+      <div class="buttons">
+        <button class="btn btn-secondary" id="selectAllBtn">
+          <i class="fas fa-check-double"></i>
+          Selecionar Todas
+        </button>
+        
+        <button class="btn btn-primary" id="continueBtn" disabled>
+          <i class="fas fa-arrow-right"></i>
+          Continuar
+        </button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Modal de Confirmação -->
+<div class="modal" id="confirmationModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Confirmar Seleção</h3>
+      <button class="modal-close" id="closeModal">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <p>Você selecionou as seguintes carreiras:</p>
+      <div id="selectedCareersList" class="selected-list"></div>
+      
+      <div class="confirmation-note">
+        <i class="fas fa-lightbulb"></i>
+        <p>Baseado na sua seleção, vamos personalizar sua experiência com conteúdos relevantes e recomendações específicas.</p>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="backBtn">
+        <i class="fas fa-arrow-left"></i>
+        Voltar
+      </button>
+      <button class="btn btn-primary" id="confirmBtn">
+        <i class="fas fa-check"></i>
+        Confirmar e Continuar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Flash Messages -->
+{{#flash}}
+<div class="flash-message flash-{{type}}" role="alert">
+  <i class="flash-icon fas fa-info-circle"></i>
+  <span class="flash-text">{{message}}</span>
+  <button class="flash-close" aria-label="Fechar mensagem">
+    <i class="fas fa-times"></i>
+  </button>
+</div>
+{{/flash}}
+
+<!-- JavaScript -->
+<script>
+class CareerSelection {
+  constructor() {
+    this.selectedCareers = new Set();
+    this.maxSelections = 5;
+    this.minSelections = 1;
+    
+    this.init();
+  }
+  
+  init() {
+    this.bindEvents();
+    this.updateUI();
+  }
+  
+  bindEvents() {
+    // Event listeners para checkboxes
+    const checkboxes = document.querySelectorAll('input[name="careers"]');
+    checkboxes.forEach(checkbox => {
+      checkbox.addEventListener('change', (e) => {
+        this.handleCareerSelection(e.target);
+      });
+    });
+    
+    // Botão selecionar todas
+    document.getElementById('selectAllBtn').addEventListener('click', () => {
+      this.selectAll();
+    });
+    
+    // Botão continuar
+    document.getElementById('continueBtn').addEventListener('click', () => {
+      this.showConfirmation();
+    });
+    
+    // Modal events
+    document.getElementById('closeModal').addEventListener('click', () => {
+      this.hideModal();
+    });
+    
+    document.getElementById('backBtn').addEventListener('click', () => {
+      this.hideModal();
+    });
+    
+    document.getElementById('confirmBtn').addEventListener('click', () => {
+      this.confirmSelection();
+    });
+    
+    // Click fora do modal
+    document.getElementById('confirmationModal').addEventListener('click', (e) => {
+      if (e.target.id === 'confirmationModal') {
+        this.hideModal();
+      }
+    });
+  }
+  
+  handleCareerSelection(checkbox) {
+    const careerId = parseInt(checkbox.value);
+    const careerCard = checkbox.closest('.career-card');
+    
+    if (checkbox.checked) {
+      if (this.selectedCareers.size >= this.maxSelections) {
+        checkbox.checked = false;
+        this.showMessage('Você pode selecionar no máximo 5 carreiras', 'warning');
+        return;
+      }
+      
+      this.selectedCareers.add(careerId);
+      careerCard.classList.add('selected');
+    } else {
+      this.selectedCareers.delete(careerId);
+      careerCard.classList.remove('selected');
+    }
+    
+    this.updateUI();
+  }
+  
+  selectAll() {
+    const checkboxes = document.querySelectorAll('input[name="careers"]');
+    const isAllSelected = this.selectedCareers.size === checkboxes.length;
+    
+    if (isAllSelected) {
+      // Desselecionar todas
+      checkboxes.forEach(checkbox => {
+        checkbox.checked = false;
+        checkbox.closest('.career-card').classList.remove('selected');
+      });
+      this.selectedCareers.clear();
+      document.getElementById('selectAllBtn').innerHTML = '<i class="fas fa-check-double"></i> Selecionar Todas';
+    } else {
+      // Selecionar todas (respeitando o limite)
+      let count = 0;
+      checkboxes.forEach(checkbox => {
+        if (count < this.maxSelections) {
+          checkbox.checked = true;
+          checkbox.closest('.career-card').classList.add('selected');
+          this.selectedCareers.add(parseInt(checkbox.value));
+          count++;
+        }
+      });
+      document.getElementById('selectAllBtn').innerHTML = '<i class="fas fa-times"></i> Desselecionar Todas';
+    }
+    
+    this.updateUI();
+  }
+  
+  updateUI() {
+    const count = this.selectedCareers.size;
+    
+    // Atualizar contador
+    document.getElementById('selectionCount').textContent = count;
+    
+    // Atualizar botão continuar
+    const continueBtn = document.getElementById('continueBtn');
+    if (count >= this.minSelections) {
+      continueBtn.disabled = false;
+      continueBtn.classList.remove('disabled');
+    } else {
+      continueBtn.disabled = true;
+      continueBtn.classList.add('disabled');
+    }
+    
+    // Atualizar botão selecionar todas
+    const selectAllBtn = document.getElementById('selectAllBtn');
+    const totalCareers = document.querySelectorAll('input[name="careers"]').length;
+    if (count === totalCareers || count === this.maxSelections) {
+      selectAllBtn.innerHTML = '<i class="fas fa-times"></i> Desselecionar Todas';
+    } else {
+      selectAllBtn.innerHTML = '<i class="fas fa-check-double"></i> Selecionar Todas';
+    }
+  }
+  
+  showConfirmation() {
+    const selectedList = document.getElementById('selectedCareersList');
+    selectedList.innerHTML = '';
+    
+    this.selectedCareers.forEach(careerId => {
+      const checkbox = document.querySelector(`input[value="${careerId}"]`);
+      const careerCard = checkbox.closest('.career-card');
+      const careerName = careerCard.querySelector('h3').textContent;
+      const careerIcon = careerCard.querySelector('.career-icon i').className;
+      
+      const item = document.createElement('div');
+      item.className = 'selected-item';
+      item.innerHTML = `
+        <i class="${careerIcon}"></i>
+        <span>${careerName}</span>
+      `;
+      selectedList.appendChild(item);
+    });
+    
+    document.getElementById('confirmationModal').classList.add('show');
+  }
+  
+  hideModal() {
+    document.getElementById('confirmationModal').classList.remove('show');
+  }
+  
+  async confirmSelection() {
+    try {
+      const response = await fetch('/careers/select', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          careers: Array.from(this.selectedCareers)
+        })
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        this.showMessage('Carreiras selecionadas com sucesso!', 'success');
+        setTimeout(() => {
+          window.location.href = '/dashboard';
+        }, 1500);
+      } else {
+        this.showMessage(result.message || 'Erro ao salvar seleção', 'error');
+      }
+    } catch (error) {
+      console.error('Erro ao confirmar seleção:', error);
+      this.showMessage('Erro interno. Tente novamente.', 'error');
+    }
+  }
+  
+  showMessage(message, type) {
+    // Criar elemento de flash message
+    const flash = document.createElement('div');
+    flash.className = `flash-message flash-${type}`;
+    flash.innerHTML = `
+      <i class="flash-icon fas fa-info-circle"></i>
+      <span class="flash-text">${message}</span>
+      <button class="flash-close" aria-label="Fechar mensagem">
+        <i class="fas fa-times"></i>
+      </button>
+    `;
+    
+    document.body.appendChild(flash);
+    
+    // Auto remover após 5 segundos
+    setTimeout(() => {
+      flash.remove();
+    }, 5000);
+    
+    // Event listener para fechar
+    flash.querySelector('.flash-close').addEventListener('click', () => {
+      flash.remove();
+    });
+  }
+}
+
+// Inicializar quando DOM estiver pronto
+document.addEventListener('DOMContentLoaded', () => {
+  new CareerSelection();
+});
+</script>
+
+{{>partials/footer}} 
