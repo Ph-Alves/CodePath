@@ -184,7 +184,7 @@ async function showPackageLessons(req, res) {
     res.render('pages/package-lessons', {
       title: `${progressStats.package.name} - Aulas`,
       additionalCSS: 'package-lessons',
-      additionalJS: 'main',
+      additionalJS: 'package-lessons',
       user: req.session.user,
       package: progressStats.package,
       lessons: lessonsWithCompletion,
