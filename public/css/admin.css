@@ -71,7 +71,39 @@ body.admin-lessons-page {
     padding: var(--spacing-lg) !important;
     background: var(--bg-secondary);
     min-height: 100vh;
-    margin-left: 280px; /* Garantir espaço para o sidebar */
+}
+
+/* Correção específica para páginas de admin - evitar sobreposição com sidebar */
+.admin-lessons-page .container-fluid {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    max-width: none !important;
+}
+
+.admin-lessons-page .row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+/* Anular completamente o sistema de grid do Bootstrap para esta página */
+.admin-lessons-page .col-md-9,
+.admin-lessons-page .col-lg-10,
+.admin-lessons-page .main-content {
+    flex: none !important;
+    width: calc(100vw - var(--sidebar-width)) !important;
+    max-width: none !important;
+    margin-left: var(--sidebar-width) !important;
+    margin-right: 0 !important;
+    padding-left: var(--spacing-lg) !important;
+    padding-right: var(--spacing-lg) !important;
+    position: relative !important;
+}
+
+/* Garantir que o conteúdo não saia da tela */
+.admin-lessons-page main {
+    box-sizing: border-box !important;
 }
 
 /* ===== CABEÇALHO DA PÁGINA ===== */
@@ -630,6 +662,16 @@ textarea.form-control {
 }
 
 @media (max-width: 768px) {
+    /* Correção para mobile - sidebar oculta */
+    .admin-lessons-page .col-md-9,
+    .admin-lessons-page .col-lg-10,
+    .admin-lessons-page .main-content {
+        margin-left: 0 !important;
+        width: 100vw !important;
+        padding-left: var(--spacing-md) !important;
+        padding-right: var(--spacing-md) !important;
+    }
+    
     .main-content {
         padding: var(--spacing-sm) !important;
     }
