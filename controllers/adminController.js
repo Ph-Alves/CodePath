@@ -269,6 +269,7 @@ class AdminController {
                 packages,
                 additionalCSS: 'admin',
                 additionalJS: 'admin-lessons',
+                timestamp: Date.now(), // Cache busting
                 layout: 'main'
             });
         } catch (error) {
@@ -404,44 +405,56 @@ class AdminController {
             const { id } = req.params;
             const lessonData = req.body;
 
-            // Validar dados de entrada
-            const errors = validationResult(req);
-            if (!errors.isEmpty()) {
+            console.log('🔄 [ADMIN] Atualizando aula:', id, lessonData);
+
+            // Validação básica apenas
+            if (!lessonData.name || lessonData.name.trim().length < 3) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Dados inválidos',
-                    errors: errors.array()
+                    message: 'Nome da aula deve ter pelo menos 3 caracteres'
                 });
             }
 
-            // Validação adicional
-            const validationErrors = LessonModel.validateLessonData(lessonData);
-            if (validationErrors.length > 0) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Dados inválidos',
-                    errors: validationErrors
-                });
-            }
-
-            const updated = await LessonModel.updateLesson(id, lessonData);
-
-            if (!updated) {
+            // Buscar aula existente para preservar dados
+            const existingLesson = await LessonModel.getLessonById(id);
+            if (!existingLesson) {
                 return res.status(404).json({
                     success: false,
                     message: 'Aula não encontrada'
                 });
             }
 
+            // Mesclar dados novos com existentes
+            const updateData = {
+                package_id: lessonData.package_id || existingLesson.package_id,
+                name: lessonData.name.trim(),
+                description: lessonData.description || existingLesson.description || 'Descrição padrão',
+                lesson_number: lessonData.lesson_number || existingLesson.lesson_number,
+                order_sequence: lessonData.order_sequence || existingLesson.order_sequence
+            };
+
+            console.log('📝 [ADMIN] Dados finais para atualização:', updateData);
+
+            const updated = await LessonModel.updateLesson(id, updateData);
+
+            if (!updated) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Falha ao atualizar aula'
+                });
+            }
+
+            console.log('✅ [ADMIN] Aula atualizada com sucesso');
+
             res.json({
                 success: true,
                 message: 'Aula atualizada com sucesso'
             });
         } catch (error) {
-            console.error('Erro ao atualizar aula:', error);
+            console.error('❌ [ADMIN] Erro ao atualizar aula:', error);
             res.status(500).json({
                 success: false,
-                message: 'Erro ao atualizar aula'
+                message: 'Erro ao atualizar aula: ' + error.message
             });
         }
     }
@@ -452,14 +465,28 @@ class AdminController {
     static async deleteLessonAPI(req, res) {
         try {
             const { id } = req.params;
+            
+            console.log('🗑️ [ADMIN] Excluindo aula:', id);
+            
+            // Verificar se aula existe
+            const existingLesson = await LessonModel.getLessonById(id);
+            if (!existingLesson) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Aula não encontrada'
+                });
+            }
+
             const result = await LessonModel.deleteLesson(id);
+
+            console.log('✅ [ADMIN] Resultado da exclusão:', result);
 
             res.json({
                 success: true,
                 message: 'Aula excluída com sucesso'
             });
         } catch (error) {
-            console.error('Erro ao excluir aula:', error);
+            console.error('❌ [ADMIN] Erro ao excluir aula:', error);
             
             // Verificar se é erro de validação (aula com progresso/quizzes)
             if (error.message.includes('progresso') || error.message.includes('quizzes')) {
@@ -471,7 +498,7 @@ class AdminController {
 
             res.status(500).json({
                 success: false,
-                message: 'Erro ao excluir aula'
+                message: 'Erro ao excluir aula: ' + error.message
             });
         }
     }

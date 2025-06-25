@@ -223,7 +223,7 @@ router.get('/api/lessons', requireAuth, adminMiddleware, AdminController.getLess
 router.get('/api/lessons/package/:packageId', requireAuth, adminMiddleware, AdminController.getLessonsByPackageAPI);
 router.get('/api/lessons/:id', requireAuth, adminMiddleware, AdminController.getLessonByIdAPI);
 router.post('/api/lessons', requireAuth, adminMiddleware, lessonValidation, AdminController.createLessonAPI);
-router.put('/api/lessons/:id', requireAuth, adminMiddleware, lessonValidation, AdminController.updateLessonAPI);
+router.put('/api/lessons/:id', requireAuth, adminMiddleware, AdminController.updateLessonAPI);
 router.delete('/api/lessons/:id', requireAuth, adminMiddleware, AdminController.deleteLessonAPI);
 router.put('/api/lessons/package/:packageId/reorder', requireAuth, adminMiddleware, AdminController.reorderLessonsAPI);
 router.get('/api/lessons/stats', requireAuth, adminMiddleware, AdminController.getLessonStatsAPI);
